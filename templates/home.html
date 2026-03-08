@@ -1,0 +1,150 @@
+{% extends "base.html" %}
+
+{% block title %}
+Al-ameen | Python Flask Developer
+{% endblock %}
+
+{% block content %}
+
+
+<!-- HERO -->
+<!-- HERO -->
+<section class="hero">
+    <div class="container text-center">
+
+        <!-- Profile Photo -->
+        {% if content.get('profile_photo') and content['profile_photo'].get('file') %}
+        <div class="profile-photo-wrapper">
+            <img src="{{ url_for('static', filename='uploads/' ~ content['profile_photo']['file']) }}"
+                 alt="Profile Photo" class="profile-photo">
+        </div>
+        {% else %}
+        <div class="profile-photo-wrapper">
+            <img src="{{ url_for('static', filename='default-profile.png') }}"
+                 alt="Default Profile Photo" class="profile-photo">
+        </div>
+        {% endif %}
+
+        <h1>{{ content.get('hero', {}).get('title', 'Welcome') }}</h1>
+        <p>{{ content.get('hero', {}).get('content', 'Subtitle goes here') }}</p>
+        <br>
+        <a href="#projects" class="btn btn-outline btn-lg">View Projects</a>
+        <a href="#contact" class="btn btn-success btn-lg">Hire Me</a>
+        <br><br>
+
+        <!-- CV Download -->
+        {% if content.get('cv_file') and content['cv_file'].get('file') %}
+        <a href="{{ url_for('static', filename='uploads/' ~ content['cv_file']['file']) }}"
+           class="btn btn-success btn-lg" download>Download CV</a>
+        {% endif %}
+
+    </div>
+</section>
+
+<!-- ABOUT - Replace lines 48-49 -->
+<section id="about" class="section section-about">
+    <div class="container text-center">
+        <h2 class="section-title">{{ content.get('about', {}).get('title', 'About Me') }}</h2>
+        <p>{{ content.get('about', {}).get('content', 'About me content goes here.') }}</p>
+    </div>
+</section>
+
+<!-- SKILLS - Replace lines 57-72 -->
+<section id="skills" class="section section-skills">
+    <div class="container">
+        <h2 class="section-title text-center">{{ content.get('skills', {}).get('title', 'My Skills') }}</h2>
+        <div class="row text-center skill-row">
+            {% if skills %}
+                {% for skill_title, skill_items in skills.items() %}
+                <div class="col-md-4">
+                    <div class="skill-box">
+                        <h4>{{ skill_title }}</h4>
+                        {% for item in skill_items %}
+                        <p>{{ item }}</p>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="col-md-12">
+                    <p>No skills added yet.</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</section>
+
+<!-- PROJECTS - Replace lines 74-89 -->
+<section id="projects" class="section section-projects">
+    <div class="container">
+        <h2 class="section-title text-center">Projects</h2>
+        <div class="row project-row">
+            {% if projects %}
+                {% for project in projects %}
+                <div class="col-md-4">
+                    <div class="project-card">
+                        <h4>{{ project.title if project.title else project[1] }}</h4>
+                        <p>{{ project.description if project.description else project[2] }}</p>
+                        <a href="{{ project.link if project.link else project[3] }}" class="btn btn-primary btn-sm" target="_blank">View Project</a>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="col-md-12 text-center">
+                    <p>No projects added yet.</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact" class="section section-contact">
+    <div class="container">
+        <h2 class="section-title text-center">Contact Me</h2>
+
+        <form action="/contact" method="POST" class="contact-form" style="max-width:600px;margin:0 auto;">
+            <div class="form-group">
+                <label>Name</label>
+                <input type="text" name="name" class="form-control" required>
+            </div>
+
+            <div class="form-group">
+                <label>Email</label>
+                <input type="email" name="email" class="form-control" required>
+            </div>
+
+            <div class="form-group">
+                <label>Subject</label>
+                <input type="text" name="subject" class="form-control">
+            </div>
+
+            <div class="form-group">
+                <label>Message</label>
+                <textarea name="message" class="form-control" rows="5" required></textarea>
+            </div>
+
+            <button type="submit" class="btn btn-light btn-block">Send Message</button>
+        </form>
+    </div>
+</section>
+
+<!-- SweetAlert -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+window.addEventListener('DOMContentLoaded', () => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('success') === '1') {
+        Swal.fire({
+            icon: 'success',
+            title: 'Message Sent!',
+            text: 'Your message has been sent successfully ✅',
+            confirmButtonColor: '#3085d6'
+        });
+
+        // Remove query string so it doesn't trigger again on reload
+        window.history.replaceState({}, document.title, window.location.pathname + '#contact');
+    }
+});
+</script>
+{% endblock %}

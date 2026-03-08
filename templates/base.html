@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Portfolio{% endblock %}</title>
+
+    <!-- Bootstrap 3.4.1 -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"
+    />
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar navbar-default navbar-fixed-top custom-navbar">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#mainNavbar">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="#">Al-ameen</a>
+        </div>
+
+        <div class="collapse navbar-collapse" id="mainNavbar">
+            <ul class="nav navbar-nav navbar-right">
+                <li class="nav-item"><a href="#about">About</a></li>
+                <li class="nav-item"><a href="#skills">Skills</a></li>
+                <li class="nav-item"><a href="#projects">Projects</a></li>
+                <li class="nav-item"><a href="#contact">Contact</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+{% block content %}{% endblock %}
+
+<!-- FOOTER -->
+<footer class="footer text-center" style="padding:20px; background:#222; color:white;">
+    <p>&copy; <span id="currentYear"></span> Al-ameen Olanrewaju  | Python Flask Developer</p>
+    <div class="footer-social">
+        <a href="https://x.com/Alameenwaju" target="_blank"><i class="fab fa-twitter"></i></a>
+        <a href="https://linkedin.com/in/al-ameen-olanrewaju-9916433b3" target="_blank"><i class="fab fa-linkedin"></i></a>
+        <a href="https://github.com/Al-ameenolanrewaju" target="_blank"><i class="fab fa-github"></i></a>
+         <a href="https://www.facebook.com/share/1EEgncNbMh/" target="_blank"><i class="fab fa-facebook"></i></a>
+         <a href="https://wa.me/+2349038014978" target="_blank"><i class="fab fa-whatsapp"></i></a>
+    </div>
+</footer>
+
+<!-- JS -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+<script src="{{ url_for('static',filename='js/main.js')}}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const yearSpan = document.getElementById('currentYear');
+        yearSpan.textContent = new Date().getFullYear();
+    });
+</script>
+</body>
+</html>

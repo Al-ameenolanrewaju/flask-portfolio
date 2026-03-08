@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>New Contact Message</title>
+    <style>
+        /* Reset styles */
+        body, table, td, p, a {
+            font-family: 'Segoe UI', Helvetica, Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+        }
+
+        body {
+            background-color: #f4f4f7;
+            color: #2c3e50;
+        }
+
+        .email-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        /* Header */
+        .email-header {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            padding: 40px 30px;
+            text-align: center;
+        }
+
+        .email-header h1 {
+            color: #ffffff;
+            font-size: 28px;
+            margin: 0;
+            font-weight: 600;
+            letter-spacing: 1px;
+        }
+
+        .email-header p {
+            color: rgba(255,255,255,0.9);
+            font-size: 16px;
+            margin-top: 10px;
+        }
+
+        /* Content */
+        .email-content {
+            padding: 40px 30px;
+        }
+
+        .greeting {
+            font-size: 20px;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+
+        .message-info {
+            background-color: #f8f9fa;
+            border-left: 4px solid #667eea;
+            padding: 20px;
+            margin-bottom: 30px;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .info-item {
+            margin-bottom: 15px;
+            border-bottom: 1px solid #e9ecef;
+            padding-bottom: 10px;
+        }
+
+        .info-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .info-label {
+            font-size: 14px;
+            color: #6c757d;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 5px;
+        }
+
+        .info-value {
+            font-size: 16px;
+            color: #2c3e50;
+            font-weight: 500;
+        }
+
+        .message-content {
+            background-color: #fff;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 25px;
+            margin: 30px 0;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        .message-content h3 {
+            color: #667eea;
+            font-size: 18px;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .message-content p {
+            font-size: 16px;
+            color: #495057;
+            white-space: pre-wrap;
+            line-height: 1.8;
+        }
+
+        /* Action buttons */
+        .action-buttons {
+            text-align: center;
+            margin: 30px 0;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 12px 30px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: #ffffff;
+            text-decoration: none;
+            border-radius: 50px;
+            font-weight: 500;
+            margin: 0 10px;
+            box-shadow: 0 4px 10px rgba(102, 126, 234, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #6c757d, #495057);
+            box-shadow: 0 4px 10px rgba(108, 117, 125, 0.3);
+        }
+
+        /* Meta info */
+        .meta-info {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            font-size: 14px;
+            color: #6c757d;
+        }
+
+        .meta-info i {
+            margin-right: 5px;
+        }
+
+        /* Footer */
+        .email-footer {
+            background-color: #f8f9fa;
+            padding: 30px;
+            text-align: center;
+            border-top: 1px solid #e9ecef;
+        }
+
+        .email-footer p {
+            color: #6c757d;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+
+        .signature {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #e9ecef;
+        }
+
+        .signature h4 {
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+
+        .social-links {
+            margin-top: 20px;
+        }
+
+        .social-links a {
+            display: inline-block;
+            margin: 0 10px;
+            color: #667eea;
+            text-decoration: none;
+        }
+
+        /* Responsive */
+        @media only screen and (max-width: 600px) {
+            .email-container {
+                width: 100%;
+                border-radius: 0;
+            }
+
+            .email-header {
+                padding: 30px 20px;
+            }
+
+            .email-content {
+                padding: 30px 20px;
+            }
+
+            .btn {
+                display: block;
+                margin: 10px 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div style="background-color: #f4f4f7; padding: 30px 20px;">
+        <div class="email-container">
+
+            <!-- Header -->
+            <div class="email-header">
+                <h1>✨ New Contact Message</h1>
+                <p>Someone just reached out from your portfolio</p>
+            </div>
+
+            <!-- Content -->
+            <div class="email-content">
+
+                <div class="greeting">
+                    👋 Hello Admin!
+                </div>
+
+                <p style="margin-bottom: 25px; color: #495057;">
+                    You've received a new message from your portfolio website. Here are the details:
+                </p>
+
+                <!-- Sender Information -->
+                <div class="message-info">
+                    <div class="info-item">
+                        <div class="info-label">📋 Name</div>
+                        <div class="info-value">{{ name }}</div>
+                    </div>
+
+                    <div class="info-item">
+                        <div class="info-label">📧 Email</div>
+                        <div class="info-value">
+                            <a href="mailto:{{ email }}" style="color: #667eea; text-decoration: none;">
+                                {{ email }}
+                            </a>
+                        </div>
+                    </div>
+
+                    {% if subject and subject != 'No Subject' %}
+                    <div class="info-item">
+                        <div class="info-label">📌 Subject</div>
+                        <div class="info-value">{{ subject }}</div>
+                    </div>
+                    {% endif %}
+
+                    <div class="info-item">
+                        <div class="info-label">📅 Date & Time</div>
+                        <div class="info-value">{{ now.strftime('%B %d, %Y at %I:%M %p') }}</div>
+                    </div>
+                </div>
+
+                <!-- Message Content -->
+                <div class="message-content">
+                    <h3>💬 Message Content</h3>
+                    <p>{{ message }}</p>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="action-buttons">
+                    <a href="mailto:{{ email }}?subject=Re: {{ subject }}" class="btn">
+                        ✉️ Reply to {{ name }}
+                    </a>
+                    <a href="{{ url_for('admin', _external=True) }}" class="btn btn-secondary">
+                        📊 Go to Admin Panel
+                    </a>
+                </div>
+
+                <!-- Quick Reply Tips -->
+                <div class="meta-info">
+                    <p style="margin-bottom: 10px;">
+                        <strong>💡 Quick Response Tips:</strong>
+                    </p>
+                    <ul style="margin-left: 20px; margin-bottom: 0;">
+                        <li>Respond within 24-48 hours for best engagement</li>
+                        <li>Check admin panel for all messages</li>
+                        <li>Click the reply button above to respond directly</li>
+                    </ul>
+                </div>
+
+                <!-- Signature -->
+                <div class="signature">
+                    <h4>{{ name }}</h4>
+                    <p style="color: #6c757d; font-size: 14px;">
+                        Sent via your Portfolio Contact Form
+                    </p>
+                </div>
+
+            </div>
+
+            <!-- Footer -->
+            <div class="email-footer">
+                <p>This email was sent from your portfolio website's contact form.</p>
+
+                <div class="social-links">
+                    {% if portfolio_url %}
+                    <a href="{{ portfolio_url }}">🌐 Portfolio</a>
+                    {% endif %}
+                    <a href="{{ url_for('admin', _external=True) }}">⚙️ Admin</a>
+                </div>
+
+                <p style="margin-top: 20px; font-size: 12px; color: #adb5bd;">
+                    © 2026 Your Portfolio. All rights reserved.
+                </p>
+            </div>
+
+        </div>
+    </div>
+</body>
+</html>

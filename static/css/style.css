@@ -1,0 +1,441 @@
+/* ========================
+   GLOBAL & BODY
+======================== */
+body {
+    padding-top: 70px;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: #0D1117;
+    color: #C9D1D9;
+    font-size: 16px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+/* ========================
+   NAVBAR
+======================== */
+.custom-navbar {
+    background-color: #161B22;
+    border-bottom: 1px solid #21262D;
+}
+
+.custom-navbar .navbar-brand {
+    color: #58A6FF !important;
+    font-weight: bold;
+}
+
+.custom-navbar .navbar-nav > li > a {
+    color: #C9D1D9 !important;
+}
+
+.navbar-nav > .active > a {
+    background-color: transparent !important;
+    color: #58A6FF !important;
+    font-weight: bold;
+    border-bottom: 2px solid #58A6FF;
+}
+
+/* ========================
+   HERO
+======================== */
+.hero {
+    background: #0D1117;
+    color: #C9D1D9;
+    padding: 120px 0;
+    text-align: center;
+}
+
+.hero h1 {
+    font-size: 48px;
+    font-weight: bold;
+}
+
+.btn-outline {
+    background: transparent;
+    border: 2px solid #58A6FF;
+    color: #58A6FF;
+}
+
+.btn-outline:hover {
+    background: #58A6FF;
+    color: #0D1117;
+}
+
+/* ========================
+   SECTIONS
+======================== */
+.section {
+    padding: 70px 0;
+    border-radius: 8px;
+}
+
+/* About */
+.section-about {
+    background: #161B22;
+    color: #F0F6FC;
+    text-align: center;
+}
+
+/* Skills */
+.section-skills {
+    background: #21262D;
+    color: #58A6FF;
+}
+
+/* Projects */
+.section-projects {
+    background: #F6F8FA;
+    color: #0D1117;
+}
+
+/* Contact */
+.section-contact {
+    background: #238636;
+    color: #FFFFFF;
+    text-align: center;
+}
+
+/* Section Titles */
+.section-title {
+    margin-bottom: 40px;
+    font-size: 32px;
+    font-weight: 700;
+    color: inherit;
+}
+
+/* ========================
+   SKILL BOXES & PROJECT CARDS
+======================== */
+.skill-box,
+.project-card {
+    background: #0D1117;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+    margin-bottom: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    color: #C9D1D9;
+}
+
+.skill-box h4,
+.project-card h4 {
+    margin-bottom: 15px;
+    color: #58A6FF;
+}
+
+.project-card a.btn {
+    margin-top: auto;
+}
+
+/* Make rows equal height */
+.skill-row,
+.project-row {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+/* ========================
+   CONTACT FORM
+======================== */
+.contact-form {
+    background: #2D333B;
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+    color: #C9D1D9;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.contact-form .form-control {
+    border-radius: 8px;
+    border: none;
+    padding: 12px 15px;
+    margin-bottom: 15px;
+    background: #161B22;
+    color: #C9D1D9;
+}
+
+.contact-form .form-control:focus {
+    box-shadow: 0 0 0 2px #58A6FF;
+    border: none;
+    background: #161B22;
+    color: #C9D1D9;
+}
+
+.contact-form label {
+    font-weight: 600;
+    color: #C9D1D9;
+}
+
+.contact-form .btn-contact {
+    background: #238636;
+    border: none;
+    color: #FFFFFF;
+    font-weight: bold;
+    padding: 12px 20px;
+    border-radius: 8px;
+    transition: 0.3s;
+}
+
+.contact-form .btn-contact:hover {
+    background: #2EA043;
+}
+
+/* ========================
+   FOOTER
+======================== */
+footer {
+    background: #0D1117;
+    color: #C9D1D9;
+    padding: 40px 0;
+    text-align: center;
+}
+
+.footer-social a {
+    color: white;
+    margin: 0 10px;
+    font-size: 1.5rem;
+    text-decoration: none;
+}
+
+.footer-social a:hover {
+    color: #00acee;
+}
+
+/* ========================
+   PROFILE PHOTO
+======================== */
+.profile-photo-wrapper {
+    margin-bottom: 30px;
+}
+
+.profile-photo {
+    width: 250px;
+    height: 250px;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 4px solid #58A6FF;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+    transition: transform 0.3s;
+}
+
+.profile-photo:hover {
+    transform: scale(1.05);
+}
+
+/* ========================
+   RESPONSIVE DESIGN
+   ======================== */
+
+/* Tablet (768px - 992px) */
+@media screen and (max-width: 992px) {
+    .hero h1 {
+        font-size: 42px;
+    }
+    .hero p {
+        font-size: 18px;
+    }
+    .section {
+        padding: 50px 0;
+    }
+    .section-title {
+        font-size: 28px;
+        margin-bottom: 30px;
+    }
+    .skill-box, .project-card {
+        padding: 25px;
+    }
+}
+
+/* Mobile - CRITICAL FIX: One item per line */
+@media screen and (max-width: 767px) {
+    /* Force one skill per line */
+    .skill-row > div[class*="col-"],
+    .project-row > div[class*="col-"] {
+        width: 100% !important;
+        flex: 0 0 100% !important;
+        max-width: 100% !important;
+        display: block !important;
+        float: none !important;
+        clear: both !important;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+    }
+
+    /* Hero section */
+    .hero {
+        padding: 80px 0;
+    }
+    .hero h1 {
+        font-size: 36px;
+    }
+    .hero p {
+        font-size: 16px;
+        padding: 0 15px;
+    }
+
+    /* Profile photo */
+    .profile-photo {
+        width: 180px !important;
+        height: 180px !important;
+    }
+
+    /* Buttons */
+    .btn {
+        padding: 10px 20px;
+        font-size: 14px;
+        margin: 5px;
+    }
+
+    /* Container padding */
+    .container {
+        padding-left: 20px;
+        padding-right: 20px;
+    }
+
+    /* Contact form */
+    .contact-form {
+        padding: 20px;
+        margin: 0 15px;
+    }
+    .form-control {
+        padding: 10px;
+        font-size: 14px;
+    }
+}
+
+/* Small Mobile (up to 576px) */
+@media screen and (max-width: 576px) {
+    /* Navigation */
+    .navbar-brand {
+        font-size: 20px;
+    }
+    .navbar-nav > li > a {
+        padding: 10px 15px;
+        text-align: center;
+    }
+
+    /* Hero */
+    .hero {
+        padding: 60px 0;
+    }
+    .hero h1 {
+        font-size: 28px;
+    }
+    .profile-photo {
+        width: 150px !important;
+        height: 150px !important;
+    }
+
+    /* Stack buttons */
+    .hero .btn {
+        display: block;
+        width: 80%;
+        margin: 10px auto;
+    }
+
+    /* Section titles */
+    .section-title {
+        font-size: 24px;
+    }
+
+    /* Cards */
+    .skill-box, .project-card {
+        padding: 20px 15px;
+    }
+    .skill-box h4, .project-card h4 {
+        font-size: 18px;
+    }
+    .skill-box p, .project-card p {
+        font-size: 14px;
+    }
+
+    /* Contact form */
+    .contact-form {
+        padding: 15px;
+    }
+    .contact-form label {
+        font-size: 14px;
+    }
+    .btn-block {
+        padding: 12px;
+        font-size: 16px;
+    }
+
+    /* Footer */
+    footer {
+        padding: 30px 0;
+        font-size: 14px;
+    }
+    .footer-social a {
+        font-size: 1.3rem;
+        margin: 0 8px;
+    }
+}
+
+/* Very Small Mobile (up to 375px) */
+@media screen and (max-width: 375px) {
+    .hero h1 {
+        font-size: 24px;
+    }
+    .profile-photo {
+        width: 120px !important;
+        height: 120px !important;
+    }
+    .section-title {
+        font-size: 20px;
+    }
+    .skill-box h4, .project-card h4 {
+        font-size: 16px;
+    }
+    .skill-box p, .project-card p {
+        font-size: 13px;
+    }
+    .btn {
+        font-size: 13px;
+        padding: 8px 16px;
+    }
+}
+
+/* Landscape mode */
+@media screen and (max-width: 768px) and (orientation: landscape) {
+    .hero {
+        padding: 40px 0;
+    }
+    .profile-photo {
+        width: 100px !important;
+        height: 100px !important;
+    }
+    .hero h1 {
+        font-size: 28px;
+    }
+    .hero .btn {
+        display: inline-block;
+        width: auto;
+        margin: 5px;
+    }
+}
+
+/* Touch improvements */
+@media (hover: none) and (pointer: coarse) {
+    .btn,
+    .navbar-nav > li > a,
+    .footer-social a {
+        min-height: 44px;
+        min-width: 44px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .form-control {
+        font-size: 16px;
+    }
+}

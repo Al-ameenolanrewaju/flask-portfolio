@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Edit Site Content</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+    <style>
+        body { padding-top: 50px; }
+        img.profile-thumb { width: 120px; height: 120px; border-radius: 50%; object-fit: cover; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h2 class="text-center">Edit Home Page Content</h2>
+    <hr>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, msg in messages %}
+        <div class="alert alert-{{ category }} alert-dismissible">
+            <button type="button" class="close" data-dismiss="alert">&times;</button>
+            {{ msg }}
+        </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <form action="{{ url_for('edit_content') }}" method="POST" enctype="multipart/form-data">
+
+        <!-- Hero Section -->
+        <h4>Hero Section</h4>
+        <div class="form-group">
+            <label>Title</label>
+            <input type="text" name="hero_title" class="form-control"
+                   value="{{ content['hero']['title'] if content['hero'] else '' }}">
+        </div>
+        <div class="form-group">
+            <label>Subtitle</label>
+            <input type="text" name="hero_content" class="form-control"
+                   value="{{ content['hero']['content'] if content['hero'] else '' }}">
+        </div>
+        <hr>
+
+        <!-- About Section -->
+        <h4>About Section</h4>
+        <div class="form-group">
+            <label>Title</label>
+            <input type="text" name="about_title" class="form-control"
+                   value="{{ content['about']['title'] if content['about'] else '' }}">
+        </div>
+        <div class="form-group">
+            <label>Text</label>
+            <textarea name="about_content" class="form-control" rows="4">{{ content['about']['content'] if content['about'] else '' }}</textarea>
+        </div>
+        <hr>
+
+        <!-- Skills Section -->
+
+                <!-- Skills Section -->
+        <div id="skills-wrapper">
+            <h4>Skills Section</h4>
+            {% if skills %}
+                {% for category, items in skills.items() %}
+                <div class="skill-item">
+                    <div class="form-group">
+                        <label>Skill Category</label>
+                        <input type="text" class="form-control"
+                               name="skills_category_{{ loop.index0 }}"
+                               value="{{ category }}" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Skill Name</label>
+                        <input type="text" class="form-control"
+                               name="skills_name_{{ loop.index0 }}"
+                               value="{{ items|join(', ') }}" required>
+                        <small class="text-muted">For multiple skills, separate with commas (e.g., Python, Flask, JavaScript)</small>
+                    </div>
+                    <button type="button" class="btn btn-danger btn-sm remove-skill">Remove Skill</button>
+                    <hr>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="skill-item">
+                    <div class="form-group">
+                        <label>Skill Category</label>
+                        <input type="text" class="form-control" name="skills_category_0" placeholder="e.g., Frontend" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Skill Name</label>
+                        <input type="text" class="form-control" name="skills_name_0" placeholder="e.g., HTML, CSS, JavaScript" required>
+                        <small class="text-muted">For multiple skills, separate with commas</small>
+                    </div>
+                    <hr>
+                </div>
+            {% endif %}
+        </div>
+
+        <button type="button" id="add-skill" class="btn btn-primary btn-sm">+ Add Skill Category</button>
+
+<script>
+let skillIndex = {{ skills|length if skills else 1 }};
+
+document.getElementById('add-skill').addEventListener('click', function(){
+    const wrapper = document.getElementById('skills-wrapper');
+    const div = document.createElement('div');
+    div.classList.add('skill-item');
+    div.innerHTML = `
+        <div class="form-group">
+            <label>Skill Category</label>
+            <input type="text" class="form-control" name="skills_category_${skillIndex}" placeholder="e.g., Backend" required>
+        </div>
+        <div class="form-group">
+            <label>Skill Name</label>
+            <input type="text" class="form-control" name="skills_name_${skillIndex}" placeholder="e.g., Python, MySQL" required>
+            <small class="text-muted">For multiple skills, separate with commas</small>
+        </div>
+        <button type="button" class="btn btn-danger btn-sm remove-skill">Remove Skill</button>
+        <hr>
+    `;
+    wrapper.appendChild(div);
+    skillIndex++;
+});
+
+// Remove skill dynamically
+document.addEventListener('click', function(e){
+    if(e.target && e.target.classList.contains('remove-skill')){
+        e.target.closest('.skill-item').remove();
+    }
+});
+</script>
+        <hr>
+
+        <!-- Profile Photo -->
+        <h4>Profile Photo</h4>
+        <div class="form-group">
+            <input type="file" name="profile_photo" class="form-control">
+            {% if content['profile_photo'] and content['profile_photo']['file'] %}
+            <div style="margin-top:10px;">
+                <img src="{{ url_for('static', filename='uploads/' ~ content['profile_photo']['file']) }}"
+                     alt="Profile Photo" class="profile-thumb">
+            </div>
+            {% endif %}
+        </div>
+        <hr>
+
+        <!-- CV -->
+        <h4>CV Upload</h4>
+        <div class="form-group">
+            <input type="file" name="cv_file" class="form-control">
+            {% if content['cv_file'] and content['cv_file']['file'] %}
+            <div style="margin-top:10px;">
+                <a href="{{ url_for('static', filename='uploads/' ~ content['cv_file']['file']) }}" target="_blank">
+                    View Current CV
+                </a>
+            </div>
+            {% endif %}
+        </div>
+        <hr>
+
+        <button type="submit" class="btn btn-success btn-block">Save Changes</button>
+    </form>
+</div>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,566 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard{% endblock %}
+
+{% block content %}
+<style>
+:root {
+    --primary-color: #2563eb;
+    --secondary-color: #3b82f6;
+    --success-color: #10b981;
+    --danger-color: #ef4444;
+    --warning-color: #f59e0b;
+    --dark-bg: #1f2937;
+    --light-bg: #f9fafb;
+    --card-bg: #ffffff;
+    --text-primary: #111827;
+    --text-secondary: #6b7280;
+    --border-color: #e5e7eb;
+}
+
+body {
+    background-color: var(--light-bg);
+}
+
+.admin-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+/* Header Styles */
+.admin-header {
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    color: white;
+    padding: 2rem;
+    border-radius: 1rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.admin-header h1 {
+    margin: 0;
+    font-size: 2.5rem;
+    font-weight: 600;
+}
+
+.admin-header p {
+    margin: 0.5rem 0 0;
+    opacity: 0.9;
+}
+
+.logout-btn {
+    background-color: rgba(255, 255, 255, 0.2);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    padding: 0.5rem 1.5rem;
+    border-radius: 0.5rem;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.logout-btn:hover {
+    background-color: rgba(255, 255, 255, 0.3);
+    color: white;
+    text-decoration: none;
+}
+
+/* Section Cards */
+.section-card {
+    background: var(--card-bg);
+    border-radius: 1rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    margin-bottom: 2rem;
+    overflow: hidden;
+    border: 1px solid var(--border-color);
+}
+
+.section-header {
+    background: linear-gradient(90deg, var(--dark-bg), #374151);
+    color: white;
+    padding: 1.25rem 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 3px solid var(--primary-color);
+}
+
+.section-header h3 {
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 500;
+}
+
+.section-header h3 i {
+    margin-right: 0.75rem;
+    color: var(--primary-color);
+}
+
+.section-body {
+    padding: 1.5rem;
+}
+
+/* Table Styles */
+.table-custom {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    background: white;
+    border-radius: 0.5rem;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.table-custom thead {
+    background: linear-gradient(135deg, #374151, #1f2937);
+    color: white;
+}
+
+.table-custom thead th {
+    padding: 1rem;
+    font-weight: 500;
+    font-size: 0.875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border: none;
+}
+
+.table-custom tbody tr {
+    transition: all 0.2s ease;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.table-custom tbody tr:hover {
+    background: linear-gradient(135deg, #f3f4f6, #e5e7eb);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.table-custom tbody td {
+    padding: 1rem;
+    color: var(--text-primary);
+    border: none;
+}
+
+/* Button Styles */
+.btn-custom {
+    padding: 0.5rem 1rem;
+    border-radius: 0.375rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    display: inline-block;
+    border: none;
+    cursor: pointer;
+}
+
+.btn-primary-custom {
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    color: white;
+}
+
+.btn-primary-custom:hover {
+    background: linear-gradient(135deg, var(--secondary-color), var(--primary-color));
+    color: white;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.3);
+}
+
+.btn-success-custom {
+    background: linear-gradient(135deg, #059669, #10b981);
+    color: white;
+}
+
+.btn-success-custom:hover {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: white;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px -1px rgba(16, 185, 129, 0.3);
+}
+
+.btn-warning-custom {
+    background: linear-gradient(135deg, #d97706, #f59e0b);
+    color: white;
+}
+
+.btn-warning-custom:hover {
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    color: white;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px -1px rgba(245, 158, 11, 0.3);
+}
+
+.btn-danger-custom {
+    background: linear-gradient(135deg, #dc2626, #ef4444);
+    color: white;
+}
+
+.btn-danger-custom:hover {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    color: white;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px -1px rgba(239, 68, 68, 0.3);
+}
+
+/* Badge Styles */
+.badge-custom {
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    display: inline-block;
+}
+
+.badge-success {
+    background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+    color: #065f46;
+}
+
+/* Stats Cards */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.stat-card {
+    background: linear-gradient(135deg, var(--card-bg), #f9fafb);
+    padding: 1.5rem;
+    border-radius: 0.75rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    border: 1px solid var(--border-color);
+    transition: all 0.3s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+.stat-card h4 {
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+    margin: 0 0 0.5rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.stat-card .stat-number {
+    color: var(--primary-color);
+    font-size: 2rem;
+    font-weight: 600;
+    margin: 0;
+}
+
+.stat-card .stat-icon {
+    float: right;
+    color: var(--text-secondary);
+    opacity: 0.5;
+    font-size: 2rem;
+}
+
+/* Alert Styles */
+.alert-custom {
+    padding: 1rem 1.5rem;
+    border-radius: 0.5rem;
+    margin-bottom: 1.5rem;
+    border: none;
+    font-weight: 500;
+    animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateY(-10px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.alert-success {
+    background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+    color: #065f46;
+    border-left: 4px solid #10b981;
+}
+
+.alert-danger {
+    background: linear-gradient(135deg, #fee2e2, #fecaca);
+    color: #991b1b;
+    border-left: 4px solid #ef4444;
+}
+
+.alert-warning {
+    background: linear-gradient(135deg, #fef3c7, #fde68a);
+    color: #92400e;
+    border-left: 4px solid #f59e0b;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .admin-container {
+        padding: 1rem;
+    }
+
+    .section-header {
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .table-custom {
+        display: block;
+        overflow-x: auto;
+    }
+}
+</style>
+
+<!-- Font Awesome for icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+<div class="admin-container">
+    <!-- Header -->
+    <div class="admin-header d-flex justify-content-between align-items-center">
+        <div>
+            <h1><i class="fas fa-cog"></i> Admin Dashboard</h1>
+            <p>Welcome back, Administrator! Manage your portfolio content here.</p>
+        </div>
+        <a href="{{ url_for('admin_logout') }}" class="logout-btn">
+            <i class="fas fa-sign-out-alt"></i> Logout
+        </a>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <i class="fas fa-project-diagram stat-icon"></i>
+            <h4>Total Projects</h4>
+            <p class="stat-number">{{ projects|length }}</p>
+        </div>
+        <div class="stat-card">
+            <i class="fas fa-envelope stat-icon"></i>
+            <h4>Unread Messages</h4>
+            <p class="stat-number">{{ messages|length }}</p>
+        </div>
+        <div class="stat-card">
+            <i class="fas fa-code stat-icon"></i>
+            <h4>Skills Categories</h4>
+            <p class="stat-number">{{ skills|length if skills else 0 }}</p>
+        </div>
+        <div class="stat-card">
+            <i class="fas fa-file-alt stat-icon"></i>
+            <h4>Content Sections</h4>
+            <p class="stat-number">{{ content|length }}</p>
+        </div>
+    </div>
+
+    <!-- Flash messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, msg in messages %}
+          <div class="alert-custom alert-{{ category }}">
+              <i class="fas fa-{% if category == 'success' %}check-circle{% elif category == 'danger' %}exclamation-circle{% else %}info-circle{% endif %}"></i>
+              {{ msg }}
+              <button type="button" class="close" data-dismiss="alert" style="float: right; background: none; border: none; font-size: 1.5rem;">&times;</button>
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <!-- Projects Section -->
+    <div class="section-card">
+        <div class="section-header">
+            <h3><i class="fas fa-project-diagram"></i> Projects Management</h3>
+            <a href="{{ url_for('add_project') }}" class="btn-custom btn-primary-custom">
+                <i class="fas fa-plus"></i> Add New Project
+            </a>
+        </div>
+        <div class="section-body">
+            {% if projects %}
+            <table class="table-custom">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Title</th>
+                        <th>Description</th>
+                        <th>Link</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for project in projects %}
+                    <tr>
+                        <td><span class="badge-custom badge-success">#{{ project.id }}</span></td>
+                        <td><strong>{{ project.title }}</strong></td>
+                        <td>{{ project.description[:50] }}{% if project.description|length > 50 %}...{% endif %}</td>
+                        <td>
+                            <a href="{{ project.link }}" target="_blank" style="color: var(--primary-color);">
+                                <i class="fas fa-external-link-alt"></i> View
+                            </a>
+                        </td>
+                        <td>
+                            <a href="{{ url_for('edit_project', id=project.id) }}" class="btn-custom btn-warning-custom btn-sm">
+                                <i class="fas fa-edit"></i> Edit
+                            </a>
+                            <a href="{{ url_for('delete_project', id=project.id) }}" class="btn-custom btn-danger-custom btn-sm"
+                               onclick="return confirm('Are you sure you want to delete this project?')">
+                                <i class="fas fa-trash"></i> Delete
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <p class="text-center text-muted">No projects yet. Click "Add New Project" to get started!</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Site Content Section -->
+    <div class="section-card">
+        <div class="section-header">
+            <h3><i class="fas fa-file-alt"></i> Site Content</h3>
+            <a href="{{ url_for('edit_content') }}" class="btn-custom btn-success-custom">
+                <i class="fas fa-edit"></i> Edit Content
+            </a>
+        </div>
+        <div class="section-body">
+            <table class="table-custom">
+                <thead>
+                    <tr>
+                        <th>Section</th>
+                        <th>Title</th>
+                        <th>Content Preview</th>
+                        <th>File</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for section_name, data in content.items() %}
+                    <tr>
+                        <td><span class="badge-custom badge-success">{{ section_name|replace('_', ' ')|title }}</span></td>
+                        <td><strong>{{ data.title or '-' }}</strong></td>
+                        <td>{{ data.content[:50] }}{% if data.content and data.content|length > 50 %}...{% endif %}</td>
+                        <td>
+                            {% if data.file %}
+                                {% if data.file.endswith('.pdf') %}
+                                    <a href="{{ url_for('static', filename='uploads/' ~ data.file) }}" target="_blank" class="btn-custom btn-primary-custom btn-sm">
+                                        <i class="fas fa-file-pdf"></i> View PDF
+                                    </a>
+                                {% else %}
+                                    <img src="{{ url_for('static', filename='uploads/' ~ data.file) }}"
+                                         style="width:40px; height:40px; border-radius:50%; object-fit:cover; border:2px solid var(--primary-color);"
+                                         alt="{{ data.title }}">
+                                {% endif %}
+                            {% else %}
+                                <span class="text-muted">-</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Contact Messages Section -->
+    <div class="section-card">
+        <div class="section-header">
+            <h3><i class="fas fa-envelope"></i> Contact Messages</h3>
+            <span class="badge-custom badge-success">{{ messages|length }} Total</span>
+        </div>
+        <div class="section-body">
+            {% if messages %}
+            <table class="table-custom">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Subject</th>
+                        <th>Message</th>
+                        <th>Date</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for msg in messages %}
+                    <tr>
+                        <td><span class="badge-custom badge-success">#{{ msg.id }}</span></td>
+                        <td><i class="fas fa-user"></i> {{ msg.name }}</td>
+                        <td><a href="mailto:{{ msg.email }}" style="color: var(--primary-color);">{{ msg.email }}</a></td>
+                        <td>{{ msg.subject or 'No Subject' }}</td>
+                        <td>{{ msg.message[:30] }}{% if msg.message|length > 30 %}...{% endif %}</td>
+                        <td><small><i class="far fa-calendar-alt"></i> {{ msg.created_at.strftime('%Y-%m-%d') if msg.created_at else 'N/A' }}</small></td>
+                        <td>
+                            <button class="btn-custom btn-danger-custom btn-sm delete-btn" data-id="{{ msg.id }}">
+                                <i class="fas fa-trash"></i> Delete
+                            </button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <p class="text-center text-muted">No contact messages yet.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- SweetAlert -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+document.querySelectorAll('.delete-btn').forEach(button => {
+    button.addEventListener('click', () => {
+        const msgId = button.getAttribute('data-id');
+
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "This message will be permanently deleted!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#ef4444',
+            cancelButtonColor: '#3b82f6',
+            confirmButtonText: 'Yes, delete it!',
+            cancelButtonText: 'Cancel',
+            background: '#ffffff',
+            backdrop: `
+                rgba(0,0,0,0.4)
+                left top
+                no-repeat
+            `
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Create a form dynamically and submit POST
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = `/admin/delete_message/${msgId}`;
+                document.body.appendChild(form);
+                form.submit();
+
+                Swal.fire({
+                    title: 'Deleted!',
+                    text: 'The message has been deleted.',
+                    icon: 'success',
+                    confirmButtonColor: '#10b981',
+                    timer: 2000
+                });
+            }
+        });
+    });
+});
+
+// Auto-hide alerts after 5 seconds
+setTimeout(function() {
+    document.querySelectorAll('.alert-custom').forEach(alert => {
+        alert.style.transition = 'opacity 0.5s ease';
+        alert.style.opacity = '0';
+        setTimeout(() => alert.remove(), 500);
+    });
+}, 5000);
+</script>
+{% endblock %}
