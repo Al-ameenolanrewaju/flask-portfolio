@@ -27,6 +27,7 @@ app = Flask(__name__)
 app.config.from_object(DevelopmentConfig)
 
 mail = Mail(app)
+app.config['MAIL_TIMEOUT'] = 10
 
 # Load from config instead of hardcoding
 ADMIN_USERNAME = app.config['ADMIN_USERNAME']
@@ -449,86 +450,65 @@ def contact():
         finally:
             connection.close()
 
-    # Send beautiful HTML email
-    try:
-        # Render HTML template
-        html_body = render_template(
-            'email/contact_notification.html',
-            name=name,
-            email=email,
-            subject=subject,
-            message=message,
-            now=datetime.now(),
-            portfolio_url=url_for('home', _external=True),
-            admin_url=url_for('admin', _external=True)
-        )
+        # Send email
+        try:
+            html_body = render_template(
+                'email/contact_notification.html',
+                name=name,
+                email=email,
+                subject=subject,
+                message=message,
+                now=datetime.now(),
+                portfolio_url=url_for('home', _external=True),
+                admin_url=url_for('admin', _external=True)
+            )
 
-        # Plain text version for email clients that don't support HTML
-        text_body = f"""
-New Contact Message from {name}
+            text_body = f"""
+    New Contact Message from {name}
+    Name: {name}
+    Email: {email}
+    Subject: {subject}
+    Message: {message}
+            """
 
-Name: {name}
-Email: {email}
-Subject: {subject}
-Date: {datetime.now().strftime('%B %d, %Y at %I:%M %p')}
+            msg = Message(
+                subject=f"✨ New Portfolio Message from {name}",
+                recipients=['oadedamola07@gmail.com'],
+                body=text_body,
+                html=html_body
+            )
+            msg.reply_to = email
+            mail.send(msg)
 
-Message:
-{message}
+            # Auto reply
+            auto_reply = Message(
+                subject=f"Thanks for reaching out, {name}",
+                recipients=[email],
+                html=f"""
+                <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+                <h2 style="color: #2c3e50;">Hi {name}! 👋</h2>
+                <p>Thank you for reaching out! I have received your message:</p>
+                <blockquote style="background: #f5f5f5; padding: 15px; border-left: 4px solid #3498db;">
+                    {message}
+                </blockquote>
+                <p>I'll get back to you within <strong>24 hours</strong>.</p>
+                <hr>
+                <p style="color: #888;">Best regards,<br>
+                <strong>Al-ameen Olanrewaju</strong><br>
+                Python Developer | Lagos, Nigeria 🇳🇬</p>
+                </div>
+                """,
+                body=f"Hi {name}, Thank you for reaching out! I'll get back to you within 24 hours. Best regards, Al-ameen"
+            )
+            mail.send(auto_reply)
+            logger.info(f'Emails sent successfully to {email}')
 
----
-View in admin panel: {url_for('admin', _external=True)}
-        """
+        except Exception as e:
+            logger.error(f'Email failed: {e}')
 
-        msg = Message(
-            subject=f"✨ New Portfolio Message from {name}",
-            recipients=['oadedamola07@gmail.com'],
-            body=text_body,
-            html=html_body
-        )
-
-        # You can also add reply-to
-        msg.reply_to = email
-
-        mail.send(msg)
-        auto_reply = Message(
-            subject=f"Thanks for reaching out, {name}",
-            recipients=[email],
-            html=f"""
-            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-            <h2 style="color: #2c3e50;">Hi {name}! 👋</h2>
-            <p>Thank you for reaching out! I have received your message:</p>
-            <blockquote style="background: #f5f5f5; padding: 15px; border-left: 4px solid #3498db;">
-                {message}
-            </blockquote>
-            <p>I'll get back to you within <strong>24 hours</strong>.</p>
-            <hr>
-            <p style="color: #888;">Best regards,<br>
-            <strong>Al-ameen Olanrewaju</strong><br>
-            Python Developer | Lagos, Nigeria 🇳🇬</p>
-        </div>
-        """,
-        body=f"""
-            Hi {name},
-            
-            Thank you for reaching out! I have received your message and will get back to you within 24 hours.
-            
-            Best regards,
-            Al-ameen Olanrewaju
-                    """
-
-        )
-        mail.send(auto_reply)
-        logger.info(f'Auto-reply sent to {email}')
-    except Exception as e:
-        logger.info(f'Auto-reply Failed: {e}')
-            
+        # Always show success - data was saved to database!
         flash("Message sent successfully! We'll get back to you soon.", "success")
-
-    except Exception as e:
-        print(f"Email error: {e}")
-        flash("Message saved but email notification failed.", "warning")
-
-    return redirect(url_for('home', success=1) + '#contact')
+        return redirect(url_for('home', success=1) + '#contact')
 
 
 # ================== ADMIN ROUTES ==================
