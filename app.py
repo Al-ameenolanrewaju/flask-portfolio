@@ -424,8 +424,6 @@ def register():
 
 @app.route('/contact', methods=['POST'])
 @limiter.limit("3 per minute")
-@app.route('/contact', methods=['POST'])
-@limiter.limit("3 per minute")
 def contact():
     name = request.form.get('name', '').strip()
     email = request.form.get('email', '').strip()
