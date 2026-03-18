@@ -15,13 +15,16 @@ Al-ameen | Python Flask Developer
         <!-- Profile Photo -->
         {% if content.get('profile_photo') and content['profile_photo'].get('file') %}
         <div class="profile-photo-wrapper">
-            <img src="{{ url_for('static', filename='uploads/' ~ content['profile_photo']['file']) }}"
-                 alt="Profile Photo" class="profile-photo">
+            {% set photo = content['profile_photo']['file'] %}
+            {% if photo.startswith('http') %}
+                <img src="{{ photo }}" alt="Profile Photo" class="profile-photo">
+            {% else %}
+                <img src="{{ url_for('static', filename='uploads/' ~ photo) }}" alt="Profile Photo" class="profile-photo">
+            {% endif %}
         </div>
         {% else %}
         <div class="profile-photo-wrapper">
-            <img src="{{ url_for('static', filename='default-profile.png') }}"
-                 alt="Default Profile Photo" class="profile-photo">
+            <img src="{{ url_for('static', filename='default-profile.png') }}" alt="Default Profile Photo" class="profile-photo">
         </div>
         {% endif %}
 
