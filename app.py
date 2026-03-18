@@ -19,18 +19,7 @@ from flask_caching import Cache
 import pymysql
 pymysql.install_as_MySQLdb()
 import urllib.parse
-database_url = os.environ.get("DATABASE_URL", "")
-if database_url and "localhost" not in database_url:
-    parsed = urllib.parse.urlparse(
-        database_url.replace("mysql+pymysql://", "mysql://")
-    )
-    db_config = {
-        "host": parsed.hostname,
-        "user": parsed.username,
-        "password": parsed.password,
-        "database": parsed.path[1:],
-        "port": parsed.port or 3306
-    }
+
 
 app = Flask(__name__)
 app.config.from_object(DevelopmentConfig)
@@ -41,13 +30,28 @@ mail = Mail(app)
 ADMIN_USERNAME = app.config['ADMIN_USERNAME']
 ADMIN_PASSWORD = app.config['ADMIN_PASSWORD']
 
-# Database configuration — now pulls from .env
-db_config = {
-    "host": app.config['DB_HOST'],
-    "user": app.config['DB_USER'],
-    "password": app.config['DB_PASSWORD'],
-    "database": app.config['DB_NAME']
-}
+# Database configuration
+database_url = os.environ.get("DATABASE_URL", "")
+if database_url and "localhost" not in database_url:
+    # Production - use Railway MySQL
+    parsed = urllib.parse.urlparse(
+        database_url.replace("mysql+pymysql://", "mysql://")
+    )
+    db_config = {
+        "host": parsed.hostname,
+        "user": parsed.username,
+        "password": parsed.password,
+        "database": parsed.path[1:],
+        "port": parsed.port or 3306
+    }
+else:
+    # Development - use local MySQL
+    db_config = {
+        "host": app.config['DB_HOST'],
+        "user": app.config['DB_USER'],
+        "password": app.config['DB_PASSWORD'],
+        "database": app.config['DB_NAME']
+    }
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 login_manager = LoginManager(app)
