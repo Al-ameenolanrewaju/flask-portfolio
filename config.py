@@ -1,5 +1,6 @@
 import os
 from dotenv import load_dotenv
+import urllib.parse
 
 load_dotenv()
 
@@ -35,6 +36,21 @@ class DevelopmentConfig(Config):
 
 class ProductionConfig(Config):
     DEBUG = False
+
+    @staticmethod
+    def get_db_config():
+        url = os.environ.get("DATABASE_URL", "")
+        if url:
+            # Parse Railway MySQL URL
+            parsed = urllib.parse.urlparse(url.replace("mysql+pymysql://", "mysql://"))
+            return {
+                "host": parsed.hostname,
+                "user": parsed.username,
+                "password": parsed.password,
+                "database": parsed.path[1:],
+                "port": parsed.port or 3306
+            }
+        return {}
 
 class TestingConfig(Config):
     TESTING = True

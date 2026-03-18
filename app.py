@@ -18,6 +18,19 @@ import logging
 from flask_caching import Cache
 import pymysql
 pymysql.install_as_MySQLdb()
+import urllib.parse
+database_url = os.environ.get("DATABASE_URL", "")
+if database_url and "localhost" not in database_url:
+    parsed = urllib.parse.urlparse(
+        database_url.replace("mysql+pymysql://", "mysql://")
+    )
+    db_config = {
+        "host": parsed.hostname,
+        "user": parsed.username,
+        "password": parsed.password,
+        "database": parsed.path[1:],
+        "port": parsed.port or 3306
+    }
 
 app = Flask(__name__)
 app.config.from_object(DevelopmentConfig)
