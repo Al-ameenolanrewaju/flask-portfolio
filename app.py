@@ -696,13 +696,18 @@ def edit_content():
             index = 0
             while True:
                 category = request.form.get(f"skills_category_{index}")
-                name = request.form.get(f"skills_name_{index}")
-                if not category or not name:
+                names = request.form.get(f"skills_name_{index}")
+                if not category or not names:
                     break
-                cursor.execute(
-                    "INSERT INTO skills (category, name) VALUES (%s, %s)",
-                    (category.strip(), name.strip())
-                )
+
+                # Split by comma and insert each skill separately
+                for name in names.split(','):
+                    name = name.strip()
+                    if name:
+                        cursor.execute(
+                            "INSERT INTO skills (category, name) VALUES (%s, %s)",
+                            (category.strip(), name)
+                        )
                 index += 1
 
             connection.commit()
