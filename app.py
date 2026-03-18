@@ -16,6 +16,8 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from flask_restful import Api, Resource
 import logging
 from flask_caching import Cache
+import pymysql
+pymysql.install_as_MySQLdb()
 
 app = Flask(__name__)
 app.config.from_object(DevelopmentConfig)
