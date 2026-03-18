@@ -1,0 +1,729 @@
+2026-03-13 05:23:28,885 WARNING  * Debugger is active!
+2026-03-13 05:23:28,888 INFO  * Debugger PIN: 140-037-455
+2026-03-13 05:31:50,749 INFO  * Detected change in 'C:\\Users\\ADEDAMOLA\\Desktop\\port\\app.py', reloading
+2026-03-13 05:31:53,594 WARNING  * Debugger is active!
+2026-03-13 05:31:53,604 INFO  * Debugger PIN: 140-037-455
+2026-03-13 05:32:04,423 INFO 127.0.0.1 - - [13/Mar/2026 05:32:04] "GET / HTTP/1.1" 200 -
+2026-03-13 05:32:04,542 INFO 127.0.0.1 - - [13/Mar/2026 05:32:04] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2026-03-13 05:32:04,546 INFO 127.0.0.1 - - [13/Mar/2026 05:32:04] "[36mGET /static/uploads/IMG-20250419-WA0020.jpg HTTP/1.1[0m" 304 -
+2026-03-13 05:32:04,583 INFO 127.0.0.1 - - [13/Mar/2026 05:32:04] "[36mGET /static/js/main.js HTTP/1.1[0m" 304 -
+2026-03-13 05:32:17,962 INFO 127.0.0.1 - - [13/Mar/2026 05:32:17] "[32mGET /admin HTTP/1.1[0m" 302 -
+2026-03-13 05:32:17,989 INFO 127.0.0.1 - - [13/Mar/2026 05:32:17] "GET /admin/login?next=/admin HTTP/1.1" 200 -
+2026-03-13 05:32:18,009 INFO 127.0.0.1 - - [13/Mar/2026 05:32:18] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2026-03-13 05:32:18,032 INFO 127.0.0.1 - - [13/Mar/2026 05:32:18] "[36mGET /static/js/main.js HTTP/1.1[0m" 304 -
+2026-03-13 05:32:28,300 INFO user adedamola logged in successfully
+2026-03-13 05:32:28,302 INFO 127.0.0.1 - - [13/Mar/2026 05:32:28] "[32mPOST /admin/login?next=/admin HTTP/1.1[0m" 302 -
+2026-03-13 05:32:28,419 INFO 127.0.0.1 - - [13/Mar/2026 05:32:28] "GET /admin HTTP/1.1" 200 -
+2026-03-13 05:32:28,463 INFO 127.0.0.1 - - [13/Mar/2026 05:32:28] "[36mGET /static/uploads/IMG-20250419-WA0020.jpg HTTP/1.1[0m" 304 -
+2026-03-13 05:32:28,463 INFO 127.0.0.1 - - [13/Mar/2026 05:32:28] "[36mGET /static/js/main.js HTTP/1.1[0m" 304 -
+2026-03-13 05:32:28,464 INFO 127.0.0.1 - - [13/Mar/2026 05:32:28] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2026-03-13 05:40:44,580 INFO  * Detected change in 'C:\\Users\\ADEDAMOLA\\Desktop\\port\\app.py', reloading
+2026-03-13 05:40:48,349 WARNING  * Debugger is active!
+2026-03-13 05:40:48,353 INFO  * Debugger PIN: 140-037-455
+2026-03-13 05:40:56,824 INFO 127.0.0.1 - - [13/Mar/2026 05:40:56] "[32mGET /admin/logout HTTP/1.1[0m" 302 -
+2026-03-13 05:40:56,983 INFO 127.0.0.1 - - [13/Mar/2026 05:40:56] "GET / HTTP/1.1" 200 -
+2026-03-13 05:40:57,143 INFO 127.0.0.1 - - [13/Mar/2026 05:40:57] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2026-03-13 05:40:57,146 INFO 127.0.0.1 - - [13/Mar/2026 05:40:57] "[36mGET /static/js/main.js HTTP/1.1[0m" 304 -
+2026-03-13 05:40:57,154 INFO 127.0.0.1 - - [13/Mar/2026 05:40:57] "[36mGET /static/uploads/IMG-20250419-WA0020.jpg HTTP/1.1[0m" 304 -
+2026-03-13 05:41:19,715 INFO 127.0.0.1 - - [13/Mar/2026 05:41:19] "[32mGET /admin HTTP/1.1[0m" 302 -
+2026-03-13 05:41:19,734 INFO 127.0.0.1 - - [13/Mar/2026 05:41:19] "GET /admin/login?next=/admin HTTP/1.1" 200 -
+2026-03-13 05:41:19,786 INFO 127.0.0.1 - - [13/Mar/2026 05:41:19] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2026-03-13 05:41:19,788 INFO 127.0.0.1 - - [13/Mar/2026 05:41:19] "[36mGET /static/js/main.js HTTP/1.1[0m" 304 -
+2026-03-13 05:41:34,526 WARNING Failed login attempt for username adedamola
+2026-03-13 05:41:34,530 INFO 127.0.0.1 - - [13/Mar/2026 05:41:34] "POST /admin/login?next=/admin HTTP/1.1" 200 -
+2026-03-13 05:41:34,566 INFO 127.0.0.1 - - [13/Mar/2026 05:41:34] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2026-03-13 05:41:34,582 INFO 127.0.0.1 - - [13/Mar/2026 05:41:34] "[36mGET /static/js/main.js HTTP/1.1[0m" 304 -
+2026-03-13 05:48:06,324 INFO 127.0.0.1 - - [13/Mar/2026 05:48:06] "[33mGET /bshshshhs HTTP/1.1[0m" 404 -
+2026-03-13 05:48:50,660 INFO 127.0.0.1 - - [13/Mar/2026 05:48:50] "[33mGET /bshshshhs HTTP/1.1[0m" 404 -
+2026-03-13 05:48:51,197 INFO 127.0.0.1 - - [13/Mar/2026 05:48:51] "[33mGET /bshshshhs HTTP/1.1[0m" 404 -
+2026-03-13 05:48:51,512 INFO 127.0.0.1 - - [13/Mar/2026 05:48:51] "[33mGET /bshshshhs HTTP/1.1[0m" 404 -
+2026-03-13 05:48:51,745 INFO 127.0.0.1 - - [13/Mar/2026 05:48:51] "[33mGET /bshshshhs HTTP/1.1[0m" 404 -
+2026-03-13 05:48:52,273 INFO 127.0.0.1 - - [13/Mar/2026 05:48:52] "[33mGET /bshshshhs HTTP/1.1[0m" 404 -
+2026-03-13 05:48:52,277 INFO 127.0.0.1 - - [13/Mar/2026 05:48:52] "[33mGET /bshshshhs HTTP/1.1[0m" 404 -
+2026-03-13 05:48:52,521 INFO 127.0.0.1 - - [13/Mar/2026 05:48:52] "[33mGET /bshshshhs HTTP/1.1[0m" 404 -
+2026-03-13 05:54:44,604 INFO  * Detected change in 'C:\\Users\\ADEDAMOLA\\Desktop\\port\\app.py', reloading
+2026-03-13 05:55:14,342 INFO [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2026-03-13 05:55:14,343 INFO [33mPress CTRL+C to quit[0m
+2026-03-13 05:55:14,346 INFO  * Restarting with stat
+2026-03-13 05:55:15,895 WARNING  * Debugger is active!
+2026-03-13 05:55:15,898 INFO  * Debugger PIN: 140-037-455
+2026-03-13 05:55:20,722 INFO 404 error: http://127.0.0.1:5000/bshshshhs
+2026-03-13 05:55:20,947 INFO 127.0.0.1 - - [13/Mar/2026 05:55:20] "[35m[1mGET /bshshshhs HTTP/1.1[0m" 500 -
+2026-03-13 05:55:21,079 INFO 127.0.0.1 - - [13/Mar/2026 05:55:21] "GET /bshshshhs?__debugger__=yes&cmd=resource&f=style.css HTTP/1.1" 200 -
+2026-03-13 05:55:21,097 INFO 127.0.0.1 - - [13/Mar/2026 05:55:21] "GET /bshshshhs?__debugger__=yes&cmd=resource&f=debugger.js HTTP/1.1" 200 -
+2026-03-13 05:55:21,192 INFO 127.0.0.1 - - [13/Mar/2026 05:55:21] "GET /bshshshhs?__debugger__=yes&cmd=resource&f=console.png&s=z0rM5hq5oPZc9zkiIF6S HTTP/1.1" 200 -
+2026-03-13 05:55:21,220 INFO 127.0.0.1 - - [13/Mar/2026 05:55:21] "GET /bshshshhs?__debugger__=yes&cmd=resource&f=console.png HTTP/1.1" 200 -
+2026-03-13 06:29:03,054 INFO 404 error: http://127.0.0.1:5000/bshshshhs
+2026-03-13 06:29:03,082 INFO 127.0.0.1 - - [13/Mar/2026 06:29:03] "[35m[1mGET /bshshshhs HTTP/1.1[0m" 500 -
+2026-03-13 06:29:03,116 INFO 127.0.0.1 - - [13/Mar/2026 06:29:03] "[36mGET /bshshshhs?__debugger__=yes&cmd=resource&f=style.css HTTP/1.1[0m" 304 -
+2026-03-13 06:29:03,136 INFO 127.0.0.1 - - [13/Mar/2026 06:29:03] "[36mGET /bshshshhs?__debugger__=yes&cmd=resource&f=debugger.js HTTP/1.1[0m" 304 -
+2026-03-13 06:29:03,176 INFO 127.0.0.1 - - [13/Mar/2026 06:29:03] "[36mGET /bshshshhs?__debugger__=yes&cmd=resource&f=console.png&s=z0rM5hq5oPZc9zkiIF6S HTTP/1.1[0m" 304 -
+2026-03-13 06:29:03,210 INFO 127.0.0.1 - - [13/Mar/2026 06:29:03] "[36mGET /bshshshhs?__debugger__=yes&cmd=resource&f=console.png HTTP/1.1[0m" 304 -
+2026-03-13 06:30:53,429 INFO 404 error: http://127.0.0.1:5000/bshshshhs
+2026-03-13 06:30:53,454 INFO 127.0.0.1 - - [13/Mar/2026 06:30:53] "[33mGET /bshshshhs HTTP/1.1[0m" 404 -
+2026-03-13 06:30:53,496 INFO 127.0.0.1 - - [13/Mar/2026 06:30:53] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2026-03-13 06:30:53,503 INFO 127.0.0.1 - - [13/Mar/2026 06:30:53] "[36mGET /static/js/main.js HTTP/1.1[0m" 304 -
+2026-03-13 14:48:31,423 INFO [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2026-03-13 14:48:31,424 INFO [33mPress CTRL+C to quit[0m
+2026-03-13 14:48:31,427 INFO  * Restarting with stat
+2026-03-13 14:48:32,966 WARNING  * Debugger is active!
+2026-03-13 14:48:32,975 INFO  * Debugger PIN: 140-037-455
+2026-03-13 16:20:30,840 INFO [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2026-03-13 16:20:30,841 INFO [33mPress CTRL+C to quit[0m
+2026-03-13 16:20:30,844 INFO  * Restarting with stat
+2026-03-13 16:20:32,447 WARNING  * Debugger is active!
+2026-03-13 16:20:32,456 INFO  * Debugger PIN: 128-885-808
+2026-03-13 16:48:55,721 INFO [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2026-03-13 16:48:55,721 INFO [33mPress CTRL+C to quit[0m
+2026-03-13 16:48:55,723 INFO  * Restarting with stat
+2026-03-13 16:48:57,488 WARNING  * Debugger is active!
+2026-03-13 16:48:57,490 INFO  * Debugger PIN: 128-885-808
+2026-03-13 16:54:30,738 INFO [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2026-03-13 16:54:30,738 INFO [33mPress CTRL+C to quit[0m
+2026-03-13 16:54:30,742 INFO  * Restarting with stat
+2026-03-13 16:54:32,548 WARNING  * Debugger is active!
+2026-03-13 16:54:32,551 INFO  * Debugger PIN: 128-885-808
+2026-03-13 17:04:16,377 INFO [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2026-03-13 17:04:16,377 INFO [33mPress CTRL+C to quit[0m
+2026-03-13 17:04:16,380 INFO  * Restarting with stat
+2026-03-13 17:04:18,970 WARNING  * Debugger is active!
+2026-03-13 17:04:18,975 INFO  * Debugger PIN: 128-885-808
+2026-03-13 17:28:25,775 INFO 127.0.0.1 - - [13/Mar/2026 17:28:25] "GET / HTTP/1.1" 200 -
+2026-03-13 17:28:25,966 INFO 127.0.0.1 - - [13/Mar/2026 17:28:25] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2026-03-13 17:28:25,968 INFO 127.0.0.1 - - [13/Mar/2026 17:28:25] "[36mGET /static/uploads/IMG-20250419-WA0020.jpg HTTP/1.1[0m" 304 -
+2026-03-13 17:28:26,026 INFO 127.0.0.1 - - [13/Mar/2026 17:28:26] "[36mGET /static/js/main.js HTTP/1.1[0m" 304 -
+2026-03-13 17:28:26,146 INFO 404 error: http://127.0.0.1:5000/favicon.ico
+2026-03-13 17:28:26,170 INFO 127.0.0.1 - - [13/Mar/2026 17:28:26] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2026-03-13 17:32:15,217 INFO [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2026-03-13 17:32:15,217 INFO [33mPress CTRL+C to quit[0m
+2026-03-13 17:32:15,221 INFO  * Restarting with stat
+2026-03-13 17:32:17,588 WARNING  * Debugger is active!
+2026-03-13 17:32:17,594 INFO  * Debugger PIN: 140-037-455
+2026-03-13 17:39:40,522 INFO 127.0.0.1 - - [13/Mar/2026 17:39:40] "[32mGET /admin HTTP/1.1[0m" 302 -
+2026-03-13 17:39:40,585 INFO 127.0.0.1 - - [13/Mar/2026 17:39:40] "GET /admin/login?next=/admin HTTP/1.1" 200 -
+2026-03-13 17:39:40,757 INFO 127.0.0.1 - - [13/Mar/2026 17:39:40] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2026-03-13 17:39:40,760 INFO 127.0.0.1 - - [13/Mar/2026 17:39:40] "[36mGET /static/js/main.js HTTP/1.1[0m" 304 -
+2026-03-13 17:40:20,203 WARNING Failed login attempt for username admin
+2026-03-13 17:40:20,205 INFO 127.0.0.1 - - [13/Mar/2026 17:40:20] "POST /admin/login?next=/admin HTTP/1.1" 200 -
+2026-03-13 17:40:20,232 INFO 127.0.0.1 - - [13/Mar/2026 17:40:20] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2026-03-13 17:40:20,244 INFO 127.0.0.1 - - [13/Mar/2026 17:40:20] "[36mGET /static/js/main.js HTTP/1.1[0m" 304 -
+2026-03-13 22:24:22,657 INFO [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2026-03-13 22:24:22,658 INFO [33mPress CTRL+C to quit[0m
+2026-03-13 22:24:22,662 INFO  * Restarting with stat
+2026-03-13 22:24:24,511 WARNING  * Debugger is active!
+2026-03-13 22:24:24,514 INFO  * Debugger PIN: 140-037-455
+2026-03-13 22:27:06,607 INFO 127.0.0.1 - - [13/Mar/2026 22:27:06] "GET / HTTP/1.1" 200 -
+2026-03-13 22:27:06,774 INFO 127.0.0.1 - - [13/Mar/2026 22:27:06] "[36mGET /static/uploads/IMG-20250419-WA0020.jpg HTTP/1.1[0m" 304 -
+2026-03-13 22:27:06,790 INFO 127.0.0.1 - - [13/Mar/2026 22:27:06] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2026-03-13 22:27:06,843 INFO 127.0.0.1 - - [13/Mar/2026 22:27:06] "[36mGET /static/js/main.js HTTP/1.1[0m" 304 -
+2026-03-13 22:27:06,937 INFO 404 error: http://127.0.0.1:5000/favicon.ico
+2026-03-13 22:27:06,941 INFO 127.0.0.1 - - [13/Mar/2026 22:27:06] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2026-03-13 22:32:41,568 INFO 127.0.0.1 - - [13/Mar/2026 22:32:41] "[32mGET /admin HTTP/1.1[0m" 302 -
+2026-03-13 22:32:41,596 INFO 127.0.0.1 - - [13/Mar/2026 22:32:41] "GET /admin/login?next=/admin HTTP/1.1" 200 -
+2026-03-13 22:32:41,624 INFO 127.0.0.1 - - [13/Mar/2026 22:32:41] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2026-03-13 22:32:41,634 INFO 127.0.0.1 - - [13/Mar/2026 22:32:41] "[36mGET /static/js/main.js HTTP/1.1[0m" 304 -
+2026-03-13 22:32:52,980 INFO user adedamola logged in successfully
+2026-03-13 22:32:52,982 INFO 127.0.0.1 - - [13/Mar/2026 22:32:52] "[32mPOST /admin/login?next=/admin HTTP/1.1[0m" 302 -
+2026-03-13 22:32:53,115 INFO 127.0.0.1 - - [13/Mar/2026 22:32:53] "GET /admin HTTP/1.1" 200 -
+2026-03-13 22:32:53,147 INFO 127.0.0.1 - - [13/Mar/2026 22:32:53] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2026-03-13 22:32:53,158 INFO 127.0.0.1 - - [13/Mar/2026 22:32:53] "[36mGET /static/uploads/IMG-20250419-WA0020.jpg HTTP/1.1[0m" 304 -
+2026-03-13 22:32:53,159 INFO 127.0.0.1 - - [13/Mar/2026 22:32:53] "[36mGET /static/js/main.js HTTP/1.1[0m" 304 -
+2026-03-13 22:33:02,530 INFO 127.0.0.1 - - [13/Mar/2026 22:33:02] "GET /admin/edit_content HTTP/1.1" 200 -
+2026-03-13 22:33:02,555 INFO 127.0.0.1 - - [13/Mar/2026 22:33:02] "[36mGET /static/uploads/IMG-20250419-WA0020.jpg HTTP/1.1[0m" 304 -
+2026-03-13 22:33:27,232 INFO 127.0.0.1 - - [13/Mar/2026 22:33:27] "[32mPOST /admin/edit_content HTTP/1.1[0m" 302 -
+2026-03-13 22:33:27,282 INFO 127.0.0.1 - - [13/Mar/2026 22:33:27] "GET /admin/edit_content HTTP/1.1" 200 -
+2026-03-13 22:33:27,328 INFO 127.0.0.1 - - [13/Mar/2026 22:33:27] "[36mGET /static/uploads/IMG-20250419-WA0020.jpg HTTP/1.1[0m" 304 -
+2026-03-13 22:33:59,628 INFO 127.0.0.1 - - [13/Mar/2026 22:33:59] "GET / HTTP/1.1" 200 -
+2026-03-13 22:33:59,692 INFO 127.0.0.1 - - [13/Mar/2026 22:33:59] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2026-03-13 22:33:59,710 INFO 127.0.0.1 - - [13/Mar/2026 22:33:59] "[36mGET /static/uploads/IMG-20250419-WA0020.jpg HTTP/1.1[0m" 304 -
+2026-03-13 22:33:59,753 INFO 127.0.0.1 - - [13/Mar/2026 22:33:59] "[36mGET /static/js/main.js HTTP/1.1[0m" 304 -
+2026-03-13 22:34:01,736 INFO 127.0.0.1 - - [13/Mar/2026 22:34:01] "GET / HTTP/1.1" 200 -
+2026-03-13 22:34:01,771 INFO 127.0.0.1 - - [13/Mar/2026 22:34:01] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2026-03-13 22:34:01,776 INFO 127.0.0.1 - - [13/Mar/2026 22:34:01] "[36mGET /static/uploads/IMG-20250419-WA0020.jpg HTTP/1.1[0m" 304 -
+2026-03-13 22:34:01,779 INFO 127.0.0.1 - - [13/Mar/2026 22:34:01] "[36mGET /static/js/main.js HTTP/1.1[0m" 304 -
+2026-03-13 22:34:10,783 INFO 127.0.0.1 - - [13/Mar/2026 22:34:10] "GET /admin/edit_content HTTP/1.1" 200 -
+2026-03-13 22:34:10,826 INFO 127.0.0.1 - - [13/Mar/2026 22:34:10] "[36mGET /static/uploads/IMG-20250419-WA0020.jpg HTTP/1.1[0m" 304 -
+2026-03-13 22:34:11,872 INFO 127.0.0.1 - - [13/Mar/2026 22:34:11] "GET /admin/edit_content HTTP/1.1" 200 -
+2026-03-13 22:34:11,906 INFO 127.0.0.1 - - [13/Mar/2026 22:34:11] "[36mGET /static/uploads/IMG-20250419-WA0020.jpg HTTP/1.1[0m" 304 -
+2026-03-13 22:34:12,341 INFO 127.0.0.1 - - [13/Mar/2026 22:34:12] "GET /admin/edit_content HTTP/1.1" 200 -
+2026-03-13 22:34:12,388 INFO 127.0.0.1 - - [13/Mar/2026 22:34:12] "[36mGET /static/uploads/IMG-20250419-WA0020.jpg HTTP/1.1[0m" 304 -
+2026-03-13 22:34:12,753 INFO 127.0.0.1 - - [13/Mar/2026 22:34:12] "GET /admin/edit_content HTTP/1.1" 200 -
+2026-03-13 22:34:12,814 INFO 127.0.0.1 - - [13/Mar/2026 22:34:12] "[36mGET /static/uploads/IMG-20250419-WA0020.jpg HTTP/1.1[0m" 304 -
+2026-03-13 22:34:13,045 INFO 127.0.0.1 - - [13/Mar/2026 22:34:13] "GET /admin/edit_content HTTP/1.1" 200 -
+2026-03-13 22:34:13,082 INFO 127.0.0.1 - - [13/Mar/2026 22:34:13] "[36mGET /static/uploads/IMG-20250419-WA0020.jpg HTTP/1.1[0m" 304 -
+2026-03-13 22:34:13,604 INFO 127.0.0.1 - - [13/Mar/2026 22:34:13] "GET /admin/edit_content HTTP/1.1" 200 -
+2026-03-13 22:34:13,641 INFO 127.0.0.1 - - [13/Mar/2026 22:34:13] "[36mGET /static/uploads/IMG-20250419-WA0020.jpg HTTP/1.1[0m" 304 -
+2026-03-13 22:34:21,331 INFO 127.0.0.1 - - [13/Mar/2026 22:34:21] "[32mPOST /admin/edit_content HTTP/1.1[0m" 302 -
+2026-03-13 22:34:21,377 INFO 127.0.0.1 - - [13/Mar/2026 22:34:21] "GET /admin/edit_content HTTP/1.1" 200 -
+2026-03-13 22:34:21,467 INFO 127.0.0.1 - - [13/Mar/2026 22:34:21] "GET /static/uploads/powerbank.jpeg HTTP/1.1" 200 -
+2026-03-13 22:34:25,390 INFO 127.0.0.1 - - [13/Mar/2026 22:34:25] "GET /admin/edit_content HTTP/1.1" 200 -
+2026-03-13 22:34:25,423 INFO 127.0.0.1 - - [13/Mar/2026 22:34:25] "[36mGET /static/uploads/powerbank.jpeg HTTP/1.1[0m" 304 -
+2026-03-13 22:34:28,418 INFO 127.0.0.1 - - [13/Mar/2026 22:34:28] "GET / HTTP/1.1" 200 -
+2026-03-13 22:34:28,452 INFO 127.0.0.1 - - [13/Mar/2026 22:34:28] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2026-03-13 22:34:28,462 INFO 127.0.0.1 - - [13/Mar/2026 22:34:28] "[36mGET /static/uploads/powerbank.jpeg HTTP/1.1[0m" 304 -
+2026-03-13 22:34:28,464 INFO 127.0.0.1 - - [13/Mar/2026 22:34:28] "[36mGET /static/js/main.js HTTP/1.1[0m" 304 -
+2026-03-13 22:37:45,509 INFO 127.0.0.1 - - [13/Mar/2026 22:37:45] "[32mPOST /admin/edit_content HTTP/1.1[0m" 302 -
+2026-03-13 22:37:45,542 INFO 127.0.0.1 - - [13/Mar/2026 22:37:45] "GET /admin/edit_content HTTP/1.1" 200 -
+2026-03-13 22:37:45,580 INFO 127.0.0.1 - - [13/Mar/2026 22:37:45] "[36mGET /static/uploads/powerbank.jpeg HTTP/1.1[0m" 304 -
+2026-03-13 22:48:55,033 INFO  * Detected change in 'C:\\Users\\ADEDAMOLA\\Desktop\\port\\app.py', reloading
+2026-03-13 22:48:55,810 INFO  * Restarting with stat
+2026-03-13 22:48:57,555 WARNING  * Debugger is active!
+2026-03-13 22:48:57,560 INFO  * Debugger PIN: 140-037-455
+2026-03-13 22:50:22,121 INFO  * Detected change in 'C:\\Users\\ADEDAMOLA\\Desktop\\port\\app.py', reloading
+2026-03-13 22:50:22,360 INFO  * Restarting with stat
+2026-03-13 22:50:26,028 WARNING  * Debugger is active!
+2026-03-13 22:50:26,035 INFO  * Debugger PIN: 140-037-455
+2026-03-13 22:50:42,203 INFO 127.0.0.1 - - [13/Mar/2026 22:50:42] "[32mPOST /admin/edit_content HTTP/1.1[0m" 302 -
+2026-03-13 22:50:42,278 INFO 127.0.0.1 - - [13/Mar/2026 22:50:42] "GET /admin/edit_content HTTP/1.1" 200 -
+2026-03-13 22:50:42,444 INFO 127.0.0.1 - - [13/Mar/2026 22:50:42] "[36mGET /static/uploads/powerbank.jpeg HTTP/1.1[0m" 304 -
+2026-03-13 22:58:16,835 INFO 127.0.0.1 - - [13/Mar/2026 22:58:16] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2026-03-13 22:58:16,870 INFO 404 error: http://127.0.0.1:5000/.well-known/appspecific/com.chrome.devtools.json
+2026-03-13 22:58:16,887 INFO 127.0.0.1 - - [13/Mar/2026 22:58:16] "[33mGET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1[0m" 404 -
+2026-03-13 22:58:51,675 INFO 127.0.0.1 - - [13/Mar/2026 22:58:51] "GET / HTTP/1.1" 200 -
+2026-03-13 22:58:51,732 INFO 127.0.0.1 - - [13/Mar/2026 22:58:51] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2026-03-13 22:58:51,754 INFO 404 error: http://127.0.0.1:5000/.well-known/appspecific/com.chrome.devtools.json
+2026-03-13 22:58:51,759 INFO 127.0.0.1 - - [13/Mar/2026 22:58:51] "[33mGET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1[0m" 404 -
+2026-03-13 22:58:51,764 INFO 127.0.0.1 - - [13/Mar/2026 22:58:51] "[36mGET /static/uploads/powerbank.jpeg HTTP/1.1[0m" 304 -
+2026-03-13 22:58:51,834 INFO 127.0.0.1 - - [13/Mar/2026 22:58:51] "[36mGET /static/js/main.js HTTP/1.1[0m" 304 -
+2026-03-13 22:58:51,916 INFO 127.0.0.1 - - [13/Mar/2026 22:58:51] "GET / HTTP/1.1" 200 -
+2026-03-13 22:58:52,016 INFO 404 error: http://127.0.0.1:5000/.well-known/appspecific/com.chrome.devtools.json
+2026-03-13 22:58:52,052 INFO 127.0.0.1 - - [13/Mar/2026 22:58:52] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2026-03-13 22:58:52,057 INFO 127.0.0.1 - - [13/Mar/2026 22:58:52] "[33mGET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1[0m" 404 -
+2026-03-13 22:58:52,076 INFO 127.0.0.1 - - [13/Mar/2026 22:58:52] "[36mGET /static/js/main.js HTTP/1.1[0m" 304 -
+2026-03-13 22:58:52,083 INFO 127.0.0.1 - - [13/Mar/2026 22:58:52] "[36mGET /static/uploads/powerbank.jpeg HTTP/1.1[0m" 304 -
+2026-03-13 22:58:52,128 INFO 127.0.0.1 - - [13/Mar/2026 22:58:52] "GET / HTTP/1.1" 200 -
+2026-03-13 22:58:52,205 INFO 404 error: http://127.0.0.1:5000/.well-known/appspecific/com.chrome.devtools.json
+2026-03-13 22:58:52,234 INFO 127.0.0.1 - - [13/Mar/2026 22:58:52] "[33mGET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1[0m" 404 -
+2026-03-13 22:58:52,250 INFO 127.0.0.1 - - [13/Mar/2026 22:58:52] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2026-03-13 22:58:52,259 INFO 127.0.0.1 - - [13/Mar/2026 22:58:52] "[36mGET /static/uploads/powerbank.jpeg HTTP/1.1[0m" 304 -
+2026-03-13 22:58:52,271 INFO 127.0.0.1 - - [13/Mar/2026 22:58:52] "[36mGET /static/js/main.js HTTP/1.1[0m" 304 -
+2026-03-13 22:58:52,306 INFO 127.0.0.1 - - [13/Mar/2026 22:58:52] "GET / HTTP/1.1" 200 -
+2026-03-13 22:58:52,413 INFO 127.0.0.1 - - [13/Mar/2026 22:58:52] "[36mGET /static/uploads/powerbank.jpeg HTTP/1.1[0m" 304 -
+2026-03-13 22:58:52,425 INFO 127.0.0.1 - - [13/Mar/2026 22:58:52] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2026-03-13 22:58:52,429 INFO 404 error: http://127.0.0.1:5000/.well-known/appspecific/com.chrome.devtools.json
+2026-03-13 22:58:52,432 INFO 127.0.0.1 - - [13/Mar/2026 22:58:52] "[36mGET /static/js/main.js HTTP/1.1[0m" 304 -
+2026-03-13 22:58:52,435 INFO 127.0.0.1 - - [13/Mar/2026 22:58:52] "[33mGET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1[0m" 404 -
+2026-03-13 22:58:53,021 INFO 127.0.0.1 - - [13/Mar/2026 22:58:53] "GET / HTTP/1.1" 200 -
+2026-03-13 22:58:53,079 INFO 404 error: http://127.0.0.1:5000/.well-known/appspecific/com.chrome.devtools.json
+2026-03-13 22:58:53,086 INFO 127.0.0.1 - - [13/Mar/2026 22:58:53] "[33mGET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1[0m" 404 -
+2026-03-13 22:58:53,115 INFO 127.0.0.1 - - [13/Mar/2026 22:58:53] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2026-03-13 22:58:53,135 INFO 127.0.0.1 - - [13/Mar/2026 22:58:53] "[36mGET /static/uploads/powerbank.jpeg HTTP/1.1[0m" 304 -
+2026-03-13 22:58:53,154 INFO 127.0.0.1 - - [13/Mar/2026 22:58:53] "[36mGET /static/js/main.js HTTP/1.1[0m" 304 -
+2026-03-13 22:58:53,527 INFO 127.0.0.1 - - [13/Mar/2026 22:58:53] "GET / HTTP/1.1" 200 -
+2026-03-13 22:58:53,642 INFO 404 error: http://127.0.0.1:5000/.well-known/appspecific/com.chrome.devtools.json
+2026-03-13 22:58:53,649 INFO 127.0.0.1 - - [13/Mar/2026 22:58:53] "[33mGET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1[0m" 404 -
+2026-03-13 22:58:53,659 INFO 127.0.0.1 - - [13/Mar/2026 22:58:53] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2026-03-13 22:58:53,667 INFO 127.0.0.1 - - [13/Mar/2026 22:58:53] "[36mGET /static/uploads/powerbank.jpeg HTTP/1.1[0m" 304 -
+2026-03-13 22:58:53,700 INFO 127.0.0.1 - - [13/Mar/2026 22:58:53] "[36mGET /static/js/main.js HTTP/1.1[0m" 304 -
+2026-03-13 22:58:53,734 INFO 127.0.0.1 - - [13/Mar/2026 22:58:53] "GET / HTTP/1.1" 200 -
+2026-03-13 22:58:53,834 INFO 404 error: http://127.0.0.1:5000/.well-known/appspecific/com.chrome.devtools.json
+2026-03-13 22:58:53,842 INFO 127.0.0.1 - - [13/Mar/2026 22:58:53] "[33mGET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1[0m" 404 -
+2026-03-13 22:58:53,847 INFO 127.0.0.1 - - [13/Mar/2026 22:58:53] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2026-03-13 22:58:53,886 INFO 127.0.0.1 - - [13/Mar/2026 22:58:53] "[36mGET /static/js/main.js HTTP/1.1[0m" 304 -
+2026-03-13 22:58:53,886 INFO 127.0.0.1 - - [13/Mar/2026 22:58:53] "[36mGET /static/uploads/powerbank.jpeg HTTP/1.1[0m" 304 -
+2026-03-13 22:58:53,929 INFO 127.0.0.1 - - [13/Mar/2026 22:58:53] "GET / HTTP/1.1" 200 -
+2026-03-13 22:58:53,997 INFO 404 error: http://127.0.0.1:5000/.well-known/appspecific/com.chrome.devtools.json
+2026-03-13 22:58:54,002 INFO 127.0.0.1 - - [13/Mar/2026 22:58:54] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2026-03-13 22:58:54,006 INFO 127.0.0.1 - - [13/Mar/2026 22:58:54] "[33mGET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1[0m" 404 -
+2026-03-13 22:58:54,008 INFO 127.0.0.1 - - [13/Mar/2026 22:58:54] "[36mGET /static/uploads/powerbank.jpeg HTTP/1.1[0m" 304 -
+2026-03-13 22:58:54,023 INFO 127.0.0.1 - - [13/Mar/2026 22:58:54] "[36mGET /static/js/main.js HTTP/1.1[0m" 304 -
+2026-03-13 22:58:54,157 INFO 127.0.0.1 - - [13/Mar/2026 22:58:54] "GET / HTTP/1.1" 200 -
+2026-03-13 22:58:54,241 INFO 404 error: http://127.0.0.1:5000/.well-known/appspecific/com.chrome.devtools.json
+2026-03-13 22:58:54,247 INFO 127.0.0.1 - - [13/Mar/2026 22:58:54] "[33mGET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1[0m" 404 -
+2026-03-13 22:58:54,262 INFO 127.0.0.1 - - [13/Mar/2026 22:58:54] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2026-03-13 22:58:54,262 INFO 127.0.0.1 - - [13/Mar/2026 22:58:54] "[36mGET /static/uploads/powerbank.jpeg HTTP/1.1[0m" 304 -
+2026-03-13 22:58:54,266 INFO 127.0.0.1 - - [13/Mar/2026 22:58:54] "[36mGET /static/js/main.js HTTP/1.1[0m" 304 -
+2026-03-13 22:58:54,403 INFO 127.0.0.1 - - [13/Mar/2026 22:58:54] "GET / HTTP/1.1" 200 -
+2026-03-13 22:58:54,464 INFO 404 error: http://127.0.0.1:5000/.well-known/appspecific/com.chrome.devtools.json
+2026-03-13 22:58:54,470 INFO 127.0.0.1 - - [13/Mar/2026 22:58:54] "[33mGET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1[0m" 404 -
+2026-03-13 22:58:54,480 INFO 127.0.0.1 - - [13/Mar/2026 22:58:54] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2026-03-13 22:58:54,485 INFO 127.0.0.1 - - [13/Mar/2026 22:58:54] "[36mGET /static/js/main.js HTTP/1.1[0m" 304 -
+2026-03-13 22:58:54,485 INFO 127.0.0.1 - - [13/Mar/2026 22:58:54] "[36mGET /static/uploads/powerbank.jpeg HTTP/1.1[0m" 304 -
+2026-03-13 22:58:55,041 INFO 127.0.0.1 - - [13/Mar/2026 22:58:55] "GET / HTTP/1.1" 200 -
+2026-03-13 22:58:55,167 INFO 404 error: http://127.0.0.1:5000/.well-known/appspecific/com.chrome.devtools.json
+2026-03-13 22:58:55,172 INFO 127.0.0.1 - - [13/Mar/2026 22:58:55] "[33mGET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1[0m" 404 -
+2026-03-13 22:58:55,183 INFO 127.0.0.1 - - [13/Mar/2026 22:58:55] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2026-03-13 22:58:55,188 INFO 127.0.0.1 - - [13/Mar/2026 22:58:55] "[36mGET /static/uploads/powerbank.jpeg HTTP/1.1[0m" 304 -
+2026-03-13 22:58:55,189 INFO 127.0.0.1 - - [13/Mar/2026 22:58:55] "[36mGET /static/js/main.js HTTP/1.1[0m" 304 -
+2026-03-13 23:06:35,880 INFO 127.0.0.1 - - [13/Mar/2026 23:06:35] "GET / HTTP/1.1" 200 -
+2026-03-13 23:06:35,923 INFO 127.0.0.1 - - [13/Mar/2026 23:06:35] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2026-03-13 23:06:35,926 INFO 127.0.0.1 - - [13/Mar/2026 23:06:35] "[36mGET /static/uploads/powerbank.jpeg HTTP/1.1[0m" 304 -
+2026-03-13 23:06:35,942 INFO 127.0.0.1 - - [13/Mar/2026 23:06:35] "[36mGET /static/js/main.js HTTP/1.1[0m" 304 -
+2026-03-13 23:06:36,683 INFO 127.0.0.1 - - [13/Mar/2026 23:06:36] "GET / HTTP/1.1" 200 -
+2026-03-13 23:06:36,718 INFO 127.0.0.1 - - [13/Mar/2026 23:06:36] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2026-03-13 23:06:36,732 INFO 127.0.0.1 - - [13/Mar/2026 23:06:36] "[36mGET /static/uploads/powerbank.jpeg HTTP/1.1[0m" 304 -
+2026-03-13 23:06:36,732 INFO 127.0.0.1 - - [13/Mar/2026 23:06:36] "[36mGET /static/js/main.js HTTP/1.1[0m" 304 -
+2026-03-13 23:06:37,002 INFO 127.0.0.1 - - [13/Mar/2026 23:06:37] "GET / HTTP/1.1" 200 -
+2026-03-13 23:06:37,037 INFO 127.0.0.1 - - [13/Mar/2026 23:06:37] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2026-03-13 23:06:37,049 INFO 127.0.0.1 - - [13/Mar/2026 23:06:37] "[36mGET /static/uploads/powerbank.jpeg HTTP/1.1[0m" 304 -
+2026-03-13 23:06:37,051 INFO 127.0.0.1 - - [13/Mar/2026 23:06:37] "[36mGET /static/js/main.js HTTP/1.1[0m" 304 -
+2026-03-13 23:06:37,490 INFO 127.0.0.1 - - [13/Mar/2026 23:06:37] "GET / HTTP/1.1" 200 -
+2026-03-13 23:06:37,532 INFO 127.0.0.1 - - [13/Mar/2026 23:06:37] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2026-03-13 23:06:37,552 INFO 127.0.0.1 - - [13/Mar/2026 23:06:37] "[36mGET /static/uploads/powerbank.jpeg HTTP/1.1[0m" 304 -
+2026-03-13 23:06:37,553 INFO 127.0.0.1 - - [13/Mar/2026 23:06:37] "[36mGET /static/js/main.js HTTP/1.1[0m" 304 -
+2026-03-13 23:06:37,840 INFO 127.0.0.1 - - [13/Mar/2026 23:06:37] "GET / HTTP/1.1" 200 -
+2026-03-13 23:06:37,893 INFO 127.0.0.1 - - [13/Mar/2026 23:06:37] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2026-03-13 23:06:37,909 INFO 127.0.0.1 - - [13/Mar/2026 23:06:37] "[36mGET /static/uploads/powerbank.jpeg HTTP/1.1[0m" 304 -
+2026-03-13 23:06:37,915 INFO 127.0.0.1 - - [13/Mar/2026 23:06:37] "[36mGET /static/js/main.js HTTP/1.1[0m" 304 -
+2026-03-13 23:26:21,004 INFO  * Detected change in 'C:\\Users\\ADEDAMOLA\\Desktop\\port\\app.py', reloading
+2026-03-13 23:26:21,397 INFO  * Restarting with stat
+2026-03-13 23:26:23,205 WARNING  * Debugger is active!
+2026-03-13 23:26:23,207 INFO  * Debugger PIN: 140-037-455
+2026-03-13 23:36:39,587 INFO  * Detected change in 'C:\\Users\\ADEDAMOLA\\Desktop\\port\\app.py', reloading
+2026-03-13 23:36:39,812 INFO  * Restarting with stat
+2026-03-13 23:53:48,895 INFO [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2026-03-13 23:53:48,895 INFO [33mPress CTRL+C to quit[0m
+2026-03-13 23:53:48,898 INFO  * Restarting with stat
+2026-03-13 23:53:50,655 WARNING  * Debugger is active!
+2026-03-13 23:53:50,658 INFO  * Debugger PIN: 140-037-455
+2026-03-13 23:53:55,965 INFO 127.0.0.1 - - [13/Mar/2026 23:53:55] "GET / HTTP/1.1" 200 -
+2026-03-13 23:53:56,097 INFO 127.0.0.1 - - [13/Mar/2026 23:53:56] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2026-03-13 23:53:56,109 INFO 127.0.0.1 - - [13/Mar/2026 23:53:56] "[36mGET /static/uploads/powerbank.jpeg HTTP/1.1[0m" 304 -
+2026-03-13 23:53:56,122 INFO 127.0.0.1 - - [13/Mar/2026 23:53:56] "[36mGET /static/js/main.js HTTP/1.1[0m" 304 -
+2026-03-13 23:54:09,681 INFO 127.0.0.1 - - [13/Mar/2026 23:54:09] "GET / HTTP/1.1" 200 -
+2026-03-13 23:54:09,715 INFO 127.0.0.1 - - [13/Mar/2026 23:54:09] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2026-03-13 23:54:09,724 INFO 127.0.0.1 - - [13/Mar/2026 23:54:09] "[36mGET /static/js/main.js HTTP/1.1[0m" 304 -
+2026-03-13 23:54:09,724 INFO 127.0.0.1 - - [13/Mar/2026 23:54:09] "[36mGET /static/uploads/powerbank.jpeg HTTP/1.1[0m" 304 -
+2026-03-13 23:54:10,536 INFO 127.0.0.1 - - [13/Mar/2026 23:54:10] "GET / HTTP/1.1" 200 -
+2026-03-13 23:54:10,587 INFO 127.0.0.1 - - [13/Mar/2026 23:54:10] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2026-03-13 23:54:10,599 INFO 127.0.0.1 - - [13/Mar/2026 23:54:10] "[36mGET /static/js/main.js HTTP/1.1[0m" 304 -
+2026-03-13 23:54:10,610 INFO 127.0.0.1 - - [13/Mar/2026 23:54:10] "[36mGET /static/uploads/powerbank.jpeg HTTP/1.1[0m" 304 -
+2026-03-13 23:54:11,111 INFO 127.0.0.1 - - [13/Mar/2026 23:54:11] "GET / HTTP/1.1" 200 -
+2026-03-13 23:54:11,152 INFO 127.0.0.1 - - [13/Mar/2026 23:54:11] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2026-03-13 23:54:11,156 INFO 127.0.0.1 - - [13/Mar/2026 23:54:11] "[36mGET /static/uploads/powerbank.jpeg HTTP/1.1[0m" 304 -
+2026-03-13 23:54:11,161 INFO 127.0.0.1 - - [13/Mar/2026 23:54:11] "[36mGET /static/js/main.js HTTP/1.1[0m" 304 -
+2026-03-13 23:54:37,629 INFO Auto-reply sent to oadedamola07@gmail.com
+2026-03-13 23:54:37,632 INFO 127.0.0.1 - - [13/Mar/2026 23:54:37] "[32mPOST /contact HTTP/1.1[0m" 302 -
+2026-03-13 23:54:37,716 INFO 127.0.0.1 - - [13/Mar/2026 23:54:37] "GET /?success=1 HTTP/1.1" 200 -
+2026-03-13 23:54:37,763 INFO 127.0.0.1 - - [13/Mar/2026 23:54:37] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2026-03-13 23:54:37,774 INFO 127.0.0.1 - - [13/Mar/2026 23:54:37] "[36mGET /static/uploads/powerbank.jpeg HTTP/1.1[0m" 304 -
+2026-03-13 23:54:37,775 INFO 127.0.0.1 - - [13/Mar/2026 23:54:37] "[36mGET /static/js/main.js HTTP/1.1[0m" 304 -
+2026-03-13 23:59:36,199 INFO  * Detected change in 'C:\\Users\\ADEDAMOLA\\Desktop\\port\\app.py', reloading
+2026-03-13 23:59:36,621 INFO  * Restarting with stat
+2026-03-13 23:59:38,571 WARNING  * Debugger is active!
+2026-03-13 23:59:38,574 INFO  * Debugger PIN: 140-037-455
+2026-03-14 00:01:19,165 INFO  * Detected change in 'C:\\Users\\ADEDAMOLA\\Desktop\\port\\app.py', reloading
+2026-03-14 00:01:19,388 INFO  * Restarting with stat
+2026-03-14 00:01:21,881 WARNING  * Debugger is active!
+2026-03-14 00:01:21,885 INFO  * Debugger PIN: 140-037-455
+2026-03-14 00:01:22,148 INFO 127.0.0.1 - - [14/Mar/2026 00:01:22] "GET / HTTP/1.1" 200 -
+2026-03-14 00:01:22,361 INFO 127.0.0.1 - - [14/Mar/2026 00:01:22] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2026-03-14 00:01:22,366 INFO 127.0.0.1 - - [14/Mar/2026 00:01:22] "[36mGET /static/uploads/powerbank.jpeg HTTP/1.1[0m" 304 -
+2026-03-14 00:01:22,377 INFO 127.0.0.1 - - [14/Mar/2026 00:01:22] "[36mGET /static/js/main.js HTTP/1.1[0m" 304 -
+2026-03-14 00:01:25,163 INFO 127.0.0.1 - - [14/Mar/2026 00:01:25] "GET /admin/edit_content HTTP/1.1" 200 -
+2026-03-14 00:01:30,732 INFO 127.0.0.1 - - [14/Mar/2026 00:01:30] "GET /admin HTTP/1.1" 200 -
+2026-03-14 00:01:36,542 INFO 127.0.0.1 - - [14/Mar/2026 00:01:36] "GET /admin HTTP/1.1" 200 -
+2026-03-14 00:01:36,602 INFO 127.0.0.1 - - [14/Mar/2026 00:01:36] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2026-03-14 00:01:36,664 INFO 127.0.0.1 - - [14/Mar/2026 00:01:36] "[36mGET /static/uploads/powerbank.jpeg HTTP/1.1[0m" 304 -
+2026-03-14 00:01:36,696 INFO 127.0.0.1 - - [14/Mar/2026 00:01:36] "[36mGET /static/js/main.js HTTP/1.1[0m" 304 -
+2026-03-14 00:01:50,093 INFO 127.0.0.1 - - [14/Mar/2026 00:01:50] "[32mPOST /admin/delete_message/1 HTTP/1.1[0m" 302 -
+2026-03-14 00:01:50,145 INFO 127.0.0.1 - - [14/Mar/2026 00:01:50] "GET /admin HTTP/1.1" 200 -
+2026-03-14 00:01:50,271 INFO 127.0.0.1 - - [14/Mar/2026 00:01:50] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2026-03-14 00:01:50,377 INFO 127.0.0.1 - - [14/Mar/2026 00:01:50] "[36mGET /static/uploads/powerbank.jpeg HTTP/1.1[0m" 304 -
+2026-03-14 00:01:50,451 INFO 127.0.0.1 - - [14/Mar/2026 00:01:50] "[36mGET /static/js/main.js HTTP/1.1[0m" 304 -
+2026-03-14 00:01:59,431 INFO 127.0.0.1 - - [14/Mar/2026 00:01:59] "GET / HTTP/1.1" 200 -
+2026-03-14 00:01:59,476 INFO 127.0.0.1 - - [14/Mar/2026 00:01:59] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2026-03-14 00:01:59,487 INFO 127.0.0.1 - - [14/Mar/2026 00:01:59] "[36mGET /static/uploads/powerbank.jpeg HTTP/1.1[0m" 304 -
+2026-03-14 00:01:59,489 INFO 127.0.0.1 - - [14/Mar/2026 00:01:59] "[36mGET /static/js/main.js HTTP/1.1[0m" 304 -
+2026-03-14 00:02:19,110 INFO Auto-reply sent to oadedamola07@gmail.com
+2026-03-14 00:02:19,113 INFO 127.0.0.1 - - [14/Mar/2026 00:02:19] "[32mPOST /contact HTTP/1.1[0m" 302 -
+2026-03-14 00:02:19,226 INFO 127.0.0.1 - - [14/Mar/2026 00:02:19] "GET /?success=1 HTTP/1.1" 200 -
+2026-03-14 00:02:19,287 INFO 127.0.0.1 - - [14/Mar/2026 00:02:19] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2026-03-14 00:02:19,292 INFO 127.0.0.1 - - [14/Mar/2026 00:02:19] "[36mGET /static/uploads/powerbank.jpeg HTTP/1.1[0m" 304 -
+2026-03-14 00:02:19,305 INFO 127.0.0.1 - - [14/Mar/2026 00:02:19] "[36mGET /static/js/main.js HTTP/1.1[0m" 304 -
+2026-03-14 00:03:52,143 INFO 127.0.0.1 - - [14/Mar/2026 00:03:52] "GET /admin HTTP/1.1" 200 -
+2026-03-14 00:03:52,176 INFO 127.0.0.1 - - [14/Mar/2026 00:03:52] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2026-03-14 00:03:52,187 INFO 127.0.0.1 - - [14/Mar/2026 00:03:52] "[36mGET /static/uploads/powerbank.jpeg HTTP/1.1[0m" 304 -
+2026-03-14 00:03:52,190 INFO 127.0.0.1 - - [14/Mar/2026 00:03:52] "[36mGET /static/js/main.js HTTP/1.1[0m" 304 -
+2026-03-14 00:03:56,369 INFO 127.0.0.1 - - [14/Mar/2026 00:03:56] "[32mPOST /admin/delete_message/2 HTTP/1.1[0m" 302 -
+2026-03-14 00:03:56,412 INFO 127.0.0.1 - - [14/Mar/2026 00:03:56] "GET /admin HTTP/1.1" 200 -
+2026-03-14 00:03:56,472 INFO 127.0.0.1 - - [14/Mar/2026 00:03:56] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2026-03-14 00:03:56,483 INFO 127.0.0.1 - - [14/Mar/2026 00:03:56] "[36mGET /static/uploads/powerbank.jpeg HTTP/1.1[0m" 304 -
+2026-03-14 00:03:56,484 INFO 127.0.0.1 - - [14/Mar/2026 00:03:56] "[36mGET /static/js/main.js HTTP/1.1[0m" 304 -
+2026-03-14 00:04:01,831 INFO 127.0.0.1 - - [14/Mar/2026 00:04:01] "GET / HTTP/1.1" 200 -
+2026-03-14 00:04:01,879 INFO 127.0.0.1 - - [14/Mar/2026 00:04:01] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2026-03-14 00:04:01,888 INFO 127.0.0.1 - - [14/Mar/2026 00:04:01] "[36mGET /static/uploads/powerbank.jpeg HTTP/1.1[0m" 304 -
+2026-03-14 00:04:01,893 INFO 127.0.0.1 - - [14/Mar/2026 00:04:01] "[36mGET /static/js/main.js HTTP/1.1[0m" 304 -
+2026-03-14 00:04:55,044 INFO Auto-reply sent to oadedamola07@gmail.com
+2026-03-14 00:04:55,048 INFO 127.0.0.1 - - [14/Mar/2026 00:04:55] "[32mPOST /contact HTTP/1.1[0m" 302 -
+2026-03-14 00:04:55,159 INFO 127.0.0.1 - - [14/Mar/2026 00:04:55] "GET /?success=1 HTTP/1.1" 200 -
+2026-03-14 00:04:55,217 INFO 127.0.0.1 - - [14/Mar/2026 00:04:55] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2026-03-14 00:04:55,220 INFO 127.0.0.1 - - [14/Mar/2026 00:04:55] "[36mGET /static/uploads/powerbank.jpeg HTTP/1.1[0m" 304 -
+2026-03-14 00:04:55,220 INFO 127.0.0.1 - - [14/Mar/2026 00:04:55] "[36mGET /static/js/main.js HTTP/1.1[0m" 304 -
+2026-03-14 22:14:03,045 INFO [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2026-03-14 22:14:03,045 INFO [33mPress CTRL+C to quit[0m
+2026-03-14 22:14:03,050 INFO  * Restarting with stat
+2026-03-14 22:14:04,774 WARNING  * Debugger is active!
+2026-03-14 22:14:04,779 INFO  * Debugger PIN: 140-037-455
+2026-03-14 22:14:56,725 INFO 127.0.0.1 - - [14/Mar/2026 22:14:56] "GET / HTTP/1.1" 200 -
+2026-03-14 22:14:57,014 INFO 127.0.0.1 - - [14/Mar/2026 22:14:57] "[36mGET /static/js/main.js HTTP/1.1[0m" 304 -
+2026-03-14 22:14:57,021 INFO 127.0.0.1 - - [14/Mar/2026 22:14:57] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2026-03-14 22:14:57,024 INFO 127.0.0.1 - - [14/Mar/2026 22:14:57] "[36mGET /static/uploads/powerbank.jpeg HTTP/1.1[0m" 304 -
+2026-03-14 22:14:57,241 INFO 404 error: http://127.0.0.1:5000/favicon.ico
+2026-03-14 22:14:57,254 INFO 127.0.0.1 - - [14/Mar/2026 22:14:57] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2026-03-14 22:15:37,575 INFO 127.0.0.1 - - [14/Mar/2026 22:15:37] "GET / HTTP/1.1" 200 -
+2026-03-14 22:15:37,624 INFO 127.0.0.1 - - [14/Mar/2026 22:15:37] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2026-03-14 22:15:37,655 INFO 127.0.0.1 - - [14/Mar/2026 22:15:37] "[36mGET /static/uploads/powerbank.jpeg HTTP/1.1[0m" 304 -
+2026-03-14 22:15:37,664 INFO 127.0.0.1 - - [14/Mar/2026 22:15:37] "[36mGET /static/js/main.js HTTP/1.1[0m" 304 -
+2026-03-14 22:15:40,032 INFO 127.0.0.1 - - [14/Mar/2026 22:15:40] "[32mGET /admin HTTP/1.1[0m" 302 -
+2026-03-14 22:15:40,055 INFO 127.0.0.1 - - [14/Mar/2026 22:15:40] "GET /admin/login?next=/admin HTTP/1.1" 200 -
+2026-03-14 22:15:40,117 INFO 127.0.0.1 - - [14/Mar/2026 22:15:40] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2026-03-14 22:15:40,126 INFO 127.0.0.1 - - [14/Mar/2026 22:15:40] "[36mGET /static/js/main.js HTTP/1.1[0m" 304 -
+2026-03-14 22:15:49,463 INFO user adedamola logged in successfully
+2026-03-14 22:15:49,466 INFO 127.0.0.1 - - [14/Mar/2026 22:15:49] "[32mPOST /admin/login?next=/admin HTTP/1.1[0m" 302 -
+2026-03-14 22:15:49,518 INFO 127.0.0.1 - - [14/Mar/2026 22:15:49] "GET /admin HTTP/1.1" 200 -
+2026-03-14 22:15:49,567 INFO 127.0.0.1 - - [14/Mar/2026 22:15:49] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2026-03-14 22:15:49,575 INFO 127.0.0.1 - - [14/Mar/2026 22:15:49] "[36mGET /static/uploads/powerbank.jpeg HTTP/1.1[0m" 304 -
+2026-03-14 22:15:49,581 INFO 127.0.0.1 - - [14/Mar/2026 22:15:49] "[36mGET /static/js/main.js HTTP/1.1[0m" 304 -
+2026-03-14 22:16:07,794 INFO 127.0.0.1 - - [14/Mar/2026 22:16:07] "GET /edit_project/2 HTTP/1.1" 200 -
+2026-03-14 22:16:16,236 INFO 127.0.0.1 - - [14/Mar/2026 22:16:16] "GET /edit_project/2 HTTP/1.1" 200 -
+2026-03-14 22:55:21,442 INFO [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2026-03-14 22:55:21,442 INFO [33mPress CTRL+C to quit[0m
+2026-03-14 22:55:21,444 INFO  * Restarting with stat
+2026-03-14 22:55:23,039 WARNING  * Debugger is active!
+2026-03-14 22:55:23,041 INFO  * Debugger PIN: 140-037-455
+2026-03-14 22:55:27,078 INFO 127.0.0.1 - - [14/Mar/2026 22:55:27] "GET / HTTP/1.1" 200 -
+2026-03-14 22:55:27,187 INFO 127.0.0.1 - - [14/Mar/2026 22:55:27] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2026-03-14 22:55:27,196 INFO 127.0.0.1 - - [14/Mar/2026 22:55:27] "[36mGET /static/uploads/powerbank.jpeg HTTP/1.1[0m" 304 -
+2026-03-14 22:55:27,218 INFO 127.0.0.1 - - [14/Mar/2026 22:55:27] "[36mGET /static/js/main.js HTTP/1.1[0m" 304 -
+2026-03-14 22:55:28,567 INFO Cache used for key: view//
+2026-03-14 22:55:28,568 INFO 127.0.0.1 - - [14/Mar/2026 22:55:28] "GET / HTTP/1.1" 200 -
+2026-03-14 22:55:28,592 INFO 127.0.0.1 - - [14/Mar/2026 22:55:28] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2026-03-14 22:55:28,606 INFO 127.0.0.1 - - [14/Mar/2026 22:55:28] "[36mGET /static/uploads/powerbank.jpeg HTTP/1.1[0m" 304 -
+2026-03-14 22:55:28,609 INFO 127.0.0.1 - - [14/Mar/2026 22:55:28] "[36mGET /static/js/main.js HTTP/1.1[0m" 304 -
+2026-03-14 22:55:29,570 INFO Cache used for key: view//
+2026-03-14 22:55:29,570 INFO 127.0.0.1 - - [14/Mar/2026 22:55:29] "GET / HTTP/1.1" 200 -
+2026-03-14 22:55:29,600 INFO 127.0.0.1 - - [14/Mar/2026 22:55:29] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2026-03-14 22:55:29,602 INFO 127.0.0.1 - - [14/Mar/2026 22:55:29] "[36mGET /static/uploads/powerbank.jpeg HTTP/1.1[0m" 304 -
+2026-03-14 22:55:29,606 INFO 127.0.0.1 - - [14/Mar/2026 22:55:29] "[36mGET /static/js/main.js HTTP/1.1[0m" 304 -
+2026-03-14 22:55:30,884 INFO Cache used for key: view//
+2026-03-14 22:55:30,885 INFO 127.0.0.1 - - [14/Mar/2026 22:55:30] "GET / HTTP/1.1" 200 -
+2026-03-14 22:55:30,909 INFO 127.0.0.1 - - [14/Mar/2026 22:55:30] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2026-03-14 22:55:30,921 INFO 127.0.0.1 - - [14/Mar/2026 22:55:30] "[36mGET /static/uploads/powerbank.jpeg HTTP/1.1[0m" 304 -
+2026-03-14 22:55:30,923 INFO 127.0.0.1 - - [14/Mar/2026 22:55:30] "[36mGET /static/js/main.js HTTP/1.1[0m" 304 -
+2026-03-14 22:55:33,223 INFO Cache used for key: view//
+2026-03-14 22:55:33,224 INFO 127.0.0.1 - - [14/Mar/2026 22:55:33] "GET / HTTP/1.1" 200 -
+2026-03-14 22:55:33,256 INFO 127.0.0.1 - - [14/Mar/2026 22:55:33] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2026-03-14 22:55:33,262 INFO 127.0.0.1 - - [14/Mar/2026 22:55:33] "[36mGET /static/uploads/powerbank.jpeg HTTP/1.1[0m" 304 -
+2026-03-14 22:55:33,267 INFO 127.0.0.1 - - [14/Mar/2026 22:55:33] "[36mGET /static/js/main.js HTTP/1.1[0m" 304 -
+2026-03-14 22:55:34,107 INFO Cache used for key: view//
+2026-03-14 22:55:34,107 INFO 127.0.0.1 - - [14/Mar/2026 22:55:34] "GET / HTTP/1.1" 200 -
+2026-03-14 22:55:34,138 INFO 127.0.0.1 - - [14/Mar/2026 22:55:34] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2026-03-14 22:55:34,148 INFO 127.0.0.1 - - [14/Mar/2026 22:55:34] "[36mGET /static/uploads/powerbank.jpeg HTTP/1.1[0m" 304 -
+2026-03-14 22:55:34,150 INFO 127.0.0.1 - - [14/Mar/2026 22:55:34] "[36mGET /static/js/main.js HTTP/1.1[0m" 304 -
+2026-03-14 22:55:34,835 INFO Cache used for key: view//
+2026-03-14 22:55:34,835 INFO 127.0.0.1 - - [14/Mar/2026 22:55:34] "GET / HTTP/1.1" 200 -
+2026-03-14 22:55:34,869 INFO 127.0.0.1 - - [14/Mar/2026 22:55:34] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2026-03-14 22:55:34,869 INFO 127.0.0.1 - - [14/Mar/2026 22:55:34] "[36mGET /static/uploads/powerbank.jpeg HTTP/1.1[0m" 304 -
+2026-03-14 22:55:34,873 INFO 127.0.0.1 - - [14/Mar/2026 22:55:34] "[36mGET /static/js/main.js HTTP/1.1[0m" 304 -
+2026-03-14 22:55:35,576 INFO Cache used for key: view//
+2026-03-14 22:55:35,576 INFO 127.0.0.1 - - [14/Mar/2026 22:55:35] "GET / HTTP/1.1" 200 -
+2026-03-14 22:55:35,601 INFO 127.0.0.1 - - [14/Mar/2026 22:55:35] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2026-03-14 22:55:35,612 INFO 127.0.0.1 - - [14/Mar/2026 22:55:35] "[36mGET /static/uploads/powerbank.jpeg HTTP/1.1[0m" 304 -
+2026-03-14 22:55:35,613 INFO 127.0.0.1 - - [14/Mar/2026 22:55:35] "[36mGET /static/js/main.js HTTP/1.1[0m" 304 -
+2026-03-14 22:55:36,173 INFO Cache used for key: view//
+2026-03-14 22:55:36,173 INFO 127.0.0.1 - - [14/Mar/2026 22:55:36] "GET / HTTP/1.1" 200 -
+2026-03-14 22:55:36,203 INFO 127.0.0.1 - - [14/Mar/2026 22:55:36] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2026-03-14 22:55:36,213 INFO 127.0.0.1 - - [14/Mar/2026 22:55:36] "[36mGET /static/uploads/powerbank.jpeg HTTP/1.1[0m" 304 -
+2026-03-14 22:55:36,215 INFO 127.0.0.1 - - [14/Mar/2026 22:55:36] "[36mGET /static/js/main.js HTTP/1.1[0m" 304 -
+2026-03-14 22:55:36,853 INFO Cache used for key: view//
+2026-03-14 22:55:36,854 INFO 127.0.0.1 - - [14/Mar/2026 22:55:36] "GET / HTTP/1.1" 200 -
+2026-03-14 22:55:36,887 INFO 127.0.0.1 - - [14/Mar/2026 22:55:36] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2026-03-14 22:55:36,890 INFO 127.0.0.1 - - [14/Mar/2026 22:55:36] "[36mGET /static/uploads/powerbank.jpeg HTTP/1.1[0m" 304 -
+2026-03-14 22:55:36,893 INFO 127.0.0.1 - - [14/Mar/2026 22:55:36] "[36mGET /static/js/main.js HTTP/1.1[0m" 304 -
+2026-03-14 22:55:37,439 INFO Cache used for key: view//
+2026-03-14 22:55:37,440 INFO 127.0.0.1 - - [14/Mar/2026 22:55:37] "GET / HTTP/1.1" 200 -
+2026-03-14 22:55:37,471 INFO 127.0.0.1 - - [14/Mar/2026 22:55:37] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2026-03-14 22:55:37,482 INFO 127.0.0.1 - - [14/Mar/2026 22:55:37] "[36mGET /static/uploads/powerbank.jpeg HTTP/1.1[0m" 304 -
+2026-03-14 22:55:37,485 INFO 127.0.0.1 - - [14/Mar/2026 22:55:37] "[36mGET /static/js/main.js HTTP/1.1[0m" 304 -
+2026-03-14 22:55:37,760 INFO Cache used for key: view//
+2026-03-14 22:55:37,761 INFO 127.0.0.1 - - [14/Mar/2026 22:55:37] "GET / HTTP/1.1" 200 -
+2026-03-14 22:55:37,798 INFO 127.0.0.1 - - [14/Mar/2026 22:55:37] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2026-03-14 22:55:37,809 INFO 127.0.0.1 - - [14/Mar/2026 22:55:37] "[36mGET /static/uploads/powerbank.jpeg HTTP/1.1[0m" 304 -
+2026-03-14 22:55:37,811 INFO 127.0.0.1 - - [14/Mar/2026 22:55:37] "[36mGET /static/js/main.js HTTP/1.1[0m" 304 -
+2026-03-14 22:55:38,072 INFO Cache used for key: view//
+2026-03-14 22:55:38,073 INFO 127.0.0.1 - - [14/Mar/2026 22:55:38] "GET / HTTP/1.1" 200 -
+2026-03-14 22:55:38,107 INFO 127.0.0.1 - - [14/Mar/2026 22:55:38] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2026-03-14 22:55:38,114 INFO 127.0.0.1 - - [14/Mar/2026 22:55:38] "[36mGET /static/uploads/powerbank.jpeg HTTP/1.1[0m" 304 -
+2026-03-14 22:55:38,119 INFO 127.0.0.1 - - [14/Mar/2026 22:55:38] "[36mGET /static/js/main.js HTTP/1.1[0m" 304 -
+2026-03-14 22:55:38,478 INFO Cache used for key: view//
+2026-03-14 22:55:38,479 INFO 127.0.0.1 - - [14/Mar/2026 22:55:38] "GET / HTTP/1.1" 200 -
+2026-03-14 22:55:38,506 INFO 127.0.0.1 - - [14/Mar/2026 22:55:38] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2026-03-14 22:55:38,518 INFO 127.0.0.1 - - [14/Mar/2026 22:55:38] "[36mGET /static/uploads/powerbank.jpeg HTTP/1.1[0m" 304 -
+2026-03-14 22:55:38,519 INFO 127.0.0.1 - - [14/Mar/2026 22:55:38] "[36mGET /static/js/main.js HTTP/1.1[0m" 304 -
+2026-03-14 22:55:38,800 INFO Cache used for key: view//
+2026-03-14 22:55:38,801 INFO 127.0.0.1 - - [14/Mar/2026 22:55:38] "GET / HTTP/1.1" 200 -
+2026-03-14 22:55:38,838 INFO 127.0.0.1 - - [14/Mar/2026 22:55:38] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2026-03-14 22:55:38,841 INFO 127.0.0.1 - - [14/Mar/2026 22:55:38] "[36mGET /static/js/main.js HTTP/1.1[0m" 304 -
+2026-03-14 22:55:38,842 INFO 127.0.0.1 - - [14/Mar/2026 22:55:38] "[36mGET /static/uploads/powerbank.jpeg HTTP/1.1[0m" 304 -
+2026-03-14 22:55:39,110 INFO Cache used for key: view//
+2026-03-14 22:55:39,111 INFO 127.0.0.1 - - [14/Mar/2026 22:55:39] "GET / HTTP/1.1" 200 -
+2026-03-14 22:55:39,139 INFO 127.0.0.1 - - [14/Mar/2026 22:55:39] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2026-03-14 22:55:39,155 INFO 127.0.0.1 - - [14/Mar/2026 22:55:39] "[36mGET /static/uploads/powerbank.jpeg HTTP/1.1[0m" 304 -
+2026-03-14 22:55:39,157 INFO 127.0.0.1 - - [14/Mar/2026 22:55:39] "[36mGET /static/js/main.js HTTP/1.1[0m" 304 -
+2026-03-14 22:55:39,443 INFO Cache used for key: view//
+2026-03-14 22:55:39,444 INFO 127.0.0.1 - - [14/Mar/2026 22:55:39] "GET / HTTP/1.1" 200 -
+2026-03-14 22:55:39,469 INFO 127.0.0.1 - - [14/Mar/2026 22:55:39] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2026-03-14 22:55:39,479 INFO 127.0.0.1 - - [14/Mar/2026 22:55:39] "[36mGET /static/uploads/powerbank.jpeg HTTP/1.1[0m" 304 -
+2026-03-14 22:55:39,481 INFO 127.0.0.1 - - [14/Mar/2026 22:55:39] "[36mGET /static/js/main.js HTTP/1.1[0m" 304 -
+2026-03-14 22:55:43,992 INFO Cache used for key: view//
+2026-03-14 22:55:43,993 INFO 127.0.0.1 - - [14/Mar/2026 22:55:43] "GET / HTTP/1.1" 200 -
+2026-03-14 22:55:44,028 INFO 127.0.0.1 - - [14/Mar/2026 22:55:44] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2026-03-14 22:55:44,032 INFO 127.0.0.1 - - [14/Mar/2026 22:55:44] "[36mGET /static/uploads/powerbank.jpeg HTTP/1.1[0m" 304 -
+2026-03-14 22:55:44,037 INFO 127.0.0.1 - - [14/Mar/2026 22:55:44] "[36mGET /static/js/main.js HTTP/1.1[0m" 304 -
+2026-03-14 22:55:45,021 INFO Cache used for key: view//
+2026-03-14 22:55:45,022 INFO 127.0.0.1 - - [14/Mar/2026 22:55:45] "GET / HTTP/1.1" 200 -
+2026-03-14 22:55:45,053 INFO 127.0.0.1 - - [14/Mar/2026 22:55:45] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2026-03-14 22:55:45,056 INFO 127.0.0.1 - - [14/Mar/2026 22:55:45] "[36mGET /static/uploads/powerbank.jpeg HTTP/1.1[0m" 304 -
+2026-03-14 22:55:45,065 INFO 127.0.0.1 - - [14/Mar/2026 22:55:45] "[36mGET /static/js/main.js HTTP/1.1[0m" 304 -
+2026-03-14 22:55:46,034 INFO Cache used for key: view//
+2026-03-14 22:55:46,034 INFO 127.0.0.1 - - [14/Mar/2026 22:55:46] "GET / HTTP/1.1" 200 -
+2026-03-14 22:55:46,070 INFO 127.0.0.1 - - [14/Mar/2026 22:55:46] "[36mGET /static/uploads/powerbank.jpeg HTTP/1.1[0m" 304 -
+2026-03-14 22:55:46,072 INFO 127.0.0.1 - - [14/Mar/2026 22:55:46] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2026-03-14 22:55:46,075 INFO 127.0.0.1 - - [14/Mar/2026 22:55:46] "[36mGET /static/js/main.js HTTP/1.1[0m" 304 -
+2026-03-14 22:55:46,548 INFO Cache used for key: view//
+2026-03-14 22:55:46,549 INFO 127.0.0.1 - - [14/Mar/2026 22:55:46] "GET / HTTP/1.1" 200 -
+2026-03-14 22:55:46,572 INFO 127.0.0.1 - - [14/Mar/2026 22:55:46] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2026-03-14 22:55:46,584 INFO 127.0.0.1 - - [14/Mar/2026 22:55:46] "[36mGET /static/uploads/powerbank.jpeg HTTP/1.1[0m" 304 -
+2026-03-14 22:55:46,586 INFO 127.0.0.1 - - [14/Mar/2026 22:55:46] "[36mGET /static/js/main.js HTTP/1.1[0m" 304 -
+2026-03-14 22:56:09,390 INFO Cache used for key: view//
+2026-03-14 22:56:09,391 INFO 127.0.0.1 - - [14/Mar/2026 22:56:09] "GET / HTTP/1.1" 200 -
+2026-03-14 22:56:09,416 INFO 127.0.0.1 - - [14/Mar/2026 22:56:09] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2026-03-14 22:56:09,428 INFO 127.0.0.1 - - [14/Mar/2026 22:56:09] "[36mGET /static/uploads/powerbank.jpeg HTTP/1.1[0m" 304 -
+2026-03-14 22:56:09,429 INFO 127.0.0.1 - - [14/Mar/2026 22:56:09] "[36mGET /static/js/main.js HTTP/1.1[0m" 304 -
+2026-03-14 22:56:12,388 INFO Cache used for key: view//
+2026-03-14 22:56:12,389 INFO 127.0.0.1 - - [14/Mar/2026 22:56:12] "GET / HTTP/1.1" 200 -
+2026-03-14 22:56:12,429 INFO 127.0.0.1 - - [14/Mar/2026 22:56:12] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2026-03-14 22:56:12,433 INFO 127.0.0.1 - - [14/Mar/2026 22:56:12] "[36mGET /static/uploads/powerbank.jpeg HTTP/1.1[0m" 304 -
+2026-03-14 22:56:12,439 INFO 127.0.0.1 - - [14/Mar/2026 22:56:12] "[36mGET /static/js/main.js HTTP/1.1[0m" 304 -
+2026-03-14 22:56:12,710 INFO Cache used for key: view//
+2026-03-14 22:56:12,711 INFO 127.0.0.1 - - [14/Mar/2026 22:56:12] "GET / HTTP/1.1" 200 -
+2026-03-14 22:56:12,749 INFO 127.0.0.1 - - [14/Mar/2026 22:56:12] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2026-03-14 22:56:12,752 INFO 127.0.0.1 - - [14/Mar/2026 22:56:12] "[36mGET /static/uploads/powerbank.jpeg HTTP/1.1[0m" 304 -
+2026-03-14 22:56:12,756 INFO 127.0.0.1 - - [14/Mar/2026 22:56:12] "[36mGET /static/js/main.js HTTP/1.1[0m" 304 -
+2026-03-14 22:56:13,156 INFO Cache used for key: view//
+2026-03-14 22:56:13,157 INFO 127.0.0.1 - - [14/Mar/2026 22:56:13] "GET / HTTP/1.1" 200 -
+2026-03-14 22:56:13,193 INFO 127.0.0.1 - - [14/Mar/2026 22:56:13] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2026-03-14 22:56:13,196 INFO 127.0.0.1 - - [14/Mar/2026 22:56:13] "[36mGET /static/uploads/powerbank.jpeg HTTP/1.1[0m" 304 -
+2026-03-14 22:56:13,204 INFO 127.0.0.1 - - [14/Mar/2026 22:56:13] "[36mGET /static/js/main.js HTTP/1.1[0m" 304 -
+2026-03-14 22:56:13,473 INFO Cache used for key: view//
+2026-03-14 22:56:13,473 INFO 127.0.0.1 - - [14/Mar/2026 22:56:13] "GET / HTTP/1.1" 200 -
+2026-03-14 22:56:13,499 INFO 127.0.0.1 - - [14/Mar/2026 22:56:13] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2026-03-14 22:56:13,510 INFO 127.0.0.1 - - [14/Mar/2026 22:56:13] "[36mGET /static/uploads/powerbank.jpeg HTTP/1.1[0m" 304 -
+2026-03-14 22:56:13,512 INFO 127.0.0.1 - - [14/Mar/2026 22:56:13] "[36mGET /static/js/main.js HTTP/1.1[0m" 304 -
+2026-03-14 22:56:46,480 INFO Cache used for key: view//
+2026-03-14 22:56:46,480 INFO 127.0.0.1 - - [14/Mar/2026 22:56:46] "GET / HTTP/1.1" 200 -
+2026-03-14 22:56:46,513 INFO 127.0.0.1 - - [14/Mar/2026 22:56:46] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2026-03-14 22:56:46,524 INFO 127.0.0.1 - - [14/Mar/2026 22:56:46] "[36mGET /static/uploads/powerbank.jpeg HTTP/1.1[0m" 304 -
+2026-03-14 22:56:46,525 INFO 127.0.0.1 - - [14/Mar/2026 22:56:46] "[36mGET /static/js/main.js HTTP/1.1[0m" 304 -
+2026-03-14 22:56:47,984 INFO Cache used for key: view//
+2026-03-14 22:56:47,984 INFO 127.0.0.1 - - [14/Mar/2026 22:56:47] "GET / HTTP/1.1" 200 -
+2026-03-14 22:56:48,012 INFO 127.0.0.1 - - [14/Mar/2026 22:56:48] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2026-03-14 22:56:48,027 INFO 127.0.0.1 - - [14/Mar/2026 22:56:48] "[36mGET /static/js/main.js HTTP/1.1[0m" 304 -
+2026-03-14 22:56:48,027 INFO 127.0.0.1 - - [14/Mar/2026 22:56:48] "[36mGET /static/uploads/powerbank.jpeg HTTP/1.1[0m" 304 -
+2026-03-14 22:56:48,724 INFO Cache used for key: view//
+2026-03-14 22:56:48,724 INFO 127.0.0.1 - - [14/Mar/2026 22:56:48] "GET / HTTP/1.1" 200 -
+2026-03-14 22:56:48,748 INFO 127.0.0.1 - - [14/Mar/2026 22:56:48] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2026-03-14 22:56:48,760 INFO 127.0.0.1 - - [14/Mar/2026 22:56:48] "[36mGET /static/uploads/powerbank.jpeg HTTP/1.1[0m" 304 -
+2026-03-14 22:56:48,760 INFO 127.0.0.1 - - [14/Mar/2026 22:56:48] "[36mGET /static/js/main.js HTTP/1.1[0m" 304 -
+2026-03-14 22:56:49,379 INFO Cache used for key: view//
+2026-03-14 22:56:49,380 INFO 127.0.0.1 - - [14/Mar/2026 22:56:49] "GET / HTTP/1.1" 200 -
+2026-03-14 22:56:49,412 INFO 127.0.0.1 - - [14/Mar/2026 22:56:49] "[36mGET /static/uploads/powerbank.jpeg HTTP/1.1[0m" 304 -
+2026-03-14 22:56:49,413 INFO 127.0.0.1 - - [14/Mar/2026 22:56:49] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2026-03-14 22:56:49,418 INFO 127.0.0.1 - - [14/Mar/2026 22:56:49] "[36mGET /static/js/main.js HTTP/1.1[0m" 304 -
+2026-03-14 22:56:51,483 INFO Cache used for key: view//
+2026-03-14 22:56:51,483 INFO 127.0.0.1 - - [14/Mar/2026 22:56:51] "GET / HTTP/1.1" 200 -
+2026-03-14 22:56:51,514 INFO 127.0.0.1 - - [14/Mar/2026 22:56:51] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2026-03-14 22:56:51,526 INFO 127.0.0.1 - - [14/Mar/2026 22:56:51] "[36mGET /static/uploads/powerbank.jpeg HTTP/1.1[0m" 304 -
+2026-03-14 22:56:51,529 INFO 127.0.0.1 - - [14/Mar/2026 22:56:51] "[36mGET /static/js/main.js HTTP/1.1[0m" 304 -
+2026-03-14 22:56:53,402 INFO Cache used for key: view//
+2026-03-14 22:56:53,403 INFO 127.0.0.1 - - [14/Mar/2026 22:56:53] "GET / HTTP/1.1" 200 -
+2026-03-14 22:56:53,430 INFO 127.0.0.1 - - [14/Mar/2026 22:56:53] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2026-03-14 22:56:53,441 INFO 127.0.0.1 - - [14/Mar/2026 22:56:53] "[36mGET /static/uploads/powerbank.jpeg HTTP/1.1[0m" 304 -
+2026-03-14 22:56:53,443 INFO 127.0.0.1 - - [14/Mar/2026 22:56:53] "[36mGET /static/js/main.js HTTP/1.1[0m" 304 -
+2026-03-14 23:01:44,961 INFO  * Detected change in 'C:\\Users\\ADEDAMOLA\\Desktop\\port\\app.py', reloading
+2026-03-14 23:01:45,229 INFO  * Restarting with stat
+2026-03-14 23:01:46,818 WARNING  * Debugger is active!
+2026-03-14 23:01:46,820 INFO  * Debugger PIN: 140-037-455
+2026-03-14 23:01:59,482 INFO 127.0.0.1 - - [14/Mar/2026 23:01:59] "GET /admin HTTP/1.1" 200 -
+2026-03-14 23:01:59,614 INFO 127.0.0.1 - - [14/Mar/2026 23:01:59] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2026-03-14 23:01:59,647 INFO 127.0.0.1 - - [14/Mar/2026 23:01:59] "[36mGET /static/uploads/powerbank.jpeg HTTP/1.1[0m" 304 -
+2026-03-14 23:01:59,666 INFO 127.0.0.1 - - [14/Mar/2026 23:01:59] "[36mGET /static/js/main.js HTTP/1.1[0m" 304 -
+2026-03-14 23:02:15,682 INFO 127.0.0.1 - - [14/Mar/2026 23:02:15] "[35m[1mGET /cache-test HTTP/1.1[0m" 500 -
+2026-03-14 23:02:15,720 INFO 127.0.0.1 - - [14/Mar/2026 23:02:15] "GET /cache-test?__debugger__=yes&cmd=resource&f=style.css HTTP/1.1" 200 -
+2026-03-14 23:02:15,734 INFO 127.0.0.1 - - [14/Mar/2026 23:02:15] "GET /cache-test?__debugger__=yes&cmd=resource&f=debugger.js HTTP/1.1" 200 -
+2026-03-14 23:02:15,750 INFO 127.0.0.1 - - [14/Mar/2026 23:02:15] "GET /cache-test?__debugger__=yes&cmd=resource&f=console.png&s=lYqXE5kPEwO5etlU6aIw HTTP/1.1" 200 -
+2026-03-14 23:02:15,829 INFO 127.0.0.1 - - [14/Mar/2026 23:02:15] "GET /cache-test?__debugger__=yes&cmd=resource&f=console.png HTTP/1.1" 200 -
+2026-03-14 23:03:18,182 INFO  * Detected change in 'C:\\Users\\ADEDAMOLA\\Desktop\\port\\app.py', reloading
+2026-03-14 23:03:18,444 INFO  * Restarting with stat
+2026-03-14 23:03:20,136 WARNING  * Debugger is active!
+2026-03-14 23:03:20,138 INFO  * Debugger PIN: 140-037-455
+2026-03-14 23:03:20,219 INFO 127.0.0.1 - - [14/Mar/2026 23:03:20] "GET /cache-test HTTP/1.1" 200 -
+2026-03-14 23:03:26,185 INFO 127.0.0.1 - - [14/Mar/2026 23:03:26] "GET /cache-test HTTP/1.1" 200 -
+2026-03-14 23:03:27,784 INFO 127.0.0.1 - - [14/Mar/2026 23:03:27] "GET /cache-test HTTP/1.1" 200 -
+2026-03-14 23:03:46,892 INFO 127.0.0.1 - - [14/Mar/2026 23:03:46] "GET /cache-test HTTP/1.1" 200 -
+2026-03-14 23:04:07,851 INFO 127.0.0.1 - - [14/Mar/2026 23:04:07] "GET /cache-test HTTP/1.1" 200 -
+2026-03-14 23:04:33,957 INFO 127.0.0.1 - - [14/Mar/2026 23:04:33] "GET /cache-test HTTP/1.1" 200 -
+2026-03-14 23:04:34,938 INFO 127.0.0.1 - - [14/Mar/2026 23:04:34] "GET /cache-test HTTP/1.1" 200 -
+2026-03-14 23:04:35,723 INFO 127.0.0.1 - - [14/Mar/2026 23:04:35] "GET /cache-test HTTP/1.1" 200 -
+2026-03-14 23:04:36,391 INFO 127.0.0.1 - - [14/Mar/2026 23:04:36] "GET /cache-test HTTP/1.1" 200 -
+2026-03-14 23:04:37,049 INFO 127.0.0.1 - - [14/Mar/2026 23:04:37] "GET /cache-test HTTP/1.1" 200 -
+2026-03-14 23:04:37,610 INFO 127.0.0.1 - - [14/Mar/2026 23:04:37] "GET /cache-test HTTP/1.1" 200 -
+2026-03-14 23:04:38,279 INFO 127.0.0.1 - - [14/Mar/2026 23:04:38] "GET /cache-test HTTP/1.1" 200 -
+2026-03-14 23:04:38,863 INFO 127.0.0.1 - - [14/Mar/2026 23:04:38] "GET /cache-test HTTP/1.1" 200 -
+2026-03-14 23:14:50,593 INFO  * Detected change in 'C:\\Users\\ADEDAMOLA\\Desktop\\port\\app.py', reloading
+2026-03-14 23:14:51,104 INFO  * Restarting with stat
+2026-03-15 18:22:41,716 WARNING  * Debugger is active!
+2026-03-15 18:22:41,726 INFO  * Debugger PIN: 140-037-455
+2026-03-15 18:24:46,536 INFO 127.0.0.1 - - [15/Mar/2026 18:24:46] "GET /cache-test HTTP/1.1" 200 -
+2026-03-15 18:24:51,098 INFO 127.0.0.1 - - [15/Mar/2026 18:24:51] "GET /cache-test HTTP/1.1" 200 -
+2026-03-15 18:24:52,174 INFO 127.0.0.1 - - [15/Mar/2026 18:24:52] "GET /cache-test HTTP/1.1" 200 -
+2026-03-15 18:24:52,495 INFO 127.0.0.1 - - [15/Mar/2026 18:24:52] "GET /cache-test HTTP/1.1" 200 -
+2026-03-15 18:24:52,805 INFO 127.0.0.1 - - [15/Mar/2026 18:24:52] "GET /cache-test HTTP/1.1" 200 -
+2026-03-15 18:24:53,130 INFO 127.0.0.1 - - [15/Mar/2026 18:24:53] "GET /cache-test HTTP/1.1" 200 -
+2026-03-15 18:24:53,442 INFO 127.0.0.1 - - [15/Mar/2026 18:24:53] "GET /cache-test HTTP/1.1" 200 -
+2026-03-15 18:24:53,747 INFO 127.0.0.1 - - [15/Mar/2026 18:24:53] "GET /cache-test HTTP/1.1" 200 -
+2026-03-15 18:24:54,020 INFO 127.0.0.1 - - [15/Mar/2026 18:24:54] "GET /cache-test HTTP/1.1" 200 -
+2026-03-15 18:24:54,343 INFO 127.0.0.1 - - [15/Mar/2026 18:24:54] "GET /cache-test HTTP/1.1" 200 -
+2026-03-15 18:24:54,977 INFO 127.0.0.1 - - [15/Mar/2026 18:24:54] "GET /cache-test HTTP/1.1" 200 -
+2026-03-15 18:24:55,287 INFO 127.0.0.1 - - [15/Mar/2026 18:24:55] "GET /cache-test HTTP/1.1" 200 -
+2026-03-15 18:24:55,598 INFO 127.0.0.1 - - [15/Mar/2026 18:24:55] "GET /cache-test HTTP/1.1" 200 -
+2026-03-15 18:24:55,934 INFO 127.0.0.1 - - [15/Mar/2026 18:24:55] "GET /cache-test HTTP/1.1" 200 -
+2026-03-17 23:45:01,423 INFO [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2026-03-17 23:45:01,424 INFO [33mPress CTRL+C to quit[0m
+2026-03-17 23:45:01,428 INFO  * Restarting with stat
+2026-03-17 23:45:07,924 WARNING  * Debugger is active!
+2026-03-17 23:45:07,935 INFO  * Debugger PIN: 140-037-455
+2026-03-17 23:45:21,582 INFO 127.0.0.1 - - [17/Mar/2026 23:45:21] "GET / HTTP/1.1" 200 -
+2026-03-17 23:45:22,254 INFO 127.0.0.1 - - [17/Mar/2026 23:45:22] "[36mGET /static/uploads/powerbank.jpeg HTTP/1.1[0m" 304 -
+2026-03-17 23:45:22,310 INFO 127.0.0.1 - - [17/Mar/2026 23:45:22] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2026-03-17 23:45:22,357 INFO 127.0.0.1 - - [17/Mar/2026 23:45:22] "[36mGET /static/js/main.js HTTP/1.1[0m" 304 -
+2026-03-17 23:45:22,661 INFO 404 error: http://127.0.0.1:5000/favicon.ico
+2026-03-17 23:45:22,674 INFO 127.0.0.1 - - [17/Mar/2026 23:45:22] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2026-03-17 23:45:38,267 INFO 127.0.0.1 - - [17/Mar/2026 23:45:38] "[32mGET /admin HTTP/1.1[0m" 302 -
+2026-03-17 23:45:38,315 INFO 127.0.0.1 - - [17/Mar/2026 23:45:38] "GET /admin/login?next=/admin HTTP/1.1" 200 -
+2026-03-17 23:45:38,419 INFO 127.0.0.1 - - [17/Mar/2026 23:45:38] "[36mGET /static/js/main.js HTTP/1.1[0m" 304 -
+2026-03-17 23:45:38,453 INFO 127.0.0.1 - - [17/Mar/2026 23:45:38] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2026-03-17 23:45:47,549 INFO user adedamola logged in successfully
+2026-03-17 23:45:47,552 INFO 127.0.0.1 - - [17/Mar/2026 23:45:47] "[32mPOST /admin/login?next=/admin HTTP/1.1[0m" 302 -
+2026-03-17 23:45:47,637 INFO 127.0.0.1 - - [17/Mar/2026 23:45:47] "GET /admin HTTP/1.1" 200 -
+2026-03-17 23:45:47,685 INFO 127.0.0.1 - - [17/Mar/2026 23:45:47] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2026-03-17 23:45:47,692 INFO 127.0.0.1 - - [17/Mar/2026 23:45:47] "[36mGET /static/js/main.js HTTP/1.1[0m" 304 -
+2026-03-17 23:45:47,695 INFO 127.0.0.1 - - [17/Mar/2026 23:45:47] "[36mGET /static/uploads/powerbank.jpeg HTTP/1.1[0m" 304 -
+2026-03-17 23:45:56,837 INFO 127.0.0.1 - - [17/Mar/2026 23:45:56] "GET /add_project HTTP/1.1" 200 -
+2026-03-17 23:46:11,662 INFO Cache cleared after adding project
+2026-03-17 23:46:11,664 INFO 127.0.0.1 - - [17/Mar/2026 23:46:11] "[32mPOST /add_project HTTP/1.1[0m" 302 -
+2026-03-17 23:46:11,702 INFO 127.0.0.1 - - [17/Mar/2026 23:46:11] "GET /admin HTTP/1.1" 200 -
+2026-03-17 23:46:11,765 INFO 127.0.0.1 - - [17/Mar/2026 23:46:11] "[36mGET /static/uploads/powerbank.jpeg HTTP/1.1[0m" 304 -
+2026-03-17 23:46:11,767 INFO 127.0.0.1 - - [17/Mar/2026 23:46:11] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2026-03-17 23:46:11,768 INFO 127.0.0.1 - - [17/Mar/2026 23:46:11] "[36mGET /static/js/main.js HTTP/1.1[0m" 304 -
+2026-03-17 23:46:14,437 INFO 127.0.0.1 - - [17/Mar/2026 23:46:14] "GET / HTTP/1.1" 200 -
+2026-03-17 23:46:14,478 INFO 127.0.0.1 - - [17/Mar/2026 23:46:14] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2026-03-17 23:46:14,498 INFO 127.0.0.1 - - [17/Mar/2026 23:46:14] "[36mGET /static/uploads/powerbank.jpeg HTTP/1.1[0m" 304 -
+2026-03-17 23:46:14,500 INFO 127.0.0.1 - - [17/Mar/2026 23:46:14] "[36mGET /static/js/main.js HTTP/1.1[0m" 304 -
+2026-03-17 23:46:17,597 INFO Cache used for key: view//
+2026-03-17 23:46:17,597 INFO 127.0.0.1 - - [17/Mar/2026 23:46:17] "GET / HTTP/1.1" 200 -
+2026-03-17 23:46:17,637 INFO 127.0.0.1 - - [17/Mar/2026 23:46:17] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2026-03-17 23:46:17,653 INFO 127.0.0.1 - - [17/Mar/2026 23:46:17] "[36mGET /static/uploads/powerbank.jpeg HTTP/1.1[0m" 304 -
+2026-03-17 23:46:17,656 INFO 127.0.0.1 - - [17/Mar/2026 23:46:17] "[36mGET /static/js/main.js HTTP/1.1[0m" 304 -
+2026-03-17 23:46:18,430 INFO Cache used for key: view//
+2026-03-17 23:46:18,430 INFO 127.0.0.1 - - [17/Mar/2026 23:46:18] "GET / HTTP/1.1" 200 -
+2026-03-17 23:46:18,467 INFO 127.0.0.1 - - [17/Mar/2026 23:46:18] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2026-03-17 23:46:18,482 INFO 127.0.0.1 - - [17/Mar/2026 23:46:18] "[36mGET /static/uploads/powerbank.jpeg HTTP/1.1[0m" 304 -
+2026-03-17 23:46:18,484 INFO 127.0.0.1 - - [17/Mar/2026 23:46:18] "[36mGET /static/js/main.js HTTP/1.1[0m" 304 -
+2026-03-17 23:46:19,146 INFO Cache used for key: view//
+2026-03-17 23:46:19,146 INFO 127.0.0.1 - - [17/Mar/2026 23:46:19] "GET / HTTP/1.1" 200 -
+2026-03-17 23:46:19,178 INFO 127.0.0.1 - - [17/Mar/2026 23:46:19] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2026-03-17 23:46:19,192 INFO 127.0.0.1 - - [17/Mar/2026 23:46:19] "[36mGET /static/uploads/powerbank.jpeg HTTP/1.1[0m" 304 -
+2026-03-17 23:46:19,194 INFO 127.0.0.1 - - [17/Mar/2026 23:46:19] "[36mGET /static/js/main.js HTTP/1.1[0m" 304 -
+2026-03-17 23:47:05,058 INFO 404 error: http://127.0.0.1:5000/sdfgh
+2026-03-17 23:47:05,067 INFO 127.0.0.1 - - [17/Mar/2026 23:47:05] "[33mGET /sdfgh HTTP/1.1[0m" 404 -
+2026-03-17 23:47:05,108 INFO 127.0.0.1 - - [17/Mar/2026 23:47:05] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2026-03-17 23:47:05,119 INFO 127.0.0.1 - - [17/Mar/2026 23:47:05] "[36mGET /static/js/main.js HTTP/1.1[0m" 304 -
+2026-03-18 00:01:02,848 INFO [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2026-03-18 00:01:02,848 INFO [33mPress CTRL+C to quit[0m
+2026-03-18 00:01:02,851 INFO  * Restarting with stat
+2026-03-18 00:01:04,341 WARNING  * Debugger is active!
+2026-03-18 00:01:04,343 INFO  * Debugger PIN: 140-037-455
+2026-03-18 00:01:14,951 INFO 127.0.0.1 - - [18/Mar/2026 00:01:14] "GET / HTTP/1.1" 200 -
+2026-03-18 00:01:15,117 INFO 127.0.0.1 - - [18/Mar/2026 00:01:15] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2026-03-18 00:01:15,126 INFO 127.0.0.1 - - [18/Mar/2026 00:01:15] "[36mGET /static/js/main.js HTTP/1.1[0m" 304 -
+2026-03-18 00:01:15,134 INFO 127.0.0.1 - - [18/Mar/2026 00:01:15] "[36mGET /static/uploads/powerbank.jpeg HTTP/1.1[0m" 304 -
+2026-03-18 00:01:17,998 INFO Cache used for key: view//
+2026-03-18 00:01:18,044 INFO 127.0.0.1 - - [18/Mar/2026 00:01:18] "GET / HTTP/1.1" 200 -
+2026-03-18 00:01:18,092 INFO 127.0.0.1 - - [18/Mar/2026 00:01:18] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2026-03-18 00:01:18,103 INFO 127.0.0.1 - - [18/Mar/2026 00:01:18] "[36mGET /static/uploads/powerbank.jpeg HTTP/1.1[0m" 304 -
+2026-03-18 00:01:18,109 INFO 127.0.0.1 - - [18/Mar/2026 00:01:18] "[36mGET /static/js/main.js HTTP/1.1[0m" 304 -
+2026-03-18 10:38:06,575 INFO [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2026-03-18 10:38:06,576 INFO [33mPress CTRL+C to quit[0m
+2026-03-18 10:38:06,579 INFO  * Restarting with stat
+2026-03-18 10:38:08,507 WARNING  * Debugger is active!
+2026-03-18 10:38:08,510 INFO  * Debugger PIN: 140-037-455
+2026-03-18 10:38:54,708 INFO  * Detected change in 'C:\\Users\\ADEDAMOLA\\Desktop\\port\\app.py', reloading
+2026-03-18 10:38:55,154 INFO  * Restarting with stat
+2026-03-18 10:38:59,153 WARNING  * Debugger is active!
+2026-03-18 10:38:59,155 INFO  * Debugger PIN: 140-037-455
+2026-03-18 10:39:01,769 INFO 127.0.0.1 - - [18/Mar/2026 10:39:01] "GET / HTTP/1.1" 200 -
+2026-03-18 10:39:01,950 INFO 127.0.0.1 - - [18/Mar/2026 10:39:01] "[36mGET /static/uploads/powerbank.jpeg HTTP/1.1[0m" 304 -
+2026-03-18 10:39:01,953 INFO 127.0.0.1 - - [18/Mar/2026 10:39:01] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2026-03-18 10:39:01,968 INFO 127.0.0.1 - - [18/Mar/2026 10:39:01] "[36mGET /static/js/main.js HTTP/1.1[0m" 304 -
+2026-03-18 10:39:02,127 INFO 404 error: http://127.0.0.1:5000/favicon.ico
+2026-03-18 10:39:02,131 INFO 127.0.0.1 - - [18/Mar/2026 10:39:02] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2026-03-18 10:50:20,888 INFO [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2026-03-18 10:50:20,888 INFO [33mPress CTRL+C to quit[0m
+2026-03-18 10:50:20,891 INFO  * Restarting with stat
+2026-03-18 10:50:24,181 WARNING  * Debugger is active!
+2026-03-18 10:50:24,198 INFO  * Debugger PIN: 140-037-455
+2026-03-18 10:50:26,522 INFO 127.0.0.1 - - [18/Mar/2026 10:50:26] "GET / HTTP/1.1" 200 -
+2026-03-18 10:50:26,675 INFO 127.0.0.1 - - [18/Mar/2026 10:50:26] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2026-03-18 10:50:26,707 INFO 127.0.0.1 - - [18/Mar/2026 10:50:26] "[36mGET /static/uploads/powerbank.jpeg HTTP/1.1[0m" 304 -
+2026-03-18 10:50:26,710 INFO 127.0.0.1 - - [18/Mar/2026 10:50:26] "[36mGET /static/js/main.js HTTP/1.1[0m" 304 -
+2026-03-18 10:50:50,271 INFO 127.0.0.1 - - [18/Mar/2026 10:50:50] "GET /test-blueprint HTTP/1.1" 200 -
+2026-03-18 10:57:12,553 INFO  * Detected change in 'C:\\Users\\ADEDAMOLA\\Desktop\\port\\app.py', reloading
+2026-03-18 10:57:12,895 INFO  * Restarting with stat
+2026-03-18 10:57:14,802 WARNING  * Debugger is active!
+2026-03-18 10:57:14,804 INFO  * Debugger PIN: 140-037-455
+2026-03-18 10:57:20,937 INFO 127.0.0.1 - - [18/Mar/2026 10:57:20] "GET /test-auth HTTP/1.1" 200 -
+2026-03-18 10:58:17,383 INFO 127.0.0.1 - - [18/Mar/2026 10:58:17] "GET /test-auth HTTP/1.1" 200 -
+2026-03-18 10:58:17,450 INFO  * Detected change in 'C:\\Users\\ADEDAMOLA\\Desktop\\port\\app.py', reloading
+2026-03-18 10:58:17,688 INFO  * Restarting with stat
+2026-03-18 10:58:20,320 WARNING  * Debugger is active!
+2026-03-18 10:58:20,329 INFO  * Debugger PIN: 140-037-455
+2026-03-18 10:58:20,446 INFO 404 error: http://127.0.0.1:5000/test-auth
+2026-03-18 10:58:20,448 INFO 404 error: http://127.0.0.1:5000/test-auth
+2026-03-18 10:58:20,460 INFO 127.0.0.1 - - [18/Mar/2026 10:58:20] "[33mGET /test-auth HTTP/1.1[0m" 404 -
+2026-03-18 10:58:20,463 INFO 127.0.0.1 - - [18/Mar/2026 10:58:20] "[33mGET /test-auth HTTP/1.1[0m" 404 -
+2026-03-18 10:58:20,568 INFO 127.0.0.1 - - [18/Mar/2026 10:58:20] "[36mGET /static/js/main.js HTTP/1.1[0m" 304 -
+2026-03-18 10:58:20,574 INFO 127.0.0.1 - - [18/Mar/2026 10:58:20] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2026-03-18 10:59:34,088 INFO 127.0.0.1 - - [18/Mar/2026 10:59:34] "GET /auth/test-auth HTTP/1.1" 200 -
+2026-03-18 11:21:13,388 INFO [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2026-03-18 11:21:13,388 INFO [33mPress CTRL+C to quit[0m
+2026-03-18 11:21:13,391 INFO  * Restarting with stat
+2026-03-18 11:21:15,395 WARNING  * Debugger is active!
+2026-03-18 11:21:15,398 INFO  * Debugger PIN: 140-037-455
+2026-03-18 11:21:16,719 INFO 127.0.0.1 - - [18/Mar/2026 11:21:16] "GET / HTTP/1.1" 200 -
+2026-03-18 11:21:16,860 INFO 127.0.0.1 - - [18/Mar/2026 11:21:16] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2026-03-18 11:21:16,877 INFO 127.0.0.1 - - [18/Mar/2026 11:21:16] "[36mGET /static/uploads/powerbank.jpeg HTTP/1.1[0m" 304 -
+2026-03-18 11:21:16,879 INFO 127.0.0.1 - - [18/Mar/2026 11:21:16] "[36mGET /static/js/main.js HTTP/1.1[0m" 304 -
+2026-03-18 11:25:46,453 INFO Serving on http://0.0.0.0:8000
+2026-03-18 11:28:52,055 INFO 404 error: http://127.0.0.1:8000/favicon.ico
+2026-03-18 11:30:35,091 INFO Cache used for key: view//
+2026-03-18 11:30:35,889 INFO Cache used for key: view//
+2026-03-18 11:30:36,462 INFO Cache used for key: view//
+2026-03-18 11:30:36,750 INFO Cache used for key: view//
