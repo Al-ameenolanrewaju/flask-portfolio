@@ -17,6 +17,7 @@
     <form method="POST">
 
         <div class="form-group">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             <label>Project Title</label>
             <input type="text"
                    name="title"

@@ -20,6 +20,7 @@
                     <form method="POST">
                         <div class="mb-3">
                             <label class="form-label">Username</label>
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                             <input type="text" name="username" class="form-control" required>
                         </div>
                         <div class="mb-3">

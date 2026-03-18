@@ -19,7 +19,9 @@ from flask_caching import Cache
 import pymysql
 pymysql.install_as_MySQLdb()
 import urllib.parse
-
+from flask_wtf.csrf import CSRFProtect
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
 
 app = Flask(__name__)
 app.config.from_object(DevelopmentConfig)
@@ -66,6 +68,12 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 cache = Cache(app, config={'CACHE_TYPE': 'SimpleCache'})
+csrf = CSRFProtect(app)
+limiter = Limiter(
+    app=app,
+    key_func=get_remote_address,
+    default_limits=["200 per day", "50 per hour"]
+)
 
 
 class ProjectListResource(Resource):
@@ -253,14 +261,7 @@ def get_projects():
             cursor.close()
             connection.close()
 
-@app.route("/debug-db")
-def debug_db():
-    import os
-    database_url = os.environ.get("DATABASE_URL", "NOT SET")
-    return jsonify({
-        "DATABASE_URL": database_url,
-        "db_config_host": db_config.get("host", "NOT SET")
-    })
+
 
 def get_skills_from_table():
     """Get skills from skills table"""
@@ -303,16 +304,7 @@ def admin_required(f):
 
 
 # ================== MAIN ROUTES ==================
-@app.route("/cache-test")
-def cache_test():
-    import time
-    start = time.time()
-    project = get_projects()
-    end = time.time()
-    return jsonify({
-        "project_count": len(project),
-        "time_taken": f"{(end - start) * 1000:.2f}ms",
-    })
+
 
 @app.route('/')
 @cache.cached(timeout=300)
@@ -403,6 +395,7 @@ def load_user(user_id):
 
 
 @app.route("/register",methods=["GET","POST"])
+@limiter.limit("3 per minute")
 def register():
     if request.method == "POST":
         username = request.form.get("username")
@@ -429,6 +422,7 @@ def register():
     return render_template("register.html")
 
 @app.route('/contact', methods=['POST'])
+@limiter.limit("3 per minute")
 def contact():
     name = request.form.get('name', '').strip()
     email = request.form.get('email', '').strip()
@@ -873,6 +867,7 @@ def delete_message(id):
 # ================== AUTH ROUTES ==================
 
 @app.route('/admin/login', methods=['GET', 'POST'])
+@limiter.limit("5 per minute")
 def admin_login():
     if request.method == 'POST':
         username = request.form.get('username')
