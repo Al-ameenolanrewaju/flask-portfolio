@@ -249,6 +249,14 @@ def get_projects():
             cursor.close()
             connection.close()
 
+@app.route("/debug-db")
+def debug_db():
+    import os
+    database_url = os.environ.get("DATABASE_URL", "NOT SET")
+    return jsonify({
+        "DATABASE_URL": database_url,
+        "db_config_host": db_config.get("host", "NOT SET")
+    })
 
 def get_skills_from_table():
     """Get skills from skills table"""
