@@ -5,10 +5,12 @@ $(document).ready(function(){
 
         var target = this.hash;
         var $target = $(target);
+        if ($target.length) {
+            $('html, body').animate({
+                scrollTop: $target.offset().top - 60
+            }, 800);
+        }
 
-        $('html, body').animate({
-            scrollTop: $target.offset().top - 60
-        }, 800);
     });
 
 });
@@ -20,7 +22,8 @@ $(window).on('scroll', function() {
         var currLink = $(this);
         var refElement = $(currLink.attr("href"));
 
-        if (refElement.position().top - 80 <= scrollPos &&
+        if (refElement.length &&
+            refElement.position().top - 80 <= scrollPos &&
             refElement.position().top + refElement.height() > scrollPos) {
 
             $('.nav-item').removeClass("active");

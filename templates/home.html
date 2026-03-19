@@ -32,7 +32,7 @@ Al-ameen | Python Flask Developer
         <p>{{ content.get('hero', {}).get('content', 'Subtitle goes here') }}</p>
         <br>
         <a href="#projects" class="btn btn-outline btn-lg">View Projects</a>
-        <a href="#contact" class="btn btn-success btn-lg">Hire Me</a>
+        <a href="#contact" class="btn btn-outline btn-lg">Hire Me</a>
         <br><br>
 
         <!-- CV Download -->
@@ -88,7 +88,7 @@ Al-ameen | Python Flask Developer
                     <div class="project-card">
                         <h4>{{ project.title if project.title else project[1] }}</h4>
                         <p>{{ project.description if project.description else project[2] }}</p>
-                        <a href="{{ project.link if project.link else project[3] }}" class="btn btn-primary btn-sm" target="_blank">View Project</a>
+                        <a href="{{ project.link if project.link else project[3] }}" class="btn btn-outline btn-sm" target="_blank">View Project</a>
                     </div>
                 </div>
                 {% endfor %}
@@ -128,7 +128,7 @@ Al-ameen | Python Flask Developer
                 <textarea name="message" class="form-control" rows="5" required></textarea>
             </div>
 
-            <button type="submit" class="btn btn-light btn-block">Send Message</button>
+            <button type="submit" class="btn btn-contact btn-block">Send Message</button>
         </form>
     </div>
 </section>

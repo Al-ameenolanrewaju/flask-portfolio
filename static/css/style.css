@@ -21,11 +21,11 @@ html {
 ======================== */
 .custom-navbar {
     background-color: #161B22;
-    border-bottom: 1px solid #21262D;
+    border-bottom: 1px solid #F5A623;
 }
 
 .custom-navbar .navbar-brand {
-    color: #58A6FF !important;
+    color: #F5A623 !important;
     font-weight: bold;
 }
 
@@ -35,9 +35,9 @@ html {
 
 .navbar-nav > .active > a {
     background-color: transparent !important;
-    color: #58A6FF !important;
+    color: #F5A623 !important;
     font-weight: bold;
-    border-bottom: 2px solid #58A6FF;
+    border-bottom: 2px solid #F5A623;
 }
 
 /* ========================
@@ -58,11 +58,11 @@ html {
 .btn-outline {
     background: transparent;
     border: 2px solid #58A6FF;
-    color: #58A6FF;
+    color: #F5A623;
 }
 
 .btn-outline:hover {
-    background: #58A6FF;
+    background: #F5A623;
     color: #0D1117;
 }
 
@@ -84,19 +84,19 @@ html {
 /* Skills */
 .section-skills {
     background: #21262D;
-    color: #58A6FF;
+    color: #FOF6FC;
 }
 
 /* Projects */
 .section-projects {
-    background: #F6F8FA;
-    color: #0D1117;
+    background: #161B22;
+    color: #FOF6FC;
 }
 
 /* Contact */
 .section-contact {
-    background: #238636;
-    color: #FFFFFF;
+    background: #161B22;
+    color: #FOF6FC;
     text-align: center;
 }
 
@@ -127,7 +127,7 @@ html {
 .skill-box h4,
 .project-card h4 {
     margin-bottom: 15px;
-    color: #58A6FF;
+    color: #F5A623;
 }
 
 .project-card a.btn {
@@ -164,7 +164,7 @@ html {
 }
 
 .contact-form .form-control:focus {
-    box-shadow: 0 0 0 2px #58A6FF;
+    box-shadow: 0 0 0 2px #F5A623;
     border: none;
     background: #161B22;
     color: #C9D1D9;
@@ -176,9 +176,9 @@ html {
 }
 
 .contact-form .btn-contact {
-    background: #238636;
+    background: #F5A623;
     border: none;
-    color: #FFFFFF;
+    color: #OD1117;
     font-weight: bold;
     padding: 12px 20px;
     border-radius: 8px;
@@ -186,7 +186,13 @@ html {
 }
 
 .contact-form .btn-contact:hover {
-    background: #2EA043;
+    background: #E09612;
+}
+.section-contact {
+    background: #OD1117;
+    color: FOF6FC;
+    text-align: center;
+
 }
 
 /* ========================
@@ -222,7 +228,7 @@ footer {
     height: 250px;
     object-fit: cover;
     border-radius: 50%;
-    border: 4px solid #58A6FF;
+    border: 4px solid #F5A623;
     box-shadow: 0 4px 20px rgba(0,0,0,0.4);
     transition: transform 0.3s;
 }
