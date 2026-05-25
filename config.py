@@ -1,6 +1,5 @@
 import os
 from dotenv import load_dotenv
-import urllib.parse
 
 load_dotenv()
 
@@ -9,14 +8,11 @@ class Config:
     DEBUG = os.environ.get("DEBUG", "False") == "True"
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
-    # Database
-    SQLALCHEMY_DATABASE_URI = os.environ.get("DATABASE_URL", "")
-
-    # MySQL direct config
-    DB_HOST = os.environ.get("DB_HOST", "localhost")
-    DB_USER = os.environ.get("DB_USER", "root")
-    DB_PASSWORD = os.environ.get("DB_PASSWORD", "")
-    DB_NAME = os.environ.get("DB_NAME", "portfolio")
+    # Database - fix "postgres://" to "postgresql://" for SQLAlchemy
+    _db_url = os.environ.get("DATABASE_URL", "")
+    if _db_url.startswith("postgres://"):
+        _db_url = _db_url.replace("postgres://", "postgresql://", 1)
+    SQLALCHEMY_DATABASE_URI = _db_url
 
     # Admin
     ADMIN_USERNAME = os.environ.get("ADMIN_USERNAME", "admin")
@@ -31,26 +27,14 @@ class Config:
     MAIL_PASSWORD = os.environ.get("MAIL_PASSWORD")
     MAIL_DEFAULT_SENDER = os.environ.get("MAIL_DEFAULT_SENDER")
 
+
 class DevelopmentConfig(Config):
     DEBUG = True
+
 
 class ProductionConfig(Config):
     DEBUG = False
 
-    @staticmethod
-    def get_db_config():
-        url = os.environ.get("DATABASE_URL", "")
-        if url:
-            # Parse Railway MySQL URL
-            parsed = urllib.parse.urlparse(url.replace("mysql+pymysql://", "mysql://"))
-            return {
-                "host": parsed.hostname,
-                "user": parsed.username,
-                "password": parsed.password,
-                "database": parsed.path[1:],
-                "port": parsed.port or 3306
-            }
-        return {}
 
 class TestingConfig(Config):
     TESTING = True
