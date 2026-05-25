@@ -1037,3 +1037,217 @@
 2026-03-19 09:23:07,879 INFO 127.0.0.1 - - [19/Mar/2026 09:23:07] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
 2026-03-19 09:23:07,921 INFO 404 error: http://127.0.0.1:5000/.well-known/appspecific/com.chrome.devtools.json
 2026-03-19 09:23:07,927 INFO 127.0.0.1 - - [19/Mar/2026 09:23:07] "[33mGET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1[0m" 404 -
+2026-05-25 09:00:48,974 INFO [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2026-05-25 09:00:48,975 INFO [33mPress CTRL+C to quit[0m
+2026-05-25 09:00:48,978 INFO  * Restarting with stat
+2026-05-25 09:00:50,649 WARNING  * Debugger is active!
+2026-05-25 09:00:50,659 INFO  * Debugger PIN: 140-037-455
+2026-05-25 09:01:05,663 INFO 127.0.0.1 - - [25/May/2026 09:01:05] "[35m[1mGET /admin HTTP/1.1[0m" 500 -
+2026-05-25 09:01:05,898 INFO 127.0.0.1 - - [25/May/2026 09:01:05] "GET /admin?__debugger__=yes&cmd=resource&f=style.css HTTP/1.1" 200 -
+2026-05-25 09:01:05,917 INFO 127.0.0.1 - - [25/May/2026 09:01:05] "GET /admin?__debugger__=yes&cmd=resource&f=debugger.js HTTP/1.1" 200 -
+2026-05-25 09:01:06,035 INFO 127.0.0.1 - - [25/May/2026 09:01:06] "GET /admin?__debugger__=yes&cmd=resource&f=console.png&s=KNRsfi3RoGoY865MrwSd HTTP/1.1" 200 -
+2026-05-25 09:01:06,051 INFO 127.0.0.1 - - [25/May/2026 09:01:06] "GET /admin?__debugger__=yes&cmd=resource&f=console.png HTTP/1.1" 200 -
+2026-05-25 09:01:08,174 INFO 127.0.0.1 - - [25/May/2026 09:01:08] "[35m[1mGET /admin HTTP/1.1[0m" 500 -
+2026-05-25 09:01:08,205 INFO 127.0.0.1 - - [25/May/2026 09:01:08] "[36mGET /admin?__debugger__=yes&cmd=resource&f=style.css HTTP/1.1[0m" 304 -
+2026-05-25 09:01:08,216 INFO 127.0.0.1 - - [25/May/2026 09:01:08] "[36mGET /admin?__debugger__=yes&cmd=resource&f=debugger.js HTTP/1.1[0m" 304 -
+2026-05-25 09:01:08,229 INFO 127.0.0.1 - - [25/May/2026 09:01:08] "[36mGET /admin?__debugger__=yes&cmd=resource&f=console.png&s=KNRsfi3RoGoY865MrwSd HTTP/1.1[0m" 304 -
+2026-05-25 09:01:08,258 INFO 127.0.0.1 - - [25/May/2026 09:01:08] "[36mGET /admin?__debugger__=yes&cmd=resource&f=console.png HTTP/1.1[0m" 304 -
+2026-05-25 09:01:09,491 INFO 127.0.0.1 - - [25/May/2026 09:01:09] "[35m[1mGET /admin HTTP/1.1[0m" 500 -
+2026-05-25 09:01:09,535 INFO 127.0.0.1 - - [25/May/2026 09:01:09] "[36mGET /admin?__debugger__=yes&cmd=resource&f=style.css HTTP/1.1[0m" 304 -
+2026-05-25 09:01:09,548 INFO 127.0.0.1 - - [25/May/2026 09:01:09] "[36mGET /admin?__debugger__=yes&cmd=resource&f=debugger.js HTTP/1.1[0m" 304 -
+2026-05-25 09:01:09,592 INFO 127.0.0.1 - - [25/May/2026 09:01:09] "[36mGET /admin?__debugger__=yes&cmd=resource&f=console.png&s=KNRsfi3RoGoY865MrwSd HTTP/1.1[0m" 304 -
+2026-05-25 09:01:09,636 INFO 127.0.0.1 - - [25/May/2026 09:01:09] "[36mGET /admin?__debugger__=yes&cmd=resource&f=console.png HTTP/1.1[0m" 304 -
+2026-05-25 09:01:10,406 INFO 127.0.0.1 - - [25/May/2026 09:01:10] "[35m[1mGET /admin HTTP/1.1[0m" 500 -
+2026-05-25 09:01:10,452 INFO 127.0.0.1 - - [25/May/2026 09:01:10] "[36mGET /admin?__debugger__=yes&cmd=resource&f=style.css HTTP/1.1[0m" 304 -
+2026-05-25 09:01:10,460 INFO 127.0.0.1 - - [25/May/2026 09:01:10] "[36mGET /admin?__debugger__=yes&cmd=resource&f=debugger.js HTTP/1.1[0m" 304 -
+2026-05-25 09:01:10,496 INFO 127.0.0.1 - - [25/May/2026 09:01:10] "[36mGET /admin?__debugger__=yes&cmd=resource&f=console.png&s=KNRsfi3RoGoY865MrwSd HTTP/1.1[0m" 304 -
+2026-05-25 09:01:10,523 INFO 127.0.0.1 - - [25/May/2026 09:01:10] "[36mGET /admin?__debugger__=yes&cmd=resource&f=console.png HTTP/1.1[0m" 304 -
+2026-05-25 09:01:11,255 INFO 127.0.0.1 - - [25/May/2026 09:01:11] "[35m[1mGET /admin HTTP/1.1[0m" 500 -
+2026-05-25 09:01:11,288 INFO 127.0.0.1 - - [25/May/2026 09:01:11] "[36mGET /admin?__debugger__=yes&cmd=resource&f=style.css HTTP/1.1[0m" 304 -
+2026-05-25 09:01:11,301 INFO 127.0.0.1 - - [25/May/2026 09:01:11] "[36mGET /admin?__debugger__=yes&cmd=resource&f=debugger.js HTTP/1.1[0m" 304 -
+2026-05-25 09:01:11,309 INFO 127.0.0.1 - - [25/May/2026 09:01:11] "[36mGET /admin?__debugger__=yes&cmd=resource&f=console.png&s=KNRsfi3RoGoY865MrwSd HTTP/1.1[0m" 304 -
+2026-05-25 09:01:11,338 INFO 127.0.0.1 - - [25/May/2026 09:01:11] "[36mGET /admin?__debugger__=yes&cmd=resource&f=console.png HTTP/1.1[0m" 304 -
+2026-05-25 09:01:20,537 INFO 127.0.0.1 - - [25/May/2026 09:01:20] "[35m[1mGET / HTTP/1.1[0m" 500 -
+2026-05-25 09:01:20,636 INFO 127.0.0.1 - - [25/May/2026 09:01:20] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2026-05-25 09:03:34,612 INFO Cache used for key: view//
+2026-05-25 09:03:34,613 INFO 127.0.0.1 - - [25/May/2026 09:03:34] "[35m[1mGET / HTTP/1.1[0m" 500 -
+2026-05-25 09:03:35,553 INFO Cache used for key: view//
+2026-05-25 09:03:35,554 INFO 127.0.0.1 - - [25/May/2026 09:03:35] "[35m[1mGET / HTTP/1.1[0m" 500 -
+2026-05-25 09:03:36,045 INFO Cache used for key: view//
+2026-05-25 09:03:36,046 INFO 127.0.0.1 - - [25/May/2026 09:03:36] "[35m[1mGET / HTTP/1.1[0m" 500 -
+2026-05-25 09:03:36,388 INFO Cache used for key: view//
+2026-05-25 09:03:36,389 INFO 127.0.0.1 - - [25/May/2026 09:03:36] "[35m[1mGET / HTTP/1.1[0m" 500 -
+2026-05-25 09:03:36,738 INFO Cache used for key: view//
+2026-05-25 09:03:36,739 INFO 127.0.0.1 - - [25/May/2026 09:03:36] "[35m[1mGET / HTTP/1.1[0m" 500 -
+2026-05-25 09:03:52,012 INFO [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2026-05-25 09:03:52,012 INFO [33mPress CTRL+C to quit[0m
+2026-05-25 09:03:52,014 INFO  * Restarting with stat
+2026-05-25 09:03:53,806 WARNING  * Debugger is active!
+2026-05-25 09:03:53,812 INFO  * Debugger PIN: 140-037-455
+2026-05-25 09:04:06,156 INFO 127.0.0.1 - - [25/May/2026 09:04:06] "[35m[1mGET / HTTP/1.1[0m" 500 -
+2026-05-25 09:10:47,828 INFO [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2026-05-25 09:10:47,828 INFO [33mPress CTRL+C to quit[0m
+2026-05-25 09:10:47,831 INFO  * Restarting with stat
+2026-05-25 09:10:49,709 WARNING  * Debugger is active!
+2026-05-25 09:10:49,712 INFO  * Debugger PIN: 140-037-455
+2026-05-25 09:10:56,633 INFO 127.0.0.1 - - [25/May/2026 09:10:56] "[35m[1mGET / HTTP/1.1[0m" 500 -
+2026-05-25 09:14:50,116 INFO [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2026-05-25 09:14:50,116 INFO [33mPress CTRL+C to quit[0m
+2026-05-25 09:14:50,119 INFO  * Restarting with stat
+2026-05-25 09:14:52,008 WARNING  * Debugger is active!
+2026-05-25 09:14:52,011 INFO  * Debugger PIN: 140-037-455
+2026-05-25 09:15:03,683 INFO 127.0.0.1 - - [25/May/2026 09:15:03] "GET / HTTP/1.1" 200 -
+2026-05-25 09:15:03,780 INFO 127.0.0.1 - - [25/May/2026 09:15:03] "GET /static/css/style.css HTTP/1.1" 200 -
+2026-05-25 09:15:04,279 INFO 127.0.0.1 - - [25/May/2026 09:15:04] "GET /static/uploads/powerbank.jpeg HTTP/1.1" 200 -
+2026-05-25 09:15:04,617 INFO 127.0.0.1 - - [25/May/2026 09:15:04] "GET /static/js/main.js HTTP/1.1" 200 -
+2026-05-25 09:26:07,384 INFO 127.0.0.1 - - [25/May/2026 09:26:07] "GET / HTTP/1.1" 200 -
+2026-05-25 09:26:07,432 INFO 127.0.0.1 - - [25/May/2026 09:26:07] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2026-05-25 09:26:07,472 INFO 127.0.0.1 - - [25/May/2026 09:26:07] "[36mGET /static/uploads/powerbank.jpeg HTTP/1.1[0m" 304 -
+2026-05-25 09:26:07,472 INFO 127.0.0.1 - - [25/May/2026 09:26:07] "[36mGET /static/js/main.js HTTP/1.1[0m" 304 -
+2026-05-25 09:26:39,358 INFO [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2026-05-25 09:26:39,358 INFO [33mPress CTRL+C to quit[0m
+2026-05-25 09:26:39,361 INFO  * Restarting with stat
+2026-05-25 09:26:41,798 WARNING  * Debugger is active!
+2026-05-25 09:26:41,801 INFO  * Debugger PIN: 140-037-455
+2026-05-25 09:26:48,914 INFO 127.0.0.1 - - [25/May/2026 09:26:48] "GET / HTTP/1.1" 200 -
+2026-05-25 09:26:49,061 INFO 127.0.0.1 - - [25/May/2026 09:26:49] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2026-05-25 09:26:49,065 INFO 127.0.0.1 - - [25/May/2026 09:26:49] "[36mGET /static/uploads/powerbank.jpeg HTTP/1.1[0m" 304 -
+2026-05-25 09:26:49,078 INFO 127.0.0.1 - - [25/May/2026 09:26:49] "[36mGET /static/js/main.js HTTP/1.1[0m" 304 -
+2026-05-25 09:28:50,484 INFO Cache used for key: view//
+2026-05-25 09:28:50,485 INFO 127.0.0.1 - - [25/May/2026 09:28:50] "GET / HTTP/1.1" 200 -
+2026-05-25 09:28:50,528 INFO 127.0.0.1 - - [25/May/2026 09:28:50] "[36mGET /static/uploads/powerbank.jpeg HTTP/1.1[0m" 304 -
+2026-05-25 09:28:50,529 INFO 127.0.0.1 - - [25/May/2026 09:28:50] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2026-05-25 09:28:50,532 INFO 127.0.0.1 - - [25/May/2026 09:28:50] "[36mGET /static/js/main.js HTTP/1.1[0m" 304 -
+2026-05-25 09:41:19,000 INFO 127.0.0.1 - - [25/May/2026 09:41:19] "[35m[1mGET /admin HTTP/1.1[0m" 500 -
+2026-05-25 09:41:19,050 INFO 127.0.0.1 - - [25/May/2026 09:41:19] "[36mGET /admin?__debugger__=yes&cmd=resource&f=style.css HTTP/1.1[0m" 304 -
+2026-05-25 09:41:19,052 INFO 127.0.0.1 - - [25/May/2026 09:41:19] "[36mGET /admin?__debugger__=yes&cmd=resource&f=debugger.js HTTP/1.1[0m" 304 -
+2026-05-25 09:41:19,080 INFO 127.0.0.1 - - [25/May/2026 09:41:19] "GET /admin?__debugger__=yes&cmd=resource&f=console.png&s=Yg9f8vx3xh75NVFl4P1P HTTP/1.1" 200 -
+2026-05-25 09:44:49,220 INFO  * Detected change in 'C:\\Users\\ADEDAMOLA\\Desktop\\port\\app.py', reloading
+2026-05-25 09:44:49,582 INFO  * Restarting with stat
+2026-05-25 09:44:51,431 WARNING  * Debugger is active!
+2026-05-25 09:44:51,433 INFO  * Debugger PIN: 140-037-455
+2026-05-25 09:45:07,461 INFO [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2026-05-25 09:45:07,462 INFO [33mPress CTRL+C to quit[0m
+2026-05-25 09:45:07,465 INFO  * Restarting with stat
+2026-05-25 09:45:09,076 WARNING  * Debugger is active!
+2026-05-25 09:45:09,079 INFO  * Debugger PIN: 140-037-455
+2026-05-25 09:45:13,420 INFO 127.0.0.1 - - [25/May/2026 09:45:13] "[35m[1mGET /admin HTTP/1.1[0m" 500 -
+2026-05-25 09:45:13,560 INFO 127.0.0.1 - - [25/May/2026 09:45:13] "[36mGET /admin?__debugger__=yes&cmd=resource&f=style.css HTTP/1.1[0m" 304 -
+2026-05-25 09:45:13,583 INFO 127.0.0.1 - - [25/May/2026 09:45:13] "[36mGET /admin?__debugger__=yes&cmd=resource&f=debugger.js HTTP/1.1[0m" 304 -
+2026-05-25 09:45:13,641 INFO 127.0.0.1 - - [25/May/2026 09:45:13] "GET /admin?__debugger__=yes&cmd=resource&f=console.png&s=DkfThwtuYQsuOcy6jSqX HTTP/1.1" 200 -
+2026-05-25 09:45:13,692 INFO 127.0.0.1 - - [25/May/2026 09:45:13] "[36mGET /admin?__debugger__=yes&cmd=resource&f=console.png HTTP/1.1[0m" 304 -
+2026-05-25 09:45:15,772 INFO 127.0.0.1 - - [25/May/2026 09:45:15] "[35m[1mGET /admin HTTP/1.1[0m" 500 -
+2026-05-25 09:45:15,803 INFO 127.0.0.1 - - [25/May/2026 09:45:15] "[36mGET /admin?__debugger__=yes&cmd=resource&f=style.css HTTP/1.1[0m" 304 -
+2026-05-25 09:45:15,814 INFO 127.0.0.1 - - [25/May/2026 09:45:15] "[36mGET /admin?__debugger__=yes&cmd=resource&f=debugger.js HTTP/1.1[0m" 304 -
+2026-05-25 09:45:15,833 INFO 127.0.0.1 - - [25/May/2026 09:45:15] "[36mGET /admin?__debugger__=yes&cmd=resource&f=console.png&s=DkfThwtuYQsuOcy6jSqX HTTP/1.1[0m" 304 -
+2026-05-25 09:45:15,857 INFO 127.0.0.1 - - [25/May/2026 09:45:15] "[36mGET /admin?__debugger__=yes&cmd=resource&f=console.png HTTP/1.1[0m" 304 -
+2026-05-25 09:45:16,859 INFO 127.0.0.1 - - [25/May/2026 09:45:16] "[35m[1mGET /admin HTTP/1.1[0m" 500 -
+2026-05-25 09:45:16,891 INFO 127.0.0.1 - - [25/May/2026 09:45:16] "[36mGET /admin?__debugger__=yes&cmd=resource&f=style.css HTTP/1.1[0m" 304 -
+2026-05-25 09:45:16,904 INFO 127.0.0.1 - - [25/May/2026 09:45:16] "[36mGET /admin?__debugger__=yes&cmd=resource&f=debugger.js HTTP/1.1[0m" 304 -
+2026-05-25 09:45:16,921 INFO 127.0.0.1 - - [25/May/2026 09:45:16] "[36mGET /admin?__debugger__=yes&cmd=resource&f=console.png&s=DkfThwtuYQsuOcy6jSqX HTTP/1.1[0m" 304 -
+2026-05-25 09:45:16,949 INFO 127.0.0.1 - - [25/May/2026 09:45:16] "[36mGET /admin?__debugger__=yes&cmd=resource&f=console.png HTTP/1.1[0m" 304 -
+2026-05-25 09:45:17,461 INFO 127.0.0.1 - - [25/May/2026 09:45:17] "[35m[1mGET /admin HTTP/1.1[0m" 500 -
+2026-05-25 09:45:17,500 INFO 127.0.0.1 - - [25/May/2026 09:45:17] "[36mGET /admin?__debugger__=yes&cmd=resource&f=style.css HTTP/1.1[0m" 304 -
+2026-05-25 09:45:17,503 INFO 127.0.0.1 - - [25/May/2026 09:45:17] "[36mGET /admin?__debugger__=yes&cmd=resource&f=debugger.js HTTP/1.1[0m" 304 -
+2026-05-25 09:45:17,529 INFO 127.0.0.1 - - [25/May/2026 09:45:17] "[36mGET /admin?__debugger__=yes&cmd=resource&f=console.png&s=DkfThwtuYQsuOcy6jSqX HTTP/1.1[0m" 304 -
+2026-05-25 09:45:17,563 INFO 127.0.0.1 - - [25/May/2026 09:45:17] "[36mGET /admin?__debugger__=yes&cmd=resource&f=console.png HTTP/1.1[0m" 304 -
+2026-05-25 10:05:21,606 INFO [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2026-05-25 10:05:21,606 INFO [33mPress CTRL+C to quit[0m
+2026-05-25 10:05:21,608 INFO  * Restarting with stat
+2026-05-25 10:05:23,300 WARNING  * Debugger is active!
+2026-05-25 10:05:23,302 INFO  * Debugger PIN: 140-037-455
+2026-05-25 10:05:26,755 INFO 127.0.0.1 - - [25/May/2026 10:05:26] "[32mGET /admin HTTP/1.1[0m" 302 -
+2026-05-25 10:05:26,782 INFO 127.0.0.1 - - [25/May/2026 10:05:26] "GET /auth/login?next=/admin HTTP/1.1" 200 -
+2026-05-25 10:05:26,893 INFO 127.0.0.1 - - [25/May/2026 10:05:26] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2026-05-25 10:05:26,902 INFO 127.0.0.1 - - [25/May/2026 10:05:26] "[36mGET /static/js/main.js HTTP/1.1[0m" 304 -
+2026-05-25 10:05:47,187 INFO 127.0.0.1 - - [25/May/2026 10:05:47] "[35m[1mPOST /auth/login?next=/admin HTTP/1.1[0m" 500 -
+2026-05-25 10:05:47,243 INFO 127.0.0.1 - - [25/May/2026 10:05:47] "GET /auth/login?__debugger__=yes&cmd=resource&f=style.css HTTP/1.1" 200 -
+2026-05-25 10:05:47,244 INFO 127.0.0.1 - - [25/May/2026 10:05:47] "GET /auth/login?__debugger__=yes&cmd=resource&f=debugger.js HTTP/1.1" 200 -
+2026-05-25 10:05:47,271 INFO 127.0.0.1 - - [25/May/2026 10:05:47] "GET /auth/login?__debugger__=yes&cmd=resource&f=console.png&s=hbV5BTjLwHJ18yiDUfg0 HTTP/1.1" 200 -
+2026-05-25 10:05:47,292 INFO 127.0.0.1 - - [25/May/2026 10:05:47] "GET /auth/login?__debugger__=yes&cmd=resource&f=console.png HTTP/1.1" 200 -
+2026-05-25 10:07:26,968 INFO  * Detected change in 'C:\\Users\\ADEDAMOLA\\Desktop\\port\\routes\\auth.py', reloading
+2026-05-25 10:07:27,335 INFO  * Restarting with stat
+2026-05-25 10:07:29,741 WARNING  * Debugger is active!
+2026-05-25 10:07:29,744 INFO  * Debugger PIN: 140-037-455
+2026-05-25 10:07:31,398 INFO 127.0.0.1 - - [25/May/2026 10:07:31] "[35m[1mPOST /auth/login?next=/admin HTTP/1.1[0m" 500 -
+2026-05-25 10:07:31,503 INFO 127.0.0.1 - - [25/May/2026 10:07:31] "[36mGET /auth/login?__debugger__=yes&cmd=resource&f=style.css HTTP/1.1[0m" 304 -
+2026-05-25 10:07:31,505 INFO 127.0.0.1 - - [25/May/2026 10:07:31] "[36mGET /auth/login?__debugger__=yes&cmd=resource&f=debugger.js HTTP/1.1[0m" 304 -
+2026-05-25 10:07:31,532 INFO 127.0.0.1 - - [25/May/2026 10:07:31] "GET /auth/login?__debugger__=yes&cmd=resource&f=console.png&s=Sdnm550FsbRdRpS47q3b HTTP/1.1" 200 -
+2026-05-25 10:07:31,551 INFO 127.0.0.1 - - [25/May/2026 10:07:31] "[36mGET /auth/login?__debugger__=yes&cmd=resource&f=console.png HTTP/1.1[0m" 304 -
+2026-05-25 10:07:49,959 INFO [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2026-05-25 10:07:49,960 INFO [33mPress CTRL+C to quit[0m
+2026-05-25 10:07:49,962 INFO  * Restarting with stat
+2026-05-25 10:07:51,568 WARNING  * Debugger is active!
+2026-05-25 10:07:51,571 INFO  * Debugger PIN: 140-037-455
+2026-05-25 10:07:57,007 INFO 127.0.0.1 - - [25/May/2026 10:07:57] "[35m[1mPOST /auth/login?next=/admin HTTP/1.1[0m" 500 -
+2026-05-25 10:07:57,102 INFO 127.0.0.1 - - [25/May/2026 10:07:57] "[36mGET /auth/login?__debugger__=yes&cmd=resource&f=style.css HTTP/1.1[0m" 304 -
+2026-05-25 10:07:57,104 INFO 127.0.0.1 - - [25/May/2026 10:07:57] "[36mGET /auth/login?__debugger__=yes&cmd=resource&f=debugger.js HTTP/1.1[0m" 304 -
+2026-05-25 10:07:57,129 INFO 127.0.0.1 - - [25/May/2026 10:07:57] "GET /auth/login?__debugger__=yes&cmd=resource&f=console.png&s=mcxM8kzLXkh56ARe3u4B HTTP/1.1" 200 -
+2026-05-25 10:07:57,143 INFO 127.0.0.1 - - [25/May/2026 10:07:57] "[36mGET /auth/login?__debugger__=yes&cmd=resource&f=console.png HTTP/1.1[0m" 304 -
+2026-05-25 10:08:01,093 INFO 127.0.0.1 - - [25/May/2026 10:08:01] "[35m[1mPOST /auth/login?next=/admin HTTP/1.1[0m" 500 -
+2026-05-25 10:08:01,125 INFO 127.0.0.1 - - [25/May/2026 10:08:01] "[36mGET /auth/login?__debugger__=yes&cmd=resource&f=style.css HTTP/1.1[0m" 304 -
+2026-05-25 10:08:01,130 INFO 127.0.0.1 - - [25/May/2026 10:08:01] "[36mGET /auth/login?__debugger__=yes&cmd=resource&f=debugger.js HTTP/1.1[0m" 304 -
+2026-05-25 10:08:01,156 INFO 127.0.0.1 - - [25/May/2026 10:08:01] "[36mGET /auth/login?__debugger__=yes&cmd=resource&f=console.png&s=mcxM8kzLXkh56ARe3u4B HTTP/1.1[0m" 304 -
+2026-05-25 10:08:01,180 INFO 127.0.0.1 - - [25/May/2026 10:08:01] "[36mGET /auth/login?__debugger__=yes&cmd=resource&f=console.png HTTP/1.1[0m" 304 -
+2026-05-25 10:11:12,531 INFO  * Detected change in 'C:\\Users\\ADEDAMOLA\\Desktop\\port\\routes\\auth.py', reloading
+2026-05-25 10:11:12,945 INFO  * Restarting with stat
+2026-05-25 21:00:56,662 INFO [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2026-05-25 21:00:56,663 INFO [33mPress CTRL+C to quit[0m
+2026-05-25 21:00:56,666 INFO  * Restarting with stat
+2026-05-25 21:00:58,153 WARNING  * Debugger is active!
+2026-05-25 21:00:58,163 INFO  * Debugger PIN: 140-037-455
+2026-05-25 21:01:07,005 INFO The CSRF token has expired.
+2026-05-25 21:01:07,007 INFO 127.0.0.1 - - [25/May/2026 21:01:07] "[31m[1mPOST /auth/login?next=/admin HTTP/1.1[0m" 400 -
+2026-05-25 21:01:13,826 INFO The CSRF token has expired.
+2026-05-25 21:01:13,826 INFO 127.0.0.1 - - [25/May/2026 21:01:13] "[31m[1mPOST /auth/login?next=/admin HTTP/1.1[0m" 400 -
+2026-05-25 21:01:44,286 INFO 127.0.0.1 - - [25/May/2026 21:01:44] "GET / HTTP/1.1" 200 -
+2026-05-25 21:01:44,448 INFO 127.0.0.1 - - [25/May/2026 21:01:44] "[36mGET /static/uploads/powerbank.jpeg HTTP/1.1[0m" 304 -
+2026-05-25 21:01:44,458 INFO 127.0.0.1 - - [25/May/2026 21:01:44] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2026-05-25 21:01:44,487 INFO 127.0.0.1 - - [25/May/2026 21:01:44] "[36mGET /static/js/main.js HTTP/1.1[0m" 304 -
+2026-05-25 21:01:56,657 INFO 127.0.0.1 - - [25/May/2026 21:01:56] "[32mGET /admin HTTP/1.1[0m" 302 -
+2026-05-25 21:01:56,683 INFO 127.0.0.1 - - [25/May/2026 21:01:56] "GET /auth/login?next=/admin HTTP/1.1" 200 -
+2026-05-25 21:01:56,716 INFO 127.0.0.1 - - [25/May/2026 21:01:56] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2026-05-25 21:01:56,719 INFO 127.0.0.1 - - [25/May/2026 21:01:56] "[36mGET /static/js/main.js HTTP/1.1[0m" 304 -
+2026-05-25 21:02:10,171 INFO 127.0.0.1 - - [25/May/2026 21:02:10] "[32mPOST /auth/login?next=/admin HTTP/1.1[0m" 302 -
+2026-05-25 21:02:12,836 INFO 127.0.0.1 - - [25/May/2026 21:02:12] "[35m[1mGET /admin HTTP/1.1[0m" 500 -
+2026-05-25 21:02:12,917 INFO 127.0.0.1 - - [25/May/2026 21:02:12] "[36mGET /admin?__debugger__=yes&cmd=resource&f=style.css HTTP/1.1[0m" 304 -
+2026-05-25 21:02:12,952 INFO 127.0.0.1 - - [25/May/2026 21:02:12] "[36mGET /admin?__debugger__=yes&cmd=resource&f=debugger.js HTTP/1.1[0m" 304 -
+2026-05-25 21:02:12,986 INFO 127.0.0.1 - - [25/May/2026 21:02:12] "GET /admin?__debugger__=yes&cmd=resource&f=console.png&s=XKqverfj87vdNGyyoi8k HTTP/1.1" 200 -
+2026-05-25 21:02:13,012 INFO 127.0.0.1 - - [25/May/2026 21:02:13] "[36mGET /admin?__debugger__=yes&cmd=resource&f=console.png HTTP/1.1[0m" 304 -
+2026-05-25 21:04:10,332 INFO 127.0.0.1 - - [25/May/2026 21:04:10] "[35m[1mGET /admin HTTP/1.1[0m" 500 -
+2026-05-25 21:04:10,830 INFO 127.0.0.1 - - [25/May/2026 21:04:10] "[36mGET /admin?__debugger__=yes&cmd=resource&f=style.css HTTP/1.1[0m" 304 -
+2026-05-25 21:04:10,840 INFO 127.0.0.1 - - [25/May/2026 21:04:10] "[36mGET /admin?__debugger__=yes&cmd=resource&f=debugger.js HTTP/1.1[0m" 304 -
+2026-05-25 21:04:10,852 INFO 127.0.0.1 - - [25/May/2026 21:04:10] "[36mGET /admin?__debugger__=yes&cmd=resource&f=console.png&s=XKqverfj87vdNGyyoi8k HTTP/1.1[0m" 304 -
+2026-05-25 21:04:11,184 INFO 127.0.0.1 - - [25/May/2026 21:04:11] "[36mGET /admin?__debugger__=yes&cmd=resource&f=console.png HTTP/1.1[0m" 304 -
+2026-05-25 21:04:35,665 INFO 127.0.0.1 - - [25/May/2026 21:04:35] "[35m[1mGET /admin HTTP/1.1[0m" 500 -
+2026-05-25 21:04:35,693 INFO 127.0.0.1 - - [25/May/2026 21:04:35] "[36mGET /admin?__debugger__=yes&cmd=resource&f=style.css HTTP/1.1[0m" 304 -
+2026-05-25 21:04:35,701 INFO 127.0.0.1 - - [25/May/2026 21:04:35] "[36mGET /admin?__debugger__=yes&cmd=resource&f=debugger.js HTTP/1.1[0m" 304 -
+2026-05-25 21:04:35,710 INFO 127.0.0.1 - - [25/May/2026 21:04:35] "[36mGET /admin?__debugger__=yes&cmd=resource&f=console.png&s=XKqverfj87vdNGyyoi8k HTTP/1.1[0m" 304 -
+2026-05-25 21:04:35,737 INFO 127.0.0.1 - - [25/May/2026 21:04:35] "[36mGET /admin?__debugger__=yes&cmd=resource&f=console.png HTTP/1.1[0m" 304 -
+2026-05-25 21:07:01,615 INFO  * Detected change in 'C:\\Users\\ADEDAMOLA\\Desktop\\port\\app.py', reloading
+2026-05-25 21:07:02,256 INFO  * Restarting with stat
+2026-05-25 21:07:06,337 WARNING  * Debugger is active!
+2026-05-25 21:07:06,340 INFO  * Debugger PIN: 140-037-455
+2026-05-25 21:07:08,005 INFO 127.0.0.1 - - [25/May/2026 21:07:08] "[35m[1mGET /admin HTTP/1.1[0m" 500 -
+2026-05-25 21:07:08,108 INFO 127.0.0.1 - - [25/May/2026 21:07:08] "[36mGET /admin?__debugger__=yes&cmd=resource&f=style.css HTTP/1.1[0m" 304 -
+2026-05-25 21:07:08,112 INFO 127.0.0.1 - - [25/May/2026 21:07:08] "[36mGET /admin?__debugger__=yes&cmd=resource&f=debugger.js HTTP/1.1[0m" 304 -
+2026-05-25 21:07:08,167 INFO 127.0.0.1 - - [25/May/2026 21:07:08] "GET /admin?__debugger__=yes&cmd=resource&f=console.png&s=HG1PsBW4J3SB08vxkie4 HTTP/1.1" 200 -
+2026-05-25 21:07:08,198 INFO 127.0.0.1 - - [25/May/2026 21:07:08] "[36mGET /admin?__debugger__=yes&cmd=resource&f=console.png HTTP/1.1[0m" 304 -
+2026-05-25 21:10:27,072 INFO 127.0.0.1 - - [25/May/2026 21:10:27] "[35m[1mGET /admin HTTP/1.1[0m" 500 -
+2026-05-25 21:10:27,100 INFO 127.0.0.1 - - [25/May/2026 21:10:27] "[36mGET /admin?__debugger__=yes&cmd=resource&f=style.css HTTP/1.1[0m" 304 -
+2026-05-25 21:10:27,111 INFO 127.0.0.1 - - [25/May/2026 21:10:27] "[36mGET /admin?__debugger__=yes&cmd=resource&f=debugger.js HTTP/1.1[0m" 304 -
+2026-05-25 21:10:27,129 INFO 127.0.0.1 - - [25/May/2026 21:10:27] "[36mGET /admin?__debugger__=yes&cmd=resource&f=console.png&s=HG1PsBW4J3SB08vxkie4 HTTP/1.1[0m" 304 -
+2026-05-25 21:10:27,209 INFO 127.0.0.1 - - [25/May/2026 21:10:27] "[36mGET /admin?__debugger__=yes&cmd=resource&f=console.png HTTP/1.1[0m" 304 -
+2026-05-25 21:10:40,070 INFO 127.0.0.1 - - [25/May/2026 21:10:40] "GET /admin HTTP/1.1" 200 -
+2026-05-25 21:10:40,148 INFO 127.0.0.1 - - [25/May/2026 21:10:40] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2026-05-25 21:10:40,158 INFO 127.0.0.1 - - [25/May/2026 21:10:40] "[36mGET /static/uploads/powerbank.jpeg HTTP/1.1[0m" 304 -
+2026-05-25 21:10:40,171 INFO 127.0.0.1 - - [25/May/2026 21:10:40] "[36mGET /static/js/main.js HTTP/1.1[0m" 304 -

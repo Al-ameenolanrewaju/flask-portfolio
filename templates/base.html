@@ -47,7 +47,7 @@
     <p>&copy; <span id="currentYear"></span> Al-ameen Olanrewaju  | Python Flask Developer</p>
     <div class="footer-social">
         <a href="https://x.com/Alameenwaju" target="_blank"><i class="fab fa-twitter"></i></a>
-        <a href="https://linkedin.com/in/al-ameen-olanrewaju-9916433b3" target="_blank"><i class="fab fa-linkedin"></i></a>
+        <a href="https://www.linkedin.com/in/al-ameen-olanrewaju-760618404" target="_blank"><i class="fab fa-linkedin"></i></a>
         <a href="https://github.com/Al-ameenolanrewaju" target="_blank"><i class="fab fa-github"></i></a>
          <a href="https://www.facebook.com/share/1EEgncNbMh/" target="_blank"><i class="fab fa-facebook"></i></a>
          <a href="https://wa.me/+2349038014978" target="_blank"><i class="fab fa-whatsapp"></i></a>
@@ -58,6 +58,18 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
 <script src="{{ url_for('static',filename='js/main.js')}}"></script>
+<script>
+    // Smooth scroll fix for Bootstrap 3
+    $(document).on('click', 'a[href^="#"]', function(e) {
+        var target = $(this.getAttribute('href'));
+        if (target.length) {
+            e.preventDefault();
+            $('html, body').animate({
+                scrollTop: target.offset().top - 75
+            }, 600);
+        }
+    });
+</script>
 <script>
     document.addEventListener('DOMContentLoaded', () => {
         const yearSpan = document.getElementById('currentYear');

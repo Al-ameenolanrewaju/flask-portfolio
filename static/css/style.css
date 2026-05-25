@@ -14,6 +14,7 @@ body {
 
 html {
     scroll-behavior: smooth;
+    scroll-padding-top: 80px;
 }
 
 /* ========================
@@ -84,19 +85,19 @@ html {
 /* Skills */
 .section-skills {
     background: #21262D;
-    color: #FOF6FC;
+    color: #F0F6FC;
 }
 
 /* Projects */
 .section-projects {
     background: #161B22;
-    color: #FOF6FC;
+    color: #F0F6FC;
 }
 
 /* Contact */
 .section-contact {
-    background: #161B22;
-    color: #FOF6FC;
+    background: #0D1117;
+    color: #F0F6FC;
     text-align: center;
 }
 
@@ -178,7 +179,7 @@ html {
 .contact-form .btn-contact {
     background: #F5A623;
     border: none;
-    color: #OD1117;
+    color: #0D1117;
     font-weight: bold;
     padding: 12px 20px;
     border-radius: 8px;
@@ -187,12 +188,6 @@ html {
 
 .contact-form .btn-contact:hover {
     background: #E09612;
-}
-.section-contact {
-    background: #OD1117;
-    color: FOF6FC;
-    text-align: center;
-
 }
 
 /* ========================
