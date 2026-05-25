@@ -1251,3 +1251,15 @@
 2026-05-25 21:10:40,148 INFO 127.0.0.1 - - [25/May/2026 21:10:40] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
 2026-05-25 21:10:40,158 INFO 127.0.0.1 - - [25/May/2026 21:10:40] "[36mGET /static/uploads/powerbank.jpeg HTTP/1.1[0m" 304 -
 2026-05-25 21:10:40,171 INFO 127.0.0.1 - - [25/May/2026 21:10:40] "[36mGET /static/js/main.js HTTP/1.1[0m" 304 -
+2026-05-25 21:31:31,796 INFO [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2026-05-25 21:31:31,796 INFO [33mPress CTRL+C to quit[0m
+2026-05-25 21:31:31,798 INFO  * Restarting with stat
+2026-05-25 21:31:33,443 WARNING  * Debugger is active!
+2026-05-25 21:31:33,446 INFO  * Debugger PIN: 140-037-455
+2026-05-25 21:31:44,622 INFO 127.0.0.1 - - [25/May/2026 21:31:44] "GET /admin HTTP/1.1" 200 -
+2026-05-25 21:31:44,760 INFO 127.0.0.1 - - [25/May/2026 21:31:44] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2026-05-25 21:31:44,767 INFO 127.0.0.1 - - [25/May/2026 21:31:44] "[36mGET /static/uploads/powerbank.jpeg HTTP/1.1[0m" 304 -
+2026-05-25 21:31:44,774 INFO 127.0.0.1 - - [25/May/2026 21:31:44] "[36mGET /static/js/main.js HTTP/1.1[0m" 304 -
+2026-05-25 21:31:56,163 INFO 127.0.0.1 - - [25/May/2026 21:31:56] "GET /admin/edit_content HTTP/1.1" 200 -
+2026-05-25 21:31:56,191 INFO 127.0.0.1 - - [25/May/2026 21:31:56] "[36mGET /static/uploads/powerbank.jpeg HTTP/1.1[0m" 304 -

@@ -469,57 +469,94 @@ def edit_content():
     if request.method == 'POST':
         try:
             cursor = conn.cursor()
-            section_name = request.form.get('section_name')
-            title = request.form.get('title', '').strip()
-            content = request.form.get('content', '').strip()
 
-            # Handle file upload
-            file = request.files.get('file')
-            filename = None
-            if file and file.filename and allowed_file(file.filename):
-                filename = secure_filename(file.filename)
-                file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-
-            # Check if section exists
-            cursor.execute("SELECT id FROM site_content WHERE section_name = %s", (section_name,))
-            existing = cursor.fetchone()
-
-            if existing:
-                if filename:
-                    cursor.execute(
-                        "UPDATE site_content SET title=%s, content=%s, file=%s WHERE section_name=%s",
-                        (title, content, filename, section_name)
-                    )
-                else:
-                    cursor.execute(
-                        "UPDATE site_content SET title=%s, content=%s WHERE section_name=%s",
-                        (title, content, section_name)
-                    )
+            # Hero
+            hero_title = request.form.get('hero_title', '').strip()
+            hero_content = request.form.get('hero_content', '').strip()
+            cursor.execute("SELECT id FROM site_content WHERE section_name='hero'")
+            if cursor.fetchone():
+                cursor.execute("UPDATE site_content SET title=%s, content=%s WHERE section_name='hero'", (hero_title, hero_content))
             else:
-                cursor.execute(
-                    "INSERT INTO site_content (section_name, title, content, file) VALUES (%s, %s, %s, %s)",
-                    (section_name, title, content, filename or '')
-                )
+                cursor.execute("INSERT INTO site_content (section_name, title, content) VALUES ('hero', %s, %s)", (hero_title, hero_content))
+
+            # About
+            about_title = request.form.get('about_title', '').strip()
+            about_content = request.form.get('about_content', '').strip()
+            cursor.execute("SELECT id FROM site_content WHERE section_name='about'")
+            if cursor.fetchone():
+                cursor.execute("UPDATE site_content SET title=%s, content=%s WHERE section_name='about'", (about_title, about_content))
+            else:
+                cursor.execute("INSERT INTO site_content (section_name, title, content) VALUES ('about', %s, %s)", (about_title, about_content))
+
+            # Skills — clear old ones and re-insert
+            cursor.execute("DELETE FROM skills")
+            index = 0
+            while True:
+                category = request.form.get(f'skills_category_{index}')
+                names = request.form.get(f'skills_name_{index}')
+                if category is None:
+                    break
+                if category.strip() and names.strip():
+                    for name in names.split(','):
+                        name = name.strip()
+                        if name:
+                            cursor.execute(
+                                "INSERT INTO skills (category, name) VALUES (%s, %s)",
+                                (category.strip(), name)
+                            )
+                index += 1
+
+            # Profile Photo
+            photo = request.files.get('profile_photo')
+            if photo and photo.filename and allowed_file(photo.filename, 'image'):
+                filename = secure_filename(photo.filename)
+                photo.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+                cursor.execute("SELECT id FROM site_content WHERE section_name='profile_photo'")
+                if cursor.fetchone():
+                    cursor.execute("UPDATE site_content SET file=%s WHERE section_name='profile_photo'", (filename,))
+                else:
+                    cursor.execute("INSERT INTO site_content (section_name, title, file) VALUES ('profile_photo', 'Profile Photo', %s)", (filename,))
+
+            # CV
+            cv = request.files.get('cv_file')
+            if cv and cv.filename and allowed_file(cv.filename, 'pdf'):
+                filename = secure_filename(cv.filename)
+                cv.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+                cursor.execute("SELECT id FROM site_content WHERE section_name='cv_file'")
+                if cursor.fetchone():
+                    cursor.execute("UPDATE site_content SET file=%s WHERE section_name='cv_file'", (filename,))
+                else:
+                    cursor.execute("INSERT INTO site_content (section_name, title, file) VALUES ('cv_file', 'CV', %s)", (filename,))
 
             conn.commit()
             cache.clear()
             flash('Content updated successfully!', 'success')
+
         except psycopg2.Error as e:
-            flash(f'Error updating content: {e}', 'danger')
+            flash(f'Error: {e}', 'danger')
         finally:
             cursor.close()
             conn.close()
         return redirect(url_for('edit_content'))
 
-    # GET - load all content
+    # GET
     try:
         cursor = conn.cursor(cursor_factory=RealDictCursor)
         cursor.execute("SELECT * FROM site_content")
-        content_data = [dict(r) for r in cursor.fetchall()]
         content = {}
-        for row in content_data:
-            content[row['section_name']] = row
-        return render_template('edit_content.html', content=content)
+        for row in cursor.fetchall():
+            content[row['section_name']] = dict(row)
+
+        cursor.execute("SELECT category, name FROM skills ORDER BY category, id")
+        rows = cursor.fetchall()
+        skills = {}
+        for row in rows:
+            cat = row['category']
+            if cat not in skills:
+                skills[cat] = []
+            skills[cat].append(row['name'])
+
+        return render_template('edit_content.html', content=content, skills=skills)
     except psycopg2.Error as e:
         flash(f'Error: {e}', 'danger')
         return redirect(url_for('admin'))
