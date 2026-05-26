@@ -5,7 +5,7 @@ import os
 from werkzeug.utils import secure_filename
 from functools import wraps
 import time
-from flask_mail import Mail
+from flask_mail import Mail, Message
 from flask_migrate import Migrate
 from flask_login import LoginManager, login_required
 from werkzeug.security import generate_password_hash
@@ -304,9 +304,12 @@ def contact():
     email = request.form.get('email', '').strip()
     subject = request.form.get('subject', 'No Subject').strip()
     message = request.form.get('message', '').strip()
+
     if not name or not email or not message:
         flash('Please fill in all required fields', 'danger')
         return redirect(url_for('home') + '#contact')
+
+    # Save to database
     conn = get_db_connection()
     if conn:
         try:
@@ -322,6 +325,20 @@ def contact():
             logger.error(f"Database error: {e}")
         finally:
             conn.close()
+
+    # Send email notification
+    try:
+        msg = Message(
+            subject=f"Portfolio Contact: {subject}",
+            sender=app.config['MAIL_USERNAME'],
+            recipients=[app.config['MAIL_USERNAME']],  # sends to yourself
+            body=f"Name: {name}\nEmail: {email}\n\nMessage:\n{message}"
+        )
+        mail.send(msg)
+        logger.info(f"Email sent from {name}")
+    except Exception as e:
+        logger.error(f"Email error: {e}")
+
     flash("Message sent successfully! We'll get back to you soon.", "success")
     return redirect(url_for('home', success=1) + '#contact')
 
