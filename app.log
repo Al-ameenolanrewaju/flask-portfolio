@@ -1318,3 +1318,8 @@
 2026-05-26 08:19:24,288 WARNING  * Debugger is active!
 2026-05-26 08:19:24,293 INFO  * Debugger PIN: 140-037-455
 2026-05-26 08:19:36,806 INFO  * Detected change in 'C:\\Users\\ADEDAMOLA\\Desktop\\port\\app.py', reloading
+2026-05-26 08:19:37,437 INFO  * Restarting with stat
+2026-05-26 08:19:40,350 WARNING  * Debugger is active!
+2026-05-26 08:19:40,353 INFO  * Debugger PIN: 140-037-455
+2026-05-26 08:25:15,463 INFO  * Detected change in 'C:\\Users\\ADEDAMOLA\\Desktop\\port\\app.py', reloading
+2026-05-26 08:25:16,400 INFO  * Restarting with stat
