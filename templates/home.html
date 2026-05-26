@@ -107,9 +107,9 @@ Al-ameen | Python Flask Developer
         <h2 class="section-title text-center">Contact Me</h2>
 
         <form action="/contact" method="POST" class="contact-form" style="max-width:600px;margin:0 auto;">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             <div class="form-group">
                 <label>Name</label>
-                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                 <input type="text" name="name" class="form-control" required>
             </div>
 
