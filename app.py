@@ -303,6 +303,7 @@ def api_index():
 
 
 @app.route('/contact', methods=['POST'])
+@csrf.exempt
 @limiter.limit("3 per minute")
 def contact():
     name = request.form.get('name', '').strip()
