@@ -333,18 +333,18 @@ def contact():
             conn.close()
 
     # Send email notification
-    try:
-        msg = Message(
-            subject=f"Portfolio Contact: {subject}",
-            sender=app.config['MAIL_USERNAME'],
-            recipients=[app.config['MAIL_USERNAME']],  # sends to yourself
-            body=f"Name: {name}\nEmail: {email}\n\nMessage:\n{message}"
-        )
-        mail.send(msg)
-        logger.info(f"Email sent from {name}")
-    except Exception as e:
-        logger.error(f"Email error: {e}")
-        pass
+    #try:
+   #     msg = Message(
+   #         subject=f"Portfolio Contact: {subject}",
+    #        sender=app.config['MAIL_USERNAME'],
+     #       recipients=[app.config['MAIL_USERNAME']],  # sends to yourself
+      #      body=f"Name: {name}\nEmail: {email}\n\nMessage:\n{message}"
+       # )
+        #mail.send(msg)
+        #logger.info(f"Email sent from {name}")
+    #except Exception as e:
+     #   logger.error(f"Email error: {e}")
+      #  pass
 
     flash("Message sent successfully! We'll get back to you soon.", "success")
     return redirect(url_for('home', success=1) + '#contact')
