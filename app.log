@@ -1,1 +1,29 @@
 2026-05-26 08:33:24,246 INFO  * Detected change in 'C:\\Users\\ADEDAMOLA\\Desktop\\port\\app.py', reloading
+2026-05-26 08:33:24,630 INFO  * Restarting with stat
+2026-05-26 08:33:27,202 WARNING  * Debugger is active!
+2026-05-26 08:33:27,205 INFO  * Debugger PIN: 140-037-455
+2026-05-26 08:36:38,393 INFO 127.0.0.1 - - [26/May/2026 08:36:38] "GET / HTTP/1.1" 200 -
+2026-05-26 08:36:38,401 INFO Cache used for key: view//
+2026-05-26 08:36:38,403 INFO 127.0.0.1 - - [26/May/2026 08:36:38] "GET / HTTP/1.1" 200 -
+2026-05-26 08:36:38,561 INFO 127.0.0.1 - - [26/May/2026 08:36:38] "[36mGET /static/uploads/my_picture.jpeg HTTP/1.1[0m" 304 -
+2026-05-26 08:36:38,566 INFO 127.0.0.1 - - [26/May/2026 08:36:38] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2026-05-26 08:36:38,570 INFO 127.0.0.1 - - [26/May/2026 08:36:38] "[36mGET /static/js/main.js HTTP/1.1[0m" 304 -
+2026-05-26 08:36:39,109 INFO Cache used for key: view//
+2026-05-26 08:36:39,109 INFO 127.0.0.1 - - [26/May/2026 08:36:39] "GET / HTTP/1.1" 200 -
+2026-05-26 08:36:39,148 INFO 127.0.0.1 - - [26/May/2026 08:36:39] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2026-05-26 08:36:39,158 INFO 127.0.0.1 - - [26/May/2026 08:36:39] "[36mGET /static/uploads/my_picture.jpeg HTTP/1.1[0m" 304 -
+2026-05-26 08:36:39,160 INFO 127.0.0.1 - - [26/May/2026 08:36:39] "[36mGET /static/js/main.js HTTP/1.1[0m" 304 -
+2026-05-26 08:36:42,097 INFO Cache used for key: view//
+2026-05-26 08:36:42,099 INFO 127.0.0.1 - - [26/May/2026 08:36:42] "GET / HTTP/1.1" 200 -
+2026-05-26 08:36:42,147 INFO 127.0.0.1 - - [26/May/2026 08:36:42] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2026-05-26 08:36:42,151 INFO 127.0.0.1 - - [26/May/2026 08:36:42] "[36mGET /static/uploads/my_picture.jpeg HTTP/1.1[0m" 304 -
+2026-05-26 08:36:42,154 INFO 127.0.0.1 - - [26/May/2026 08:36:42] "[36mGET /static/js/main.js HTTP/1.1[0m" 304 -
+2026-05-26 08:36:42,839 INFO Cache used for key: view//
+2026-05-26 08:36:42,841 INFO 127.0.0.1 - - [26/May/2026 08:36:42] "GET / HTTP/1.1" 200 -
+2026-05-26 08:36:42,881 INFO 127.0.0.1 - - [26/May/2026 08:36:42] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2026-05-26 08:36:42,890 INFO 127.0.0.1 - - [26/May/2026 08:36:42] "[36mGET /static/uploads/my_picture.jpeg HTTP/1.1[0m" 304 -
+2026-05-26 08:36:42,895 INFO 127.0.0.1 - - [26/May/2026 08:36:42] "[36mGET /static/js/main.js HTTP/1.1[0m" 304 -
+2026-05-26 08:51:23,199 INFO  * Detected change in 'C:\\Users\\ADEDAMOLA\\Desktop\\port\\config.py', reloading
+2026-05-26 08:51:23,473 INFO  * Restarting with stat
+2026-05-26 08:51:25,308 WARNING  * Debugger is active!
+2026-05-26 08:51:25,311 INFO  * Debugger PIN: 140-037-455

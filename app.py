@@ -344,6 +344,7 @@ def contact():
         logger.info(f"Email sent from {name}")
     except Exception as e:
         logger.error(f"Email error: {e}")
+        pass
 
     flash("Message sent successfully! We'll get back to you soon.", "success")
     return redirect(url_for('home', success=1) + '#contact')
