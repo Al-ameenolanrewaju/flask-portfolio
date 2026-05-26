@@ -1263,3 +1263,33 @@
 2026-05-25 21:31:44,774 INFO 127.0.0.1 - - [25/May/2026 21:31:44] "[36mGET /static/js/main.js HTTP/1.1[0m" 304 -
 2026-05-25 21:31:56,163 INFO 127.0.0.1 - - [25/May/2026 21:31:56] "GET /admin/edit_content HTTP/1.1" 200 -
 2026-05-25 21:31:56,191 INFO 127.0.0.1 - - [25/May/2026 21:31:56] "[36mGET /static/uploads/powerbank.jpeg HTTP/1.1[0m" 304 -
+2026-05-26 06:50:05,774 INFO [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2026-05-26 06:50:05,776 INFO [33mPress CTRL+C to quit[0m
+2026-05-26 06:50:05,788 INFO  * Restarting with stat
+2026-05-26 06:50:08,249 WARNING  * Debugger is active!
+2026-05-26 06:50:08,259 INFO  * Debugger PIN: 140-037-455
+2026-05-26 06:50:25,909 INFO 127.0.0.1 - - [26/May/2026 06:50:25] "GET / HTTP/1.1" 200 -
+2026-05-26 06:50:25,983 INFO 127.0.0.1 - - [26/May/2026 06:50:25] "[33mGET /static/uploads/grok_image_1773467257182.jpg HTTP/1.1[0m" 404 -
+2026-05-26 06:50:26,082 INFO 127.0.0.1 - - [26/May/2026 06:50:26] "[36mGET /static/js/main.js HTTP/1.1[0m" 304 -
+2026-05-26 06:50:26,083 INFO 127.0.0.1 - - [26/May/2026 06:50:26] "GET /static/css/style.css HTTP/1.1" 200 -
+2026-05-26 06:50:26,282 INFO 127.0.0.1 - - [26/May/2026 06:50:26] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2026-05-26 06:50:35,259 INFO 127.0.0.1 - - [26/May/2026 06:50:35] "[32mGET /admin HTTP/1.1[0m" 302 -
+2026-05-26 06:50:35,281 INFO 127.0.0.1 - - [26/May/2026 06:50:35] "GET /auth/login?next=/admin HTTP/1.1" 200 -
+2026-05-26 06:50:35,322 INFO 127.0.0.1 - - [26/May/2026 06:50:35] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2026-05-26 06:50:35,325 INFO 127.0.0.1 - - [26/May/2026 06:50:35] "[36mGET /static/js/main.js HTTP/1.1[0m" 304 -
+2026-05-26 06:50:46,128 INFO 127.0.0.1 - - [26/May/2026 06:50:46] "[32mPOST /auth/login?next=/admin HTTP/1.1[0m" 302 -
+2026-05-26 06:50:48,450 INFO 127.0.0.1 - - [26/May/2026 06:50:48] "GET /admin HTTP/1.1" 200 -
+2026-05-26 06:50:48,508 INFO 127.0.0.1 - - [26/May/2026 06:50:48] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2026-05-26 06:50:48,526 INFO 127.0.0.1 - - [26/May/2026 06:50:48] "[33mGET /static/uploads/grok_image_1773467257182.jpg HTTP/1.1[0m" 404 -
+2026-05-26 06:50:48,527 INFO 127.0.0.1 - - [26/May/2026 06:50:48] "[36mGET /static/js/main.js HTTP/1.1[0m" 304 -
+2026-05-26 06:51:12,529 INFO 127.0.0.1 - - [26/May/2026 06:51:12] "GET /admin/edit_content HTTP/1.1" 200 -
+2026-05-26 06:51:12,557 INFO 127.0.0.1 - - [26/May/2026 06:51:12] "[33mGET /static/uploads/grok_image_1773467257182.jpg HTTP/1.1[0m" 404 -
+2026-05-26 06:51:35,930 INFO 127.0.0.1 - - [26/May/2026 06:51:35] "[32mPOST /admin/edit_content HTTP/1.1[0m" 302 -
+2026-05-26 06:51:37,950 INFO 127.0.0.1 - - [26/May/2026 06:51:37] "GET /admin/edit_content HTTP/1.1" 200 -
+2026-05-26 06:51:38,035 INFO 127.0.0.1 - - [26/May/2026 06:51:38] "GET /static/uploads/my_picture.jpeg HTTP/1.1" 200 -
+2026-05-26 06:51:48,897 INFO 127.0.0.1 - - [26/May/2026 06:51:48] "GET /admin HTTP/1.1" 200 -
+2026-05-26 06:51:52,389 INFO 127.0.0.1 - - [26/May/2026 06:51:52] "GET / HTTP/1.1" 200 -
+2026-05-26 06:51:52,440 INFO 127.0.0.1 - - [26/May/2026 06:51:52] "[36mGET /static/uploads/my_picture.jpeg HTTP/1.1[0m" 304 -
+2026-05-26 06:51:52,441 INFO 127.0.0.1 - - [26/May/2026 06:51:52] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2026-05-26 06:51:52,462 INFO 127.0.0.1 - - [26/May/2026 06:51:52] "[36mGET /static/js/main.js HTTP/1.1[0m" 304 -
