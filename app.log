@@ -1293,3 +1293,28 @@
 2026-05-26 06:51:52,440 INFO 127.0.0.1 - - [26/May/2026 06:51:52] "[36mGET /static/uploads/my_picture.jpeg HTTP/1.1[0m" 304 -
 2026-05-26 06:51:52,441 INFO 127.0.0.1 - - [26/May/2026 06:51:52] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
 2026-05-26 06:51:52,462 INFO 127.0.0.1 - - [26/May/2026 06:51:52] "[36mGET /static/js/main.js HTTP/1.1[0m" 304 -
+2026-05-26 07:30:01,139 INFO [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2026-05-26 07:30:01,139 INFO [33mPress CTRL+C to quit[0m
+2026-05-26 07:30:01,141 INFO  * Restarting with stat
+2026-05-26 07:30:02,623 WARNING  * Debugger is active!
+2026-05-26 07:30:02,625 INFO  * Debugger PIN: 140-037-455
+2026-05-26 07:30:40,408 INFO 127.0.0.1 - - [26/May/2026 07:30:40] "GET / HTTP/1.1" 200 -
+2026-05-26 07:30:40,456 INFO Cache used for key: view//
+2026-05-26 07:30:40,458 INFO 127.0.0.1 - - [26/May/2026 07:30:40] "GET / HTTP/1.1" 200 -
+2026-05-26 07:30:40,605 INFO 127.0.0.1 - - [26/May/2026 07:30:40] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2026-05-26 07:30:40,656 INFO 127.0.0.1 - - [26/May/2026 07:30:40] "[36mGET /static/js/main.js HTTP/1.1[0m" 304 -
+2026-05-26 07:30:40,660 INFO 127.0.0.1 - - [26/May/2026 07:30:40] "[36mGET /static/uploads/my_picture.jpeg HTTP/1.1[0m" 304 -
+2026-05-26 07:31:11,005 INFO Message saved from Olanrewaju Al-ameen
+2026-05-26 07:31:14,607 INFO Email sent from Olanrewaju Al-ameen
+2026-05-26 07:31:14,610 INFO 127.0.0.1 - - [26/May/2026 07:31:14] "[32mPOST /contact HTTP/1.1[0m" 302 -
+2026-05-26 07:31:14,631 INFO Cache used for key: view//
+2026-05-26 07:31:14,632 INFO 127.0.0.1 - - [26/May/2026 07:31:14] "GET /?success=1 HTTP/1.1" 200 -
+2026-05-26 07:31:14,678 INFO 127.0.0.1 - - [26/May/2026 07:31:14] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2026-05-26 07:31:14,680 INFO 127.0.0.1 - - [26/May/2026 07:31:14] "[36mGET /static/uploads/my_picture.jpeg HTTP/1.1[0m" 304 -
+2026-05-26 07:31:14,687 INFO 127.0.0.1 - - [26/May/2026 07:31:14] "[36mGET /static/js/main.js HTTP/1.1[0m" 304 -
+2026-05-26 08:19:18,152 INFO  * Detected change in 'C:\\Users\\ADEDAMOLA\\Desktop\\port\\config.py', reloading
+2026-05-26 08:19:18,638 INFO  * Restarting with stat
+2026-05-26 08:19:24,288 WARNING  * Debugger is active!
+2026-05-26 08:19:24,293 INFO  * Debugger PIN: 140-037-455
+2026-05-26 08:19:36,806 INFO  * Detected change in 'C:\\Users\\ADEDAMOLA\\Desktop\\port\\app.py', reloading

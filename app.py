@@ -57,6 +57,11 @@ limiter = Limiter(
     default_limits=["200 per day", "50 per hour"]
 )
 
+if os.environ.get('RENDER'):
+    app.config.from_object(ProductionConfig)
+else:
+    app.config.from_object(DevelopmentConfig)
+
 # ================== BLUEPRINTS ==================
 from routes.main import main
 app.register_blueprint(main)
