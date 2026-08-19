@@ -7,12 +7,34 @@ Al-ameen | Python Flask Developer
 {% block content %}
 
 
-<!-- HERO -->
-<!-- HERO -->
-<section class="hero">
-    <div class="container text-center">
+<section class="hero" aria-labelledby="hero-title">
+    <div class="container hero-grid">
+        <div class="hero-copy">
+            <p class="eyebrow"><span class="eyebrow-line"></span> Hi, I'm</p>
+            <h1 id="hero-title">{{ content.get('hero', {}).get('title', 'Al-ameen Olanrewaju') }}</h1>
+            <p class="hero-role">Developer <span>•</span> Builder <span>•</span> AI Entrepreneur</p>
+            <p class="hero-description">{{ content.get('hero', {}).get('content', 'Subtitle goes here') }}</p>
+            <div class="hero-socials" aria-label="Social links">
+                <a href="https://github.com/Al-ameenolanrewaju" target="_blank" rel="noopener noreferrer" aria-label="GitHub"><i class="fab fa-github"></i></a>
+                <a href="https://www.linkedin.com/in/al-ameen-olanrewaju-760618404" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn"><i class="fab fa-linkedin"></i></a>
+                <a href="https://x.com/Alameenwaju" target="_blank" rel="noopener noreferrer" aria-label="X / Twitter"><i class="fab fa-twitter"></i></a>
+                <a href="https://www.facebook.com/share/1EEgncNbMh/" target="_blank" rel="noopener noreferrer" aria-label="Facebook"><i class="fab fa-facebook"></i></a>
+            </div>
+            <div class="hero-actions">
+                <a href="#projects" class="btn btn-primary btn-lg">View my work <span aria-hidden="true">↗</span></a>
+                <a href="#contact" class="btn btn-quiet btn-lg">Let's connect</a>
+            </div>
 
-        <!-- Profile Photo -->
+            {% if content.get('cv_file') and content['cv_file'].get('file') %}
+            <a href="{{ url_for('static', filename='uploads/' ~ content['cv_file']['file']) }}" class="cv-link" download>
+                <i class="fas fa-arrow-down" aria-hidden="true"></i> Download CV
+            </a>
+            {% endif %}
+        </div>
+
+        <div class="hero-visual" aria-label="Profile introduction">
+            <div class="visual-grid" aria-hidden="true"></div>
+            <div class="portrait-backdrop" aria-hidden="true"></div>
         {% if content.get('profile_photo') and content['profile_photo'].get('file') %}
         <div class="profile-photo-wrapper">
             {% set photo = content['profile_photo']['file'] %}
@@ -24,46 +46,40 @@ Al-ameen | Python Flask Developer
         </div>
         {% else %}
         <div class="profile-photo-wrapper">
-            <img src="{{ url_for('static', filename='default-profile.png') }}" alt="Default Profile Photo" class="profile-photo">
+            <div class="profile-placeholder" role="img" aria-label="Al-ameen Olanrewaju profile placeholder">AO</div>
         </div>
         {% endif %}
-
-        <h1>{{ content.get('hero', {}).get('title', 'Welcome') }}</h1>
-        <p>{{ content.get('hero', {}).get('content', 'Subtitle goes here') }}</p>
-        <br>
-        <a href="#projects" class="btn btn-outline btn-lg">View Projects</a>
-        <a href="#contact" class="btn btn-outline btn-lg">Hire Me</a>
-        <br><br>
-
-        <!-- CV Download -->
-        {% if content.get('cv_file') and content['cv_file'].get('file') %}
-        <a href="{{ url_for('static', filename='uploads/' ~ content['cv_file']['file']) }}"
-           class="btn btn-success btn-lg" download>Download CV</a>
-        {% endif %}
-
+            <div class="hero-badge hero-badge-bottom"><span class="status-dot"></span> Available for ideas</div>
+        </div>
+    </div>
+    <div class="container hero-stats" aria-label="Portfolio statistics">
+        <div class="stat-item"><strong>{{ projects|length }}</strong><span>Projects shipped</span></div>
+        <div class="stat-item"><strong>{{ skills|length }}</strong><span>Skill groups</span></div>
+        <div class="stat-item"><strong>{{ content|length }}</strong><span>Content sections</span></div>
     </div>
 </section>
 
 <!-- ABOUT - Replace lines 48-49 -->
 <section id="about" class="section section-about">
-    <div class="container text-center">
-        <h2 class="section-title">{{ content.get('about', {}).get('title', 'About Me') }}</h2>
-        <p>{{ content.get('about', {}).get('content', 'About me content goes here.') }}</p>
+    <div class="container split-section">
+        <div class="section-intro"><p class="eyebrow">01 / About</p><h2 class="section-title">{{ content.get('about', {}).get('title', 'About Me') }}</h2></div>
+        <div class="section-copy"><p>{{ content.get('about', {}).get('content', 'About me content goes here.') }}</p><span class="section-rule"></span><p class="signature-note">Building with intent, shipping with care.</p></div>
     </div>
 </section>
 
 <!-- SKILLS - Replace lines 57-72 -->
 <section id="skills" class="section section-skills">
     <div class="container">
-        <h2 class="section-title text-center">{{ content.get('skills', {}).get('title', 'My Skills') }}</h2>
-        <div class="row text-center skill-row">
+        <div class="section-heading"><div><p class="eyebrow">02 / Toolkit</p><h2 class="section-title">{{ content.get('skills', {}).get('title', 'My Skills') }}</h2></div><p class="section-caption">The tools behind the work.</p></div>
+        <div class="row skill-row">
             {% if skills %}
                 {% for skill_title, skill_items in skills.items() %}
                 <div class="col-md-4">
-                    <div class="skill-box">
+                    <div class="skill-box"><span class="card-index">0{{ loop.index }}</span>
                         <h4>{{ skill_title }}</h4>
+                        <span class="skill-rule"></span>
                         {% for item in skill_items %}
-                        <p>{{ item }}</p>
+                        <p><span class="skill-dot"></span>{{ item }}</p>
                         {% endfor %}
                     </div>
                 </div>
@@ -77,18 +93,39 @@ Al-ameen | Python Flask Developer
     </div>
 </section>
 
+<section id="services" class="section section-services">
+    <div class="container">
+        <div class="section-heading"><div><p class="eyebrow">03 / Services</p><h2 class="section-title">How I can help</h2></div><p class="section-caption">Focused, practical product work.</p></div>
+        <div class="service-row">
+            {% set service_count = namespace(value=0) %}
+            {% for service_index in range(1, 5) %}
+                {% set service = content.get('service_' ~ service_index, {}) %}
+                {% if service.get('title') %}
+                {% set service_count.value = service_count.value + 1 %}
+                <article class="service-card"><span class="card-index">{{ '%02d'|format(service_count.value) }}</span><h3>{{ service.get('title') }}</h3><p>{{ service.get('content', '') }}</p></article>
+                {% endif %}
+            {% endfor %}
+            {% if service_count.value == 0 %}
+            <p>No services added yet.</p>
+            {% endif %}
+        </div>
+    </div>
+</section>
+
 <!-- PROJECTS - Replace lines 74-89 -->
 <section id="projects" class="section section-projects">
     <div class="container">
-        <h2 class="section-title text-center">Projects</h2>
+        <div class="section-heading"><div><p class="eyebrow">04 / Selected work</p><h2 class="section-title">Projects</h2></div><p class="section-caption">A few things I have built.</p></div>
         <div class="row project-row">
             {% if projects %}
                 {% for project in projects %}
                 <div class="col-md-4">
-                    <div class="project-card">
-                        <h4>{{ project.title if project.title else project[1] }}</h4>
-                        <p>{{ project.description if project.description else project[2] }}</p>
-                        <a href="{{ project.link if project.link else project[3] }}" class="btn btn-outline btn-sm" target="_blank">View Project</a>
+                    {% set project_title = project.title if project.title else project[1] %}
+                    {% set project_description = project.description if project.description else project[2] %}
+                    {% set project_link = project.link if project.link else project[3] %}
+                    <div class="project-card{% if 'afrigen' in project_title|lower %} project-card-featured{% endif %}">
+                        {% if project.image is defined and project.image %}<div class="project-image"><img src="{{ url_for('static', filename='uploads/' ~ project.image) }}" alt="{{ project_title }}"></div>{% else %}<div class="project-image project-image-placeholder"><span>{{ '%02d'|format(loop.index) }}</span></div>{% endif %}
+                        <div class="project-card-body"><p class="card-index">{% if 'afrigen' in project_title|lower %}FLAGSHIP / {% endif %}PROJECT {{ '%02d'|format(loop.index) }}</p><h4>{{ project_title }}</h4><p>{{ project_description }}</p><a href="{{ project_link }}" class="project-link" target="_blank" rel="noopener noreferrer">View project <span aria-hidden="true">↗</span></a></div>
                     </div>
                 </div>
                 {% endfor %}
@@ -104,7 +141,7 @@ Al-ameen | Python Flask Developer
 <!-- CONTACT -->
 <section id="contact" class="section section-contact">
     <div class="container">
-        <h2 class="section-title text-center">Contact Me</h2>
+        <div class="contact-heading"><p class="eyebrow">05 / Contact</p><h2 class="section-title">Have a good idea?</h2><p>Tell me what you are building. I am always interested in ambitious, useful work.</p></div>
 
         <form action="/contact" method="POST" class="contact-form" style="max-width:600px;margin:0 auto;">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
@@ -128,7 +165,7 @@ Al-ameen | Python Flask Developer
                 <textarea name="message" class="form-control" rows="5" required></textarea>
             </div>
 
-            <button type="submit" class="btn btn-contact btn-block">Send Message</button>
+            <button type="submit" class="btn btn-contact btn-block">Send message <span aria-hidden="true">↗</span></button>
         </form>
     </div>
 </section>

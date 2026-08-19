@@ -512,6 +512,23 @@ def edit_content():
             else:
                 cursor.execute("INSERT INTO site_content (section_name, title, content) VALUES ('about', %s, %s)", (about_title, about_content))
 
+            # Services use existing site_content rows: service_1 through service_4
+            for service_index in range(1, 5):
+                service_title = request.form.get(f'service_{service_index}_title', '').strip()
+                service_content = request.form.get(f'service_{service_index}_content', '').strip()
+                section_name = f'service_{service_index}'
+                cursor.execute("SELECT id FROM site_content WHERE section_name=%s", (section_name,))
+                if cursor.fetchone():
+                    cursor.execute(
+                        "UPDATE site_content SET title=%s, content=%s WHERE section_name=%s",
+                        (service_title, service_content, section_name)
+                    )
+                elif service_title or service_content:
+                    cursor.execute(
+                        "INSERT INTO site_content (section_name, title, content) VALUES (%s, %s, %s)",
+                        (section_name, service_title, service_content)
+                    )
+
             # Skills — clear old ones and re-insert
             cursor.execute("DELETE FROM skills")
             index = 0

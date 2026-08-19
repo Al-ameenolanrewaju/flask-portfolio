@@ -1,20 +1,12 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Edit Project</title>
+{% extends "base.html" %}
+{% block title %}Edit Project{% endblock %}
+{% block content %}
+<section class="section project-form-section">
+<div class="container admin-form-page">
+    <p class="eyebrow">Portfolio management</p>
+    <h2>Edit project</h2>
 
-    <link rel="stylesheet"
-          href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
-</head>
-
-<body>
-
-<div class="container" style="margin-top:50px;">
-
-    <h2>Edit Project</h2>
-    <hr>
-
-    <form method="POST">
+    <form method="POST" class="admin-form">
 
         <div class="form-group">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
@@ -44,7 +36,7 @@
         </div>
 
         <button type="submit" class="btn btn-success">
-            Update Project
+            Update project <span aria-hidden="true">↗</span>
         </button>
 
         <a href="/admin" class="btn btn-default">
@@ -54,6 +46,5 @@
     </form>
 
 </div>
-
-</body>
-</html>
+</section>
+{% endblock %}

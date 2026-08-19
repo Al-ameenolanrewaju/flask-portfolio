@@ -1,17 +1,12 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Add Project</title>
-    <link rel="stylesheet"
-          href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
-</head>
-<body>
+{% extends "base.html" %}
+{% block title %}Add Project{% endblock %}
+{% block content %}
+<section class="section project-form-section">
+<div class="container admin-form-page">
+    <p class="eyebrow">Portfolio management</p>
+    <h2>Add new project</h2>
 
-<div class="container" style="margin-top:50px;">
-    <h2>Add New Project</h2>
-    <hr>
-
-    <form method="POST">
+    <form method="POST" class="admin-form">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         <div class="form-group">
             <label>Project Title</label>
@@ -28,10 +23,9 @@
             <input type="text" name="link" class="form-control" required>
         </div>
 
-        <button type="submit" class="btn btn-success">Add Project</button>
+        <button type="submit" class="btn btn-success">Add project <span aria-hidden="true">↗</span></button>
         <a href="/admin" class="btn btn-default">Cancel</a>
     </form>
 </div>
-
-</body>
-</html>
+ </section>
+{% endblock %}

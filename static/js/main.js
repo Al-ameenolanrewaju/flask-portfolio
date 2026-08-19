@@ -1,35 +1,32 @@
-$(document).ready(function(){
+document.addEventListener('DOMContentLoaded', function () {
+    var links = Array.prototype.slice.call(document.querySelectorAll('.nav-item a[href^="#"]'));
+    var sections = Array.prototype.slice.call(document.querySelectorAll('main section[id], body > section[id]'));
 
-    $('a[href^="#"]').on('click', function(e) {
-        e.preventDefault();
+    links.forEach(function (link) {
+        link.addEventListener('click', function (event) {
+            var target = document.querySelector(link.getAttribute('href'));
+            if (!target) return;
+            event.preventDefault();
+            target.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
-        var target = this.hash;
-        var $target = $(target);
-        if ($target.length) {
-            $('html, body').animate({
-                scrollTop: $target.offset().top - 60
-            }, 800);
-        }
-
+            var collapse = document.querySelector('#mainNavbar');
+            if (collapse && collapse.classList.contains('in') && window.jQuery) {
+                window.jQuery(collapse).collapse('hide');
+            }
+        });
     });
 
-});
-$(window).on('scroll', function() {
+    if (!sections.length || !('IntersectionObserver' in window)) return;
 
-    var scrollPos = $(document).scrollTop();
+    var observer = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+            if (!entry.isIntersecting) return;
+            links.forEach(function (link) {
+                var active = link.getAttribute('href') === '#' + entry.target.id;
+                link.parentElement.classList.toggle('active', active);
+            });
+        });
+    }, { rootMargin: '-35% 0px -55% 0px' });
 
-    $('.nav-item a').each(function () {
-        var currLink = $(this);
-        var refElement = $(currLink.attr("href"));
-
-        if (refElement.length &&
-            refElement.position().top - 80 <= scrollPos &&
-            refElement.position().top + refElement.height() > scrollPos) {
-
-            $('.nav-item').removeClass("active");
-            currLink.parent().addClass("active");
-
-        }
-    });
-
+    sections.forEach(function (section) { observer.observe(section); });
 });
