@@ -2,6 +2,7 @@ import pytest
 import app as app_module
 from app import app
 from config import TestingConfig
+from models import User, db
 
 
 
@@ -56,6 +57,91 @@ def test_add_project_requires_login(client):
         'link': '#'
     }, follow_redirects=True)
     assert response.status_code == 200
+
+
+def test_edit_project_get_shows_existing_values(client):
+    class FakeCursor:
+        def __init__(self, rows):
+            self.rows = rows
+            self._index = 0
+
+        def execute(self, *args, **kwargs):
+            pass
+
+        def fetchone(self):
+            return self.rows
+
+        def close(self):
+            pass
+
+    class FakeConn:
+        def __init__(self, rows):
+            self.rows = rows
+
+        def cursor(self, cursor_factory=None):
+            return FakeCursor(self.rows)
+
+        def close(self):
+            pass
+
+    with app.app_context():
+        db.create_all()
+        user = User(username='admin', email='admin@example.com', password='pw')
+        db.session.add(user)
+        db.session.commit()
+
+    with client.session_transaction() as session:
+        session['_user_id'] = '1'
+        session['_fresh'] = True
+
+    monkeypatch = pytest.MonkeyPatch()
+    monkeypatch.setattr(app_module, 'get_db_connection', lambda: FakeConn({
+        'id': 7,
+        'title': 'My Existing Project',
+        'description': 'Old description',
+        'link': 'https://example.com'
+    }))
+    try:
+        response = client.get('/edit_project/7')
+        assert response.status_code == 200
+        text = response.get_data(as_text=True)
+        assert 'My Existing Project' in text
+        assert 'Old description' in text
+        assert 'https://example.com' in text
+    finally:
+        monkeypatch.undo()
+
+
+def test_auth_login_uses_configured_credentials_when_user_missing(client):
+    app.config['ADMIN_USERNAME'] = 'admin'
+    app.config['ADMIN_PASSWORD'] = 'StrongPassword123'
+    with app.app_context():
+        User.query.filter_by(username='admin').delete()
+        db.session.commit()
+
+    response = client.post('/auth/login', data={
+        'username': 'admin',
+        'password': 'StrongPassword123',
+    }, follow_redirects=False)
+
+    assert response.status_code == 302
+    assert response.headers['Location'].endswith('/admin')
+
+
+def test_admin_login_uses_configured_credentials_when_user_missing(client):
+    app.config['ADMIN_USERNAME'] = 'admin'
+    app.config['ADMIN_PASSWORD'] = 'StrongPassword123'
+    with app.app_context():
+        User.query.filter_by(username='admin').delete()
+        db.session.commit()
+
+    response = client.post('/admin/login', data={
+        'username': 'admin',
+        'password': 'StrongPassword123',
+    }, follow_redirects=False)
+
+    assert response.status_code == 302
+    assert response.headers['Location'].endswith('/admin')
 
 
 def test_ensure_db_schema_creates_missing_tables(monkeypatch):

@@ -20,6 +20,41 @@
         {% for category, msg in messages %}
         <div class="alert alert-{{ category }} alert-dismissible">
             <button type="button" class="close" data-dismiss="alert">&times;</button>
+            {{ msg }}
+        </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <form action="{{ url_for('edit_content') }}" method="POST" enctype="multipart/form-data">
+
+        <!-- Hero Section -->
+        <h4>Hero Section</h4>
+        <div class="form-group">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <label>Title</label>
+            <input type="text" name="hero_title" class="form-control"
+                   value="{{ content.get('hero', {}).get('title', '') }}">
+        </div>
+        <div class="form-group">
+            <label>Subtitle</label>
+            <input type="text" name="hero_content" class="form-control"
+                   value="{{ content.get('hero', {}).get('content', '') }}">
+        </div>
+        <hr>
+
+        <!-- About Section -->
+        <h4>About Section</h4>
+        <div class="form-group">
+            <label>Title</label>
+            <input type="text" name="about_title" class="form-control"
+                   value="{{ content.get('about', {}).get('title', '') }}">
+        </div>
+        <div class="form-group">
+            <label>Text</label>
+            <textarea name="about_content" class="form-control" rows="4">{{ content.get('about', {}).get('content', '') }}</textarea>
+        </div>
+        <hr>
 
         <!-- Services Section -->
         <h4>Services Section</h4>
@@ -37,41 +72,6 @@
             </div>
         </div>
         {% endfor %}
-        <hr>
-            {{ msg }}
-        </div>
-        {% endfor %}
-      {% endif %}
-    {% endwith %}
-
-    <form action="{{ url_for('edit_content') }}" method="POST" enctype="multipart/form-data">
-
-        <!-- Hero Section -->
-        <h4>Hero Section</h4>
-        <div class="form-group">
-            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-            <label>Title</label>
-            <input type="text" name="hero_title" class="form-control"
-                   value="{{ content['hero']['title'] if content['hero'] else '' }}">
-        </div>
-        <div class="form-group">
-            <label>Subtitle</label>
-            <input type="text" name="hero_content" class="form-control"
-                   value="{{ content['hero']['content'] if content['hero'] else '' }}">
-        </div>
-        <hr>
-
-        <!-- About Section -->
-        <h4>About Section</h4>
-        <div class="form-group">
-            <label>Title</label>
-            <input type="text" name="about_title" class="form-control"
-                   value="{{ content['about']['title'] if content['about'] else '' }}">
-        </div>
-        <div class="form-group">
-            <label>Text</label>
-            <textarea name="about_content" class="form-control" rows="4">{{ content['about']['content'] if content['about'] else '' }}</textarea>
-        </div>
         <hr>
 
         <!-- Skills Section -->

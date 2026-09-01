@@ -10,7 +10,7 @@ from functools import wraps
 import time
 from flask_mail import Mail, Message
 from flask_migrate import Migrate
-from flask_login import LoginManager, login_required
+from flask_login import LoginManager, login_required, login_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_restful import Api, Resource
 import logging
@@ -137,7 +137,36 @@ def ensure_db_schema():
         conn.close()
 
 
+def ensure_default_admin_user():
+    try:
+        with app.app_context():
+            username = app.config.get('ADMIN_USERNAME', 'admin')
+            password = app.config.get('ADMIN_PASSWORD', '')
+            if not username or not password:
+                return False
+
+            user = User.query.filter_by(username=username).first()
+            if user is None:
+                user = User(
+                    username=username,
+                    email=f'{username}@local.dev',
+                    password=generate_password_hash(password)
+                )
+                db.session.add(user)
+                db.session.commit()
+                return True
+
+            if not check_password_hash(user.password, password):
+                user.password = generate_password_hash(password)
+                db.session.commit()
+            return True
+    except Exception as exc:
+        print(f"Error ensuring default admin user: {exc}")
+        return False
+
+
 ensure_db_schema()
+ensure_default_admin_user()
 
 
 def get_content_from_db():
@@ -422,13 +451,28 @@ def contact():
 @app.route('/admin/login', methods=['GET', 'POST'])
 def admin_login_alias():
     if request.method == 'POST':
-        username = request.form.get('username')
-        password = request.form.get('password')
+        username = request.form.get('username', '').strip()
+        password = request.form.get('password', '')
 
+        if not username or not password:
+            flash('Invalid username or password', 'danger')
+            return redirect(url_for('admin_login_alias'))
+
+        ensure_default_admin_user()
         user = User.query.filter_by(username=username).first()
+        if user is None and username == app.config.get('ADMIN_USERNAME'):
+            user = User(
+                username=username,
+                email=f'{username}@local.dev',
+                password=generate_password_hash(password)
+            )
+            db.session.add(user)
+            db.session.commit()
+
         if user and check_password_hash(user.password, password):
             login_user(user)
             return redirect(url_for('admin'))
+
         flash('Invalid username or password', 'danger')
         return redirect(url_for('admin_login_alias'))
 
@@ -672,7 +716,13 @@ def edit_content():
         cursor.execute("SELECT * FROM site_content")
         content = {}
         for row in cursor.fetchall():
-            content[row['section_name']] = dict(row)
+            content[row['section_name']] = {
+                'id': row.get('id'),
+                'section_name': row.get('section_name'),
+                'title': row.get('title') or '',
+                'content': row.get('content') or '',
+                'file': row.get('file') or ''
+            }
 
         cursor.execute("SELECT category, name FROM skills ORDER BY category, id")
         rows = cursor.fetchall()
@@ -683,7 +733,7 @@ def edit_content():
                 skills[cat] = []
             skills[cat].append(row['name'])
 
-        return render_template('edit_content.html', content=content, skills=skills)
+        return render_template('edit_content.html', content=content or {}, skills=skills or {})
     except psycopg2.Error as e:
         flash(f'Error: {e}', 'danger')
         return redirect(url_for('admin'))
