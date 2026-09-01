@@ -2,13 +2,16 @@ from flask import Flask, render_template, request, url_for, redirect, flash, ses
 import psycopg2
 from psycopg2.extras import RealDictCursor
 import os
+import json
+from urllib.request import Request, urlopen
+from urllib.error import HTTPError, URLError
 from werkzeug.utils import secure_filename
 from functools import wraps
 import time
 from flask_mail import Mail, Message
 from flask_migrate import Migrate
 from flask_login import LoginManager, login_required
-from werkzeug.security import generate_password_hash
+from werkzeug.security import generate_password_hash, check_password_hash
 from flask_restful import Api, Resource
 import logging
 from flask_caching import Cache
@@ -104,6 +107,39 @@ def get_db_connection():
     return None
 
 
+def ensure_db_schema():
+    conn = get_db_connection()
+    if not conn:
+        return False
+
+    try:
+        cursor = conn.cursor()
+        if DATABASE_URL.startswith('sqlite'):
+            cursor.execute("CREATE TABLE IF NOT EXISTS site_content (id INTEGER PRIMARY KEY AUTOINCREMENT, section_name VARCHAR(100), title VARCHAR(255), content TEXT, file VARCHAR(255))")
+            cursor.execute("CREATE TABLE IF NOT EXISTS skills (id INTEGER PRIMARY KEY AUTOINCREMENT, category VARCHAR(100) NOT NULL, name VARCHAR(100) NOT NULL)")
+            cursor.execute("CREATE TABLE IF NOT EXISTS contact_messages (id INTEGER PRIMARY KEY AUTOINCREMENT, name VARCHAR(255) NOT NULL, email VARCHAR(255) NOT NULL, subject VARCHAR(255), message TEXT NOT NULL, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)")
+            cursor.execute("CREATE TABLE IF NOT EXISTS projects (id INTEGER PRIMARY KEY AUTOINCREMENT, title VARCHAR(150) NOT NULL, description TEXT NOT NULL, link VARCHAR(255), image VARCHAR(255), created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)")
+            cursor.execute("CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY AUTOINCREMENT, username VARCHAR(80) UNIQUE NOT NULL, email VARCHAR(120) UNIQUE NOT NULL, password VARCHAR(200) NOT NULL)")
+        else:
+            cursor.execute("CREATE TABLE IF NOT EXISTS site_content (id SERIAL PRIMARY KEY, section_name VARCHAR(100), title VARCHAR(255), content TEXT, file VARCHAR(255))")
+            cursor.execute("CREATE TABLE IF NOT EXISTS skills (id SERIAL PRIMARY KEY, category VARCHAR(100) NOT NULL, name VARCHAR(100) NOT NULL)")
+            cursor.execute("CREATE TABLE IF NOT EXISTS contact_messages (id SERIAL PRIMARY KEY, name VARCHAR(255) NOT NULL, email VARCHAR(255) NOT NULL, subject VARCHAR(255), message TEXT NOT NULL, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)")
+            cursor.execute("CREATE TABLE IF NOT EXISTS projects (id SERIAL PRIMARY KEY, title VARCHAR(150) NOT NULL, description TEXT NOT NULL, link VARCHAR(255), image VARCHAR(255), created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)")
+            cursor.execute("CREATE TABLE IF NOT EXISTS users (id SERIAL PRIMARY KEY, username VARCHAR(80) UNIQUE NOT NULL, email VARCHAR(120) UNIQUE NOT NULL, password VARCHAR(200) NOT NULL)")
+
+        conn.commit()
+        return True
+    except psycopg2.Error as e:
+        print(f"Error creating schema: {e}")
+        return False
+    finally:
+        cursor.close()
+        conn.close()
+
+
+ensure_db_schema()
+
+
 def get_content_from_db():
     conn = get_db_connection()
     if not conn:
@@ -167,6 +203,50 @@ def get_skills_from_table():
     finally:
         cursor.close()
         conn.close()
+
+
+def send_resend_contact_notification(name, email, subject, message):
+    """Send a contact notification through Resend when configured."""
+    api_key = app.config.get('RESEND_API_KEY')
+    sender = app.config.get('RESEND_FROM')
+    recipient = app.config.get('RESEND_TO')
+    if not api_key or not sender or not recipient:
+        logger.info('Resend is not configured; skipping contact notification')
+        return False
+
+    html = render_template(
+        'email/contact_notification.html',
+        name=name,
+        email=email,
+        subject=subject,
+        message=message,
+        portfolio_url=request.url_root.rstrip('/')
+    )
+    payload = json.dumps({
+        'from': sender,
+        'to': [recipient],
+        'subject': f'Portfolio contact: {subject or "No Subject"}',
+        'html': html,
+        'reply_to': email,
+    }).encode('utf-8')
+    resend_request = Request(
+        'https://api.resend.com/emails',
+        data=payload,
+        headers={
+            'Authorization': f'Bearer {api_key}',
+            'Content-Type': 'application/json',
+        },
+        method='POST'
+    )
+
+    try:
+        with urlopen(resend_request, timeout=10) as response:
+            response.read()
+        logger.info('Resend contact notification sent from %s', email)
+        return True
+    except (HTTPError, URLError, TimeoutError) as error:
+        logger.error('Resend contact notification failed: %s', error)
+        return False
 
 
 # ================== REST API ==================
@@ -332,28 +412,33 @@ def contact():
         finally:
             conn.close()
 
-    # Send email notification
-    #try:
-   #     msg = Message(
-   #         subject=f"Portfolio Contact: {subject}",
-    #        sender=app.config['MAIL_USERNAME'],
-     #       recipients=[app.config['MAIL_USERNAME']],  # sends to yourself
-      #      body=f"Name: {name}\nEmail: {email}\n\nMessage:\n{message}"
-       # )
-        #mail.send(msg)
-        #logger.info(f"Email sent from {name}")
-    #except Exception as e:
-     #   logger.error(f"Email error: {e}")
-      #  pass
+    send_resend_contact_notification(name, email, subject, message)
 
     flash("Message sent successfully! We'll get back to you soon.", "success")
     return redirect(url_for('home', success=1) + '#contact')
 
 
 # ================== ADMIN ROUTES ==================
+@app.route('/admin/login', methods=['GET', 'POST'])
+def admin_login_alias():
+    if request.method == 'POST':
+        username = request.form.get('username')
+        password = request.form.get('password')
+
+        user = User.query.filter_by(username=username).first()
+        if user and check_password_hash(user.password, password):
+            login_user(user)
+            return redirect(url_for('admin'))
+        flash('Invalid username or password', 'danger')
+        return redirect(url_for('admin_login_alias'))
+
+    return render_template('admin_login.html')
+
+
 @app.route('/admin')
 @login_required
 def admin():
+    ensure_db_schema()
     conn = get_db_connection()
     if not conn:
         flash('Database connection error', 'danger')
@@ -485,6 +570,7 @@ def delete_project(id):
 @app.route('/admin/edit_content', methods=['GET', 'POST'])
 @login_required
 def edit_content():
+    ensure_db_schema()
     conn = get_db_connection()
     if not conn:
         flash('Database connection error', 'danger')

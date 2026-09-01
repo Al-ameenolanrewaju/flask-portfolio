@@ -1,4 +1,5 @@
 import pytest
+import app as app_module
 from app import app
 from config import TestingConfig
 
@@ -55,3 +56,32 @@ def test_add_project_requires_login(client):
         'link': '#'
     }, follow_redirects=True)
     assert response.status_code == 200
+
+
+def test_ensure_db_schema_creates_missing_tables(monkeypatch):
+    executed = []
+
+    class FakeCursor:
+        def execute(self, sql, params=None):
+            executed.append((sql, params))
+
+        def close(self):
+            pass
+
+    class FakeConn:
+        def cursor(self):
+            return FakeCursor()
+
+        def commit(self):
+            pass
+
+        def close(self):
+            pass
+
+    monkeypatch.setattr(app_module, 'DATABASE_URL', 'sqlite:///memory:')
+    monkeypatch.setattr(app_module, 'get_db_connection', lambda: FakeConn())
+
+    app_module.ensure_db_schema()
+
+    assert any('CREATE TABLE IF NOT EXISTS SITE_CONTENT' in sql.upper() for sql, _ in executed)
+    assert any('CREATE TABLE IF NOT EXISTS SKILLS' in sql.upper() for sql, _ in executed)
