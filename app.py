@@ -788,6 +788,54 @@ def github_sync():
     return redirect(url_for('admin'))
 
 
+@app.route('/admin/projects/<int:id>/refresh-description', methods=['POST'])
+@login_required
+def refresh_project_description(id):
+    conn = get_db_connection()
+    if not conn:
+        flash('Database connection error', 'danger')
+        return redirect(url_for('admin'))
+    cursor = None
+    try:
+        cursor = conn.cursor(cursor_factory=RealDictCursor)
+        cursor.execute(
+            'SELECT github_full_name, edited_fields FROM projects WHERE id=%s AND github_repo_id IS NOT NULL',
+            (id,)
+        )
+        project = cursor.fetchone()
+        if not project:
+            flash('This project is not linked to a GitHub repository.', 'warning')
+            return redirect(url_for('admin'))
+
+        description = _github_client().get_repository_description(project['github_full_name'])
+        if not description:
+            flash('GitHub has no description or README text for this repository. The saved description was left unchanged.', 'warning')
+            return redirect(url_for('admin'))
+
+        edited_fields = project.get('edited_fields') or '[]'
+        if isinstance(edited_fields, str):
+            try:
+                edited_fields = json.loads(edited_fields)
+            except ValueError:
+                edited_fields = []
+        edited_fields = sorted(set(edited_fields) - {'description'})
+        cursor.execute(
+            'UPDATE projects SET description=%s, edited_fields=%s WHERE id=%s',
+            (description, json.dumps(edited_fields), id)
+        )
+        conn.commit()
+        cache.clear()
+        flash('Description refreshed from GitHub.', 'success')
+    except (GitHubAPIError, psycopg2.Error) as error:
+        conn.rollback()
+        flash(f'Could not refresh the GitHub description: {error}', 'danger')
+    finally:
+        if cursor:
+            cursor.close()
+        conn.close()
+    return redirect(url_for('admin'))
+
+
 @app.route('/admin/projects/<int:id>/settings', methods=['POST'])
 @login_required
 def project_settings(id):

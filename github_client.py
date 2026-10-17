@@ -148,3 +148,18 @@ class GitHubClient:
                     repository['description'] = ''
             repository['preview_image'] = f"https://opengraph.githubassets.com/{repository['id']}/{full_name}"
         return repositories
+
+    def get_repository_description(self, full_name):
+        repository = self._get_json(f'{self.API_ROOT}/repos/{full_name}')
+        description = (repository.get('description') or '').strip()
+        if description:
+            return description
+
+        readme = self._get_json(f'{self.API_ROOT}/repos/{full_name}/readme', allow_missing=True)
+        if not readme or not readme.get('content'):
+            return ''
+        try:
+            markdown = base64.b64decode(readme['content']).decode('utf-8', errors='replace')
+        except (ValueError, KeyError):
+            return ''
+        return self._readme_paragraph(markdown)

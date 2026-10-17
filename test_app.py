@@ -597,6 +597,92 @@ def test_regular_sync_does_not_import_unselected_repository(monkeypatch):
     assert not any(sql.startswith('INSERT INTO projects') for sql, _ in connection.statements)
 
 
+def test_refresh_description_updates_only_when_github_has_text(client, monkeypatch):
+    authenticate_test_user(client, monkeypatch)
+    statements = []
+
+    class FakeCursor:
+        def execute(self, sql, params=None):
+            statements.append((sql, params))
+
+        def fetchone(self):
+            return {
+                'github_full_name': 'example/project',
+                'edited_fields': '["description", "link", "title"]',
+            }
+
+        def close(self):
+            pass
+
+    class FakeConnection:
+        def cursor(self, cursor_factory=None):
+            return FakeCursor()
+
+        def commit(self):
+            pass
+
+        def rollback(self):
+            pass
+
+        def close(self):
+            pass
+
+    class FakeClient:
+        def get_repository_description(self, full_name):
+            assert full_name == 'example/project'
+            return 'Updated from README.'
+
+    monkeypatch.setattr(app_module, 'get_db_connection', lambda: FakeConnection())
+    monkeypatch.setattr(app_module, '_github_client', lambda: FakeClient())
+
+    response = client.post('/admin/projects/42/refresh-description')
+
+    update = next(params for sql, params in statements if sql.startswith('UPDATE projects'))
+    assert response.status_code == 302
+    assert update[0] == 'Updated from README.'
+    assert json.loads(update[1]) == ['link', 'title']
+
+
+def test_refresh_description_preserves_saved_text_when_github_has_none(client, monkeypatch):
+    authenticate_test_user(client, monkeypatch)
+    statements = []
+
+    class FakeCursor:
+        def execute(self, sql, params=None):
+            statements.append((sql, params))
+
+        def fetchone(self):
+            return {'github_full_name': 'example/project', 'edited_fields': '["description"]'}
+
+        def close(self):
+            pass
+
+    class FakeConnection:
+        def cursor(self, cursor_factory=None):
+            return FakeCursor()
+
+        def commit(self):
+            pass
+
+        def rollback(self):
+            pass
+
+        def close(self):
+            pass
+
+    class FakeClient:
+        def get_repository_description(self, full_name):
+            return ''
+
+    monkeypatch.setattr(app_module, 'get_db_connection', lambda: FakeConnection())
+    monkeypatch.setattr(app_module, '_github_client', lambda: FakeClient())
+
+    response = client.post('/admin/projects/42/refresh-description')
+
+    assert response.status_code == 302
+    assert not any(sql.startswith('UPDATE projects') for sql, _ in statements)
+
+
 def test_github_failure_is_reported_and_public_page_uses_saved_data(client, monkeypatch):
     authenticate_test_user(client, monkeypatch)
 
