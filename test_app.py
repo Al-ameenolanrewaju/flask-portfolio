@@ -31,6 +31,35 @@ def test_admin_redirects_when_not_logged_in(client):
     response = client.get('/admin')
     assert response.status_code == 302
 
+
+def test_admin_has_direct_services_editor_link(client, monkeypatch):
+    authenticate_test_user(client, monkeypatch)
+    monkeypatch.setattr(app_module, 'ensure_db_schema', lambda: None)
+
+    class FakeCursor:
+        def execute(self, *args, **kwargs):
+            pass
+
+        def fetchall(self):
+            return []
+
+        def close(self):
+            pass
+
+    class FakeConnection:
+        def cursor(self, cursor_factory=None):
+            return FakeCursor()
+
+        def close(self):
+            pass
+
+    monkeypatch.setattr(app_module, 'get_db_connection', lambda: FakeConnection())
+    response = client.get('/admin')
+    page = response.get_data(as_text=True)
+
+    assert response.status_code == 200
+    assert 'href="/admin/edit_content#services-section"' in page
+
 def test_login_with_wrong_password(client):
     response = client.post('/admin/login', data={
         'username': 'wronguser',

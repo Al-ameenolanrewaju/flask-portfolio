@@ -438,9 +438,14 @@ body {
     <div class="section-card">
         <div class="section-header">
             <h3><i class="fas fa-file-alt"></i> Site Content</h3>
-            <a href="{{ url_for('edit_content') }}" class="btn-custom btn-success-custom">
-                <i class="fas fa-edit"></i> Edit Content
-            </a>
+            <div>
+                <a href="{{ url_for('edit_content') }}#services-section" class="btn-custom btn-primary-custom">
+                    <i class="fas fa-briefcase" aria-hidden="true"></i> Edit Services
+                </a>
+                <a href="{{ url_for('edit_content') }}" class="btn-custom btn-success-custom">
+                    <i class="fas fa-edit" aria-hidden="true"></i> Edit Content
+                </a>
+            </div>
         </div>
         <div class="section-body">
             <table class="table-custom">

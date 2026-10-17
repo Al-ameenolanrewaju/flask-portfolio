@@ -57,7 +57,7 @@
         <hr>
 
         <!-- Services Section -->
-        <h4>Services Section</h4>
+        <h4 id="services-section">Services Section</h4>
         <p class="text-muted">Add up to four services. Empty slots stay hidden on the homepage.</p>
         {% for service_index in range(1, 5) %}
         {% set service = content.get('service_' ~ service_index, {}) %}
