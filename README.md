@@ -56,12 +56,15 @@ pip install -r requirements.txt
 \```
 SECRET_KEY=your-secret-key
 DEBUG=True
-DATABASE_URL=mysql+pymysql://root:password@localhost/portfolio
+DATABASE_URL=postgresql://username:password@localhost:5432/portfolio
 GITHUB_USERNAME=your-github-username
 # Optional; raises the GitHub API limit from 60 to 5,000 requests/hour
 GITHUB_TOKEN=github_pat_your-token
 MAIL_USERNAME=your-email
 MAIL_PASSWORD=your-app-password
+RESEND_API_KEY=re_your_api_key
+RESEND_FROM=Portfolio <onboarding@your-verified-domain.com>
+RESEND_TO=your-admin-email@example.com
 \```
 
 5. Run migrations:

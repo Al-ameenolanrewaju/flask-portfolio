@@ -30,6 +30,11 @@ class Config:
     MAIL_DEFAULT_SENDER = os.environ.get("MAIL_DEFAULT_SENDER")
     MAIL_TIMEOUT = 5
 
+    # Resend email delivery
+    RESEND_API_KEY = os.environ.get("RESEND_API_KEY")
+    RESEND_FROM = os.environ.get("RESEND_FROM", MAIL_DEFAULT_SENDER or MAIL_USERNAME)
+    RESEND_TO = os.environ.get("RESEND_TO", MAIL_USERNAME)
+
 
 class DevelopmentConfig(Config):
     DEBUG = True
