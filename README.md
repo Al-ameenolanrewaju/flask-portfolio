@@ -57,6 +57,9 @@ pip install -r requirements.txt
 SECRET_KEY=your-secret-key
 DEBUG=True
 DATABASE_URL=mysql+pymysql://root:password@localhost/portfolio
+GITHUB_USERNAME=your-github-username
+# Optional; raises the GitHub API limit from 60 to 5,000 requests/hour
+GITHUB_TOKEN=github_pat_your-token
 MAIL_USERNAME=your-email
 MAIL_PASSWORD=your-app-password
 \```
@@ -71,6 +74,7 @@ flask db upgrade
 python app.py
 \```
 
+For daily GitHub synchronization, add a Railway cron service for this project and schedule `flask --app app sync-github-projects` once per day. The admin panel also provides a manual **Sync now** action.
 ## 📡 API Endpoints
 | Method | Endpoint | Description |
 |--------|----------|-------------|
