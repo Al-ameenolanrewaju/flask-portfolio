@@ -107,6 +107,35 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
 .project-card-body h4 { margin-bottom: 12px; }
 .project-card-body p:not(.card-index) { margin: 0; color: var(--muted); }
 .project-link { display: inline-flex; justify-content: space-between; margin-top: auto; padding-top: 22px; color: var(--lime); font: 12px var(--mono); text-transform: uppercase; }
+.project-card-body { gap: 14px; }
+.project-card-body .card-index { margin-bottom: 0; }
+.project-card-body .project-description { min-height: 3.2em; }
+.project-meta, .project-stats, .project-links { display: flex; flex-wrap: wrap; align-items: center; gap: 9px; }
+.project-tag { border: 1px solid var(--line); border-radius: 4px; padding: 3px 7px; color: var(--paper-muted); font: 11px var(--mono); }
+.project-stats { justify-content: space-between; color: var(--paper-muted); font: 11px var(--mono); }
+.project-stats span { color: var(--coral); }
+.project-links { justify-content: space-between; border-top: 1px solid var(--line); }
+.project-links .project-link { padding-top: 15px; }
+.project-image-placeholder { padding: 22px; background-color: var(--ink-soft); background-image: linear-gradient(135deg, rgba(200,243,107,.14), transparent 55%), repeating-linear-gradient(0deg, transparent, transparent 23px, rgba(215,221,210,.08) 24px); }
+.project-image-placeholder span { max-width: 100%; overflow-wrap: anywhere; color: var(--paper); font: 600 24px/1.2 var(--display); text-align: center; }
+.project-admin-settings { display: grid; gap: 5px; min-width: 145px; }
+.project-admin-settings label { margin: 0; font-weight: 400; white-space: nowrap; }
+.project-admin-settings input[type='number'] { width: 64px; min-height: 30px; }
+.github-import-section { min-height: 70vh; }
+.github-import-title { margin: 0; font-size: 2.5rem; }
+.github-import-summary { margin: 12px 0 28px; }
+.github-import-form { max-width: 850px; }
+.github-import-filters { display: flex; flex-wrap: wrap; gap: 24px; margin-bottom: 14px; }
+.github-import-filters label, .github-repository-label { display: flex; align-items: flex-start; gap: 12px; cursor: pointer; }
+.github-repository-list { margin: 0 0 24px; padding: 0; list-style: none; border-top: 1px solid var(--line); }
+.github-repository { padding: 16px 0; border-bottom: 1px solid var(--line); }
+.github-repository[hidden] { display: none; }
+.github-repository input { flex: 0 0 auto; width: 18px; height: 18px; margin-top: 3px; accent-color: var(--lime); }
+.github-repository-name, .github-repository-description, .github-repository-meta { display: block; }
+.github-repository-name { color: var(--paper); font-weight: 600; }
+.github-repository-description { color: var(--paper-muted); overflow-wrap: anywhere; }
+.github-repository-meta { color: var(--muted); font: 11px var(--mono); }
+.github-import-back { display: inline-block; margin-left: 16px; }
 .contact-heading { max-width: 700px; margin-bottom: 38px; }
 .contact-heading p:not(.eyebrow) { max-width: 540px; color: var(--paper-muted); font-size: 18px; }
 .contact-form { max-width: 700px !important; padding: 0; background: transparent; box-shadow: none; }

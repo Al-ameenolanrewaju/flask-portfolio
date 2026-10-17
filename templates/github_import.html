@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block title %}Import from GitHub{% endblock %}
+{% block content %}
+<section class="section github-import-section">
+    <div class="container">
+        <p class="eyebrow">Portfolio management</p>
+        <h1 class="github-import-title">Import from GitHub</h1>
+        <p class="github-import-summary">Select public repositories to add to your portfolio.</p>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% for category, message in messages %}<div class="alert alert-{{ category }}" role="status">{{ message }}</div>{% endfor %}
+        {% endwith %}
+        <form method="POST" class="github-import-form">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div class="github-import-filters">
+                <label><input type="checkbox" name="include_forks"> Include forks</label>
+                <label><input type="checkbox" name="include_archived"> Include archived</label>
+            </div>
+            {% if repositories %}
+            <ul class="github-repository-list">
+                {% for repo in repositories %}
+                <li class="github-repository" data-fork="{{ 'true' if repo.fork else 'false' }}" data-archived="{{ 'true' if repo.archived else 'false' }}" {% if repo.fork or repo.archived %}hidden{% endif %}>
+                    <label class="github-repository-label">
+                        <input type="checkbox" name="repo_ids" value="{{ repo.id }}" {% if repo.id in imported_ids %}checked disabled{% endif %}>
+                        <span class="github-repository-name">{{ repo.name|replace('-', ' ')|replace('_', ' ')|title }}</span>
+                        <span class="github-repository-description">{{ repo.description or 'No description yet.' }}</span>
+                        <span class="github-repository-meta">{{ repo.stargazers_count }} stars · {{ repo.language or 'No primary language' }}{% if repo.fork %} · Fork{% endif %}{% if repo.archived %} · Archived{% endif %}{% if repo.id in imported_ids %} · Already imported{% endif %}</span>
+                    </label>
+                </li>
+                {% endfor %}
+            </ul>
+            <button type="submit" class="btn btn-primary">Import selected repositories</button>
+            {% else %}
+            <p>No repositories were returned. Check GITHUB_USERNAME or try again later.</p>
+            {% endif %}
+            <a href="{{ url_for('admin') }}" class="github-import-back">Back to admin</a>
+        </form>
+    </div>
+</section>
+<script>
+const forkFilter = document.querySelector('[name="include_forks"]');
+const archivedFilter = document.querySelector('[name="include_archived"]');
+const repositoryRows = document.querySelectorAll('.github-repository');
+function updateRepositoryFilters() {
+    repositoryRows.forEach(row => {
+        row.hidden = (row.dataset.fork === 'true' && !forkFilter.checked) || (row.dataset.archived === 'true' && !archivedFilter.checked);
+    });
+}
+forkFilter?.addEventListener('change', updateRepositoryFilters);
+archivedFilter?.addEventListener('change', updateRepositoryFilters);
+</script>
+{% endblock %}

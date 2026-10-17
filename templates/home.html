@@ -120,12 +120,35 @@ Al-ameen | Python Flask Developer
             {% if projects %}
                 {% for project in projects %}
                 <div class="col-md-4">
-                    {% set project_title = project.title if project.title else project[1] %}
-                    {% set project_description = project.description if project.description else project[2] %}
-                    {% set project_link = project.link if project.link else project[3] %}
+                    {% set project_title = project.title %}
+                    {% set project_description = project.description %}
+                    {% set live_link = project.link if 'link' in project.edited_fields else (project.homepage_url or (project.link if not project.github_full_name else '')) %}
+                    {% set code_link = 'https://github.com/' ~ project.github_full_name if project.github_full_name else project.link %}
                     <div class="project-card{% if 'afrigen' in project_title|lower %} project-card-featured{% endif %}">
-                        {% if project.image is defined and project.image %}<div class="project-image"><img src="{{ url_for('static', filename='uploads/' ~ project.image) }}" alt="{{ project_title }}"></div>{% else %}<div class="project-image project-image-placeholder"><span>{{ '%02d'|format(loop.index) }}</span></div>{% endif %}
-                        <div class="project-card-body"><p class="card-index">{% if 'afrigen' in project_title|lower %}FLAGSHIP / {% endif %}PROJECT {{ '%02d'|format(loop.index) }}</p><h4>{{ project_title }}</h4><p>{{ project_description }}</p><a href="{{ project_link }}" class="project-link" target="_blank" rel="noopener noreferrer">View project <span aria-hidden="true">↗</span></a></div>
+                        {% if project.image %}
+                        <div class="project-image"><img src="{{ project.image if project.image.startswith('http') else url_for('static', filename='uploads/' ~ project.image) }}" alt="Preview of {{ project_title }}" loading="lazy"></div>
+                        {% else %}
+                        <div class="project-image project-image-placeholder" aria-hidden="true"><span>{{ project_title }}</span></div>
+                        {% endif %}
+                        <div class="project-card-body">
+                            <p class="card-index">PROJECT {{ '%02d'|format(loop.index) }}</p>
+                            <h4>{{ project_title }}</h4>
+                            <p class="project-description">{{ project_description }}</p>
+                            <div class="project-meta">
+                                {% for technology in (project.languages or []) + (project.topics or []) %}
+                                <span class="project-tag">{{ technology }}</span>
+                                {% endfor %}
+                            </div>
+                            <div class="project-stats">
+                                {% if project.github_full_name %}<span aria-label="{{ project.stars }} GitHub stars">★ {{ project.stars }}</span>{% endif %}
+                                {% set updated = project.last_pushed_at or project.created_at %}
+                                {% if updated %}<time datetime="{{ updated.isoformat() }}">Updated {{ updated.strftime('%b %Y') }}</time>{% endif %}
+                            </div>
+                            <div class="project-links">
+                                {% if live_link %}<a href="{{ live_link }}" class="project-link" target="_blank" rel="noopener noreferrer" aria-label="Open live site for {{ project_title }}">Live site <span aria-hidden="true">↗</span></a>{% endif %}
+                                {% if code_link %}<a href="{{ code_link }}" class="project-link" target="_blank" rel="noopener noreferrer" aria-label="View source code for {{ project_title }}">Code <span aria-hidden="true">↗</span></a>{% endif %}
+                            </div>
+                        </div>
                     </div>
                 </div>
                 {% endfor %}
