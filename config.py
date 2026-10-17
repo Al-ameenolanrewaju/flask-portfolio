@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 class Config:
-    SECRET_KEY = os.environ.get("SECRET_KEY") or "fallback-secret-key"
+    SECRET_KEY = os.environ.get("SECRET_KEY")
     DEBUG = os.environ.get("DEBUG", "False") == "True"
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
@@ -17,6 +17,8 @@ class Config:
     # Admin
     ADMIN_USERNAME = os.environ.get("ADMIN_USERNAME", "admin")
     ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD", "")
+    GITHUB_USERNAME = os.environ.get("GITHUB_USERNAME", "")
+    GITHUB_TOKEN = os.environ.get("GITHUB_TOKEN")
 
     # Email
     MAIL_SERVER = "smtp.gmail.com"
@@ -31,6 +33,7 @@ class Config:
 
 class DevelopmentConfig(Config):
     DEBUG = True
+    SECRET_KEY = os.environ.get("SECRET_KEY") or "local-development-key"
 
 
 class ProductionConfig(Config):
@@ -44,5 +47,6 @@ class ProductionConfig(Config):
 class TestingConfig(Config):
     TESTING = True
     DEBUG = False
+    SECRET_KEY = os.environ.get("SECRET_KEY") or "test-only-key"
     SQLALCHEMY_DATABASE_URI = "sqlite:///memory:"
     WTF_CSRF_ENABLED = False

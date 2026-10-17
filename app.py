@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, url_for, redirect, flash, session, jsonify
+from flask import Flask, render_template, request, url_for, redirect, flash, session, jsonify, abort
 import psycopg2
 from psycopg2.extras import RealDictCursor
 import os
@@ -8,6 +8,8 @@ from urllib.error import HTTPError, URLError
 from werkzeug.utils import secure_filename
 from functools import wraps
 import time
+import re
+from datetime import datetime
 from flask_mail import Mail, Message
 from flask_migrate import Migrate
 from flask_login import LoginManager, login_required, login_user
@@ -15,14 +17,19 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from flask_restful import Api, Resource
 import logging
 from flask_caching import Cache
+from cachelib import SimpleCache
 from flask_wtf.csrf import CSRFProtect
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from config import DevelopmentConfig, ProductionConfig
 from models import db, User, Category, Task
+from github_client import GitHubAPIError, GitHubClient
 
 app = Flask(__name__)
-app.config.from_object(DevelopmentConfig)
+production = bool(os.environ.get('RAILWAY_ENVIRONMENT') or os.environ.get('RAILWAY_PROJECT_ID') or os.environ.get('RENDER'))
+app.config.from_object(ProductionConfig if production else DevelopmentConfig)
+if production and not os.environ.get('SECRET_KEY'):
+    raise RuntimeError('SECRET_KEY must be configured in production.')
 
 # ================== DATABASE CONFIGURATION ==================
 DATABASE_URL = os.environ.get("DATABASE_URL", app.config.get("SQLALCHEMY_DATABASE_URI", ""))
@@ -53,6 +60,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 cache = Cache(app, config={'CACHE_TYPE': 'SimpleCache'})
+github_api_cache = SimpleCache(default_timeout=600)
 csrf = CSRFProtect(app)
 limiter = Limiter(
     app=app,
@@ -60,16 +68,12 @@ limiter = Limiter(
     default_limits=["20000 per day", "5000 per hour"]
 )
 
-if os.environ.get('RENDER'):
-    app.config.from_object(ProductionConfig)
-else:
-    app.config.from_object(DevelopmentConfig)
-
 # ================== BLUEPRINTS ==================
 from routes.main import main
 app.register_blueprint(main)
 from routes.auth import auth
 app.register_blueprint(auth, url_prefix='/auth')
+app.view_functions['auth.admin_login'] = limiter.limit('5 per minute')(app.view_functions['auth.admin_login'])
 
 # ================== UPLOAD CONFIGURATION ==================
 UPLOAD_FOLDER = 'static/uploads'
@@ -201,8 +205,15 @@ def get_projects():
         return []
     try:
         cursor = conn.cursor(cursor_factory=RealDictCursor)
-        cursor.execute("SELECT * FROM projects ORDER BY created_at DESC")
-        return [dict(row) for row in cursor.fetchall()]
+        cursor.execute("SELECT * FROM projects WHERE is_visible = TRUE ORDER BY is_pinned DESC, sort_order, CASE WHEN last_pushed_at IS NULL THEN 1 ELSE 0 END, last_pushed_at DESC, created_at DESC")
+        projects = [dict(row) for row in cursor.fetchall()]
+        for project in projects:
+            for field in ('languages', 'topics', 'edited_fields'):
+                try:
+                    project[field] = json.loads(project.get(field) or '[]')
+                except (TypeError, ValueError):
+                    project[field] = []
+        return projects
     except psycopg2.Error as e:
         print(f"Error getting projects: {e}")
         return []
@@ -280,6 +291,8 @@ def send_resend_contact_notification(name, email, subject, message):
 
 # ================== REST API ==================
 class ProjectListResource(Resource):
+    method_decorators = {'post': [login_required]}
+
     def get(self):
         projects = get_projects()
         for project in projects:
@@ -313,6 +326,8 @@ api.add_resource(ProjectListResource, '/api/v1/projects')
 
 
 class ProjectResource(Resource):
+    method_decorators = {'delete': [login_required]}
+
     def get(self, id):
         conn = get_db_connection()
         cursor = conn.cursor(cursor_factory=RealDictCursor)
@@ -346,23 +361,8 @@ def load_user(user_id):
 
 
 @app.route("/register", methods=["GET", "POST"])
-@limiter.limit("3 per minute")
 def register():
-    if request.method == "POST":
-        username = request.form.get("username")
-        email = request.form.get("email")
-        password = request.form.get("password")
-        existing_user = User.query.filter_by(username=username).first()
-        if existing_user:
-            flash("Username already exists!", "danger")
-            return redirect(url_for('register'))
-        hashed_password = generate_password_hash(password)
-        new_user = User(username=username, email=email, password=hashed_password)
-        db.session.add(new_user)
-        db.session.commit()
-        flash("Account created successfully! Please login", "success")
-        return redirect(url_for('auth.admin_login'))
-    return render_template("register.html")
+    abort(404)
 
 
 # ================== MAIN ROUTES ==================
@@ -412,7 +412,6 @@ def api_index():
 
 
 @app.route('/contact', methods=['POST'])
-@csrf.exempt
 @limiter.limit("3 per minute")
 def contact():
     name = request.form.get('name', '').strip()
@@ -449,6 +448,7 @@ def contact():
 
 # ================== ADMIN ROUTES ==================
 @app.route('/admin/login', methods=['GET', 'POST'])
+@limiter.limit('5 per minute')
 def admin_login_alias():
     if request.method == 'POST':
         username = request.form.get('username', '').strip()
@@ -460,15 +460,6 @@ def admin_login_alias():
 
         ensure_default_admin_user()
         user = User.query.filter_by(username=username).first()
-        if user is None and username == app.config.get('ADMIN_USERNAME'):
-            user = User(
-                username=username,
-                email=f'{username}@local.dev',
-                password=generate_password_hash(password)
-            )
-            db.session.add(user)
-            db.session.commit()
-
         if user and check_password_hash(user.password, password):
             login_user(user)
             return redirect(url_for('admin'))
@@ -489,7 +480,7 @@ def admin():
         return render_template('admin.html', projects=[], messages=[], content={}, skills={})
     try:
         cursor = conn.cursor(cursor_factory=RealDictCursor)
-        cursor.execute("SELECT * FROM projects ORDER BY created_at DESC")
+        cursor.execute("SELECT * FROM projects ORDER BY is_pinned DESC, sort_order, CASE WHEN last_pushed_at IS NULL THEN 1 ELSE 0 END, last_pushed_at DESC, created_at DESC")
         projects = [dict(r) for r in cursor.fetchall()]
         cursor.execute("SELECT * FROM site_content")
         content_data = [dict(r) for r in cursor.fetchall()]
@@ -567,9 +558,20 @@ def edit_project(id):
             description = request.form.get('description', '').strip()
             link = request.form.get('link', '').strip()
             cursor = conn.cursor()
+            cursor.execute("SELECT edited_fields FROM projects WHERE id=%s", (id,))
+            row = cursor.fetchone()
+            if not row:
+                flash('Project not found!', 'danger')
+                return redirect(url_for('admin'))
+            edited_fields = row.get('edited_fields') if isinstance(row, dict) else row[0]
+            try:
+                edited_fields = json.loads(edited_fields or '[]')
+            except (TypeError, ValueError):
+                edited_fields = []
+            edited_fields = sorted(set(edited_fields) | {'title', 'description', 'link'})
             cursor.execute(
-                "UPDATE projects SET title=%s, description=%s, link=%s WHERE id=%s",
-                (title, description, link, id)
+                "UPDATE projects SET title=%s, description=%s, link=%s, edited_fields=%s WHERE id=%s",
+                (title, description, link, json.dumps(edited_fields), id)
             )
             conn.commit()
             cache.clear()
@@ -590,7 +592,7 @@ def edit_project(id):
         conn.close()
 
 
-@app.route('/delete_project/<int:id>')
+@app.route('/delete_project/<int:id>', methods=['POST'])
 @login_required
 def delete_project(id):
     conn = get_db_connection()
@@ -609,6 +611,193 @@ def delete_project(id):
         cursor.close()
         conn.close()
     return redirect(url_for('admin'))
+
+
+def _github_client():
+    return GitHubClient(
+        app.config.get('GITHUB_USERNAME'),
+        app.config.get('GITHUB_TOKEN'),
+        cache=github_api_cache,
+    )
+
+
+def _project_title(repo_name):
+    return re.sub(r'[-_]+', ' ', repo_name).strip().title()
+
+
+def sync_github_projects(repositories=None, mark_missing=True, import_new=False):
+    repositories = repositories if repositories is not None else _github_client().list_repositories()
+    conn = get_db_connection()
+    if not conn:
+        raise GitHubAPIError('Database connection error. GitHub projects were not changed.')
+
+    imported = 0
+    updated = 0
+    present_ids = [repo['id'] for repo in repositories]
+    try:
+        cursor = conn.cursor(cursor_factory=RealDictCursor)
+        cursor.execute('SELECT id, github_repo_id, edited_fields FROM projects WHERE github_repo_id IS NOT NULL')
+        existing = {row['github_repo_id']: row for row in cursor.fetchall()}
+        for repo in repositories:
+            repo_id = repo['id']
+            language_names = list(repo.get('languages', {}).keys())
+            topics = repo.get('topics', [])
+            description = (repo.get('description') or '').strip()
+            homepage = (repo.get('homepage') or '').strip()
+            link = homepage or repo['html_url']
+            pushed_at = datetime.fromisoformat(repo['pushed_at'].replace('Z', '+00:00')) if repo.get('pushed_at') else None
+            values = {
+                'title': _project_title(repo['name']),
+                'description': description,
+                'link': link,
+                'homepage_url': homepage or None,
+                'image': repo.get('preview_image') or f"https://opengraph.githubassets.com/{repo_id}/{repo['full_name']}",
+                'languages': json.dumps(language_names),
+                'topics': json.dumps(topics),
+                'stars': repo.get('stargazers_count', 0),
+                'last_pushed_at': pushed_at,
+                'github_full_name': repo['full_name'],
+                'github_missing': False,
+                'github_archived': bool(repo.get('archived')),
+            }
+            row = existing.get(repo_id)
+            if row is None:
+                if not import_new:
+                    continue
+                cursor.execute(
+                    "INSERT INTO projects (title, description, link, homepage_url, image, github_repo_id, github_full_name, languages, topics, stars, last_pushed_at, is_visible, is_pinned, sort_order, github_missing, github_archived) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, TRUE, FALSE, 0, FALSE, %s)",
+                    (values['title'], values['description'], values['link'], values['homepage_url'], values['image'], repo_id,
+                     values['github_full_name'], values['languages'], values['topics'], values['stars'],
+                     values['last_pushed_at'], values['github_archived'])
+                )
+                imported += 1
+                continue
+
+            edited = row.get('edited_fields') or '[]'
+            if isinstance(edited, str):
+                try:
+                    edited = json.loads(edited)
+                except ValueError:
+                    edited = []
+            updates = {key: value for key, value in values.items() if key not in edited}
+            updates['stars'] = values['stars']
+            updates['last_pushed_at'] = values['last_pushed_at']
+            updates['github_full_name'] = values['github_full_name']
+            updates['github_missing'] = False
+            updates['github_archived'] = values['github_archived']
+            assignments = ', '.join(f'{column}=%s' for column in updates)
+            cursor.execute(
+                f'UPDATE projects SET {assignments} WHERE id=%s',
+                (*updates.values(), row['id'])
+            )
+            updated += 1
+
+        if mark_missing:
+            if present_ids:
+                placeholders = ','.join(['%s'] * len(present_ids))
+                cursor.execute(
+                    f'UPDATE projects SET github_missing=TRUE WHERE github_repo_id IS NOT NULL AND github_repo_id NOT IN ({placeholders})',
+                    tuple(present_ids)
+                )
+            else:
+                cursor.execute('UPDATE projects SET github_missing=TRUE WHERE github_repo_id IS NOT NULL')
+        conn.commit()
+        cache.clear()
+        return imported, updated
+    except Exception:
+        conn.rollback()
+        raise
+    finally:
+        cursor.close()
+        conn.close()
+
+
+@app.route('/admin/github/import', methods=['GET', 'POST'])
+@login_required
+def github_import():
+    try:
+        repositories = _github_client().list_repositories(enrich=False)
+    except GitHubAPIError as error:
+        flash(str(error), 'danger')
+        return render_template('github_import.html', repositories=[])
+
+    if request.method == 'POST':
+        selected_ids = {int(value) for value in request.form.getlist('repo_ids') if value.isdigit()}
+        include_forks = request.form.get('include_forks') == 'on'
+        include_archived = request.form.get('include_archived') == 'on'
+        selected = [
+            repo for repo in repositories
+            if repo['id'] in selected_ids
+            and (include_forks or not repo.get('fork'))
+            and (include_archived or not repo.get('archived'))
+        ]
+        try:
+            selected = _github_client().enrich_repositories(selected)
+            imported, _ = sync_github_projects(selected, mark_missing=False, import_new=True)
+            flash(f'Imported {imported} GitHub repositories.', 'success')
+            cache.clear()
+            return redirect(url_for('admin'))
+        except (GitHubAPIError, psycopg2.Error) as error:
+            flash(f'GitHub import failed: {error}', 'danger')
+
+    conn = get_db_connection()
+    imported_ids = set()
+    if conn:
+        try:
+            cursor = conn.cursor()
+            cursor.execute('SELECT github_repo_id FROM projects WHERE github_repo_id IS NOT NULL')
+            imported_ids = {row[0] for row in cursor.fetchall()}
+        finally:
+            cursor.close()
+            conn.close()
+    return render_template('github_import.html', repositories=repositories, imported_ids=imported_ids)
+
+
+@app.route('/admin/github/sync', methods=['POST'])
+@login_required
+def github_sync():
+    try:
+        imported, updated = sync_github_projects()
+        flash(f'GitHub sync complete: {imported} imported, {updated} updated.', 'success')
+    except (GitHubAPIError, psycopg2.Error) as error:
+        flash(f'GitHub sync failed: {error}', 'danger')
+    cache.clear()
+    return redirect(url_for('admin'))
+
+
+@app.route('/admin/projects/<int:id>/settings', methods=['POST'])
+@login_required
+def project_settings(id):
+    conn = get_db_connection()
+    if not conn:
+        flash('Database connection error', 'danger')
+        return redirect(url_for('admin'))
+    try:
+        cursor = conn.cursor()
+        cursor.execute(
+            'UPDATE projects SET is_visible=%s, is_pinned=%s, sort_order=%s WHERE id=%s',
+            (request.form.get('is_visible') == 'on', request.form.get('is_pinned') == 'on',
+             int(request.form.get('sort_order', 0)), id)
+        )
+        conn.commit()
+        cache.clear()
+    except (ValueError, psycopg2.Error) as error:
+        conn.rollback()
+        flash(f'Project settings were not saved: {error}', 'danger')
+    finally:
+        cursor.close()
+        conn.close()
+    return redirect(url_for('admin'))
+
+
+@app.cli.command('sync-github-projects')
+def sync_github_projects_command():
+    """Refresh GitHub-backed projects; suitable for a daily Railway cron job."""
+    try:
+        imported, updated = sync_github_projects()
+        print(f'GitHub sync complete: {imported} imported, {updated} updated.')
+    except GitHubAPIError as error:
+        raise SystemExit(str(error)) from error
 
 
 @app.route('/admin/edit_content', methods=['GET', 'POST'])

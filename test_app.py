@@ -1,7 +1,10 @@
 import pytest
+import base64
+from unittest.mock import Mock
 import app as app_module
 from app import app
 from config import TestingConfig
+from github_client import GitHubAPIError, GitHubClient
 from models import User, db
 
 
@@ -86,12 +89,15 @@ def test_edit_project_get_shows_existing_values(client):
 
     with app.app_context():
         db.create_all()
-        user = User(username='admin', email='admin@example.com', password='pw')
-        db.session.add(user)
-        db.session.commit()
+        user = User.query.filter_by(username='admin').first()
+        if user is None:
+            user = User(username='admin', email='admin@example.com', password='pw')
+            db.session.add(user)
+            db.session.commit()
+        user_id = user.id
 
     with client.session_transaction() as session:
-        session['_user_id'] = '1'
+        session['_user_id'] = str(user_id)
         session['_fresh'] = True
 
     monkeypatch = pytest.MonkeyPatch()
@@ -171,3 +177,220 @@ def test_ensure_db_schema_creates_missing_tables(monkeypatch):
 
     assert any('CREATE TABLE IF NOT EXISTS SITE_CONTENT' in sql.upper() for sql, _ in executed)
     assert any('CREATE TABLE IF NOT EXISTS SKILLS' in sql.upper() for sql, _ in executed)
+
+
+class FakeGitHubCache:
+    def __init__(self):
+        self.values = {}
+
+    def get(self, key):
+        return self.values.get(key)
+
+    def set(self, key, value, timeout):
+        self.values[key] = value
+
+
+def test_github_client_reads_readme_and_enriches_repo(monkeypatch):
+    readme = base64.b64encode(b'# Project\n\nA useful project description.\n').decode()
+    replies = {
+        '/users/example/repos?type=owner&sort=pushed&per_page=100&page=1': [{
+            'id': 42, 'name': 'gaming-hub', 'full_name': 'example/gaming-hub',
+            'description': None, 'homepage': 'https://example.com', 'html_url': 'https://github.com/example/gaming-hub',
+            'pushed_at': '2026-10-01T00:00:00Z', 'stargazers_count': 3, 'archived': False,
+        }],
+        '/users/example/repos?type=owner&sort=pushed&per_page=100&page=2': [],
+        '/repos/example/gaming-hub/languages': {'Python': 100},
+        '/repos/example/gaming-hub/topics': {'names': ['portfolio']},
+        '/repos/example/gaming-hub/readme': {'content': readme},
+    }
+    calls = []
+
+    def fake_get(url, headers, timeout):
+        calls.append((url, headers, timeout))
+        response = Mock(status_code=200, headers={})
+        response.json.return_value = replies[url.removeprefix(GitHubClient.API_ROOT)]
+        response.raise_for_status.return_value = None
+        return response
+
+    monkeypatch.setattr('github_client.requests.get', fake_get)
+    repositories = GitHubClient('example', 'secret-token', FakeGitHubCache()).list_repositories()
+
+    assert repositories[0]['description'] == 'A useful project description.'
+    assert repositories[0]['languages'] == {'Python': 100}
+    assert repositories[0]['topics'] == ['portfolio']
+    assert repositories[0]['preview_image'].endswith('/42/example/gaming-hub')
+    assert all(headers['Authorization'] == 'Bearer secret-token' for _, headers, _ in calls)
+    assert all(timeout == (3.05, 10) for _, _, timeout in calls)
+
+
+class RecordingCursor:
+    def __init__(self, connection):
+        self.connection = connection
+        self.rows = []
+
+    def execute(self, sql, params=None):
+        self.connection.statements.append((sql, params))
+        if sql.startswith('SELECT id, github_repo_id, edited_fields'):
+            self.rows = self.connection.existing_rows
+        elif sql.startswith('SELECT github_repo_id FROM projects'):
+            self.rows = []
+        else:
+            self.rows = []
+
+    def fetchall(self):
+        return self.rows
+
+    def close(self):
+        pass
+
+
+class RecordingConnection:
+    def __init__(self, existing_rows=None):
+        self.existing_rows = existing_rows or []
+        self.statements = []
+        self.committed = False
+        self.rolled_back = False
+
+    def cursor(self, cursor_factory=None):
+        return RecordingCursor(self)
+
+    def commit(self):
+        self.committed = True
+
+    def rollback(self):
+        self.rolled_back = True
+
+    def close(self):
+        pass
+
+
+def github_repo(repo_id=42):
+    return {
+        'id': repo_id,
+        'name': 'gaming-hub',
+        'full_name': 'example/gaming-hub',
+        'description': 'Updated description',
+        'homepage': 'https://example.com',
+        'html_url': 'https://github.com/example/gaming-hub',
+        'preview_image': 'https://opengraph.githubassets.com/42/example/gaming-hub',
+        'languages': {'Python': 100},
+        'topics': ['portfolio'],
+        'stargazers_count': 9,
+        'pushed_at': '2026-10-01T00:00:00Z',
+        'archived': False,
+        'fork': False,
+    }
+
+
+def authenticate_test_user(client, monkeypatch):
+    user = User(id=123456, username='github-import-test', email='github-import-test@example.com', password='unused')
+    monkeypatch.setattr(app_module.login_manager, '_user_callback', lambda user_id: user)
+    with client.session_transaction() as session:
+        session['_user_id'] = str(user.id)
+        session['_fresh'] = True
+
+
+def test_github_import_persists_selected_repository(client, monkeypatch):
+    authenticate_test_user(client, monkeypatch)
+    connection = RecordingConnection()
+    monkeypatch.setattr(app_module, 'get_db_connection', lambda: connection)
+
+    class FakeClient:
+        def list_repositories(self, enrich=True):
+            return [github_repo()]
+
+        def enrich_repositories(self, repositories):
+            return repositories
+
+    monkeypatch.setattr(app_module, '_github_client', lambda: FakeClient())
+    response = client.post('/admin/github/import', data={'repo_ids': '42'})
+
+    insert = next((sql, params) for sql, params in connection.statements if sql.startswith('INSERT INTO projects'))
+    assert response.status_code == 302
+    assert insert[1][0] == 'Gaming Hub'
+    assert insert[1][1] == 'Updated description'
+    assert insert[1][2] == 'https://example.com'
+    assert insert[1][5] == 42
+    assert connection.committed
+
+
+def test_sync_preserves_edited_fields_and_marks_missing_repositories(monkeypatch):
+    connection = RecordingConnection([
+        {'id': 1, 'github_repo_id': 42, 'edited_fields': '["title", "description", "link"]'},
+        {'id': 2, 'github_repo_id': 84, 'edited_fields': '[]'},
+    ])
+    monkeypatch.setattr(app_module, 'get_db_connection', lambda: connection)
+
+    imported, updated = app_module.sync_github_projects([github_repo()])
+
+    update_sql = next(sql for sql, _ in connection.statements if sql.startswith('UPDATE projects SET') and 'WHERE id=%s' in sql)
+    assert (imported, updated) == (0, 1)
+    assert 'title=%s' not in update_sql
+    assert 'description=%s' not in update_sql
+    assert 'link=%s' not in update_sql
+    assert any('github_missing=TRUE' in sql for sql, _ in connection.statements)
+    assert connection.committed
+
+
+def test_regular_sync_does_not_import_unselected_repository(monkeypatch):
+    connection = RecordingConnection()
+    monkeypatch.setattr(app_module, 'get_db_connection', lambda: connection)
+
+    imported, updated = app_module.sync_github_projects([github_repo()])
+
+    assert (imported, updated) == (0, 0)
+    assert not any(sql.startswith('INSERT INTO projects') for sql, _ in connection.statements)
+
+
+def test_github_failure_is_reported_and_public_page_uses_saved_data(client, monkeypatch):
+    authenticate_test_user(client, monkeypatch)
+
+    class FailedClient:
+        def list_repositories(self, enrich=True):
+            raise GitHubAPIError('GitHub could not be reached. Your saved projects are unchanged.')
+
+    monkeypatch.setattr(app_module, '_github_client', lambda: FailedClient())
+    response = client.get('/admin/github/import')
+    assert response.status_code == 200
+    assert b'GitHub could not be reached' in response.data
+
+    monkeypatch.setattr(app_module, 'get_projects', lambda: [])
+    monkeypatch.setattr(app_module, 'get_content_from_db', lambda: {})
+    monkeypatch.setattr(app_module, 'get_skills_from_table', lambda: {})
+    assert client.get('/').status_code == 200
+
+
+def test_github_client_wraps_network_failures(monkeypatch):
+    import requests
+
+    def raise_timeout(*args, **kwargs):
+        raise requests.Timeout('request timed out')
+
+    monkeypatch.setattr('github_client.requests.get', raise_timeout)
+    with pytest.raises(GitHubAPIError, match='could not be reached'):
+        GitHubClient('example').list_repositories()
+
+
+def test_registration_is_disabled(client):
+    assert client.get('/register').status_code == 404
+    assert client.post('/register', data={'username': 'new', 'password': 'secret'}).status_code == 404
+
+
+def test_admin_and_api_writes_require_login(client):
+    assert client.post('/admin/github/sync').status_code == 302
+    assert client.post('/api/v1/projects', json={'title': 'Unauthorized', 'description': 'No'}).status_code == 302
+    assert client.delete('/api/v1/projects/1').status_code == 302
+    assert client.get('/delete_project/1').status_code == 405
+
+
+def test_contact_post_requires_csrf(client, monkeypatch):
+    monkeypatch.setitem(app.config, 'WTF_CSRF_ENABLED', True)
+    response = client.post('/contact', data={'name': 'A', 'email': 'a@example.com', 'message': 'Hello'})
+    assert response.status_code == 400
+
+
+def test_authenticated_api_write_requires_csrf(client, monkeypatch):
+    authenticate_test_user(client, monkeypatch)
+    monkeypatch.setitem(app.config, 'WTF_CSRF_ENABLED', True)
+    response = client.post('/api/v1/projects', json={'title': 'Project', 'description': 'Description'})
+    assert response.status_code == 400
