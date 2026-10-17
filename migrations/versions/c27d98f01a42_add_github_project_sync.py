@@ -32,7 +32,7 @@ def upgrade():
     op.add_column('projects', sa.Column('sort_order', sa.Integer(), nullable=False, server_default='0'))
     op.add_column('projects', sa.Column('github_missing', sa.Boolean(), nullable=False, server_default=sa.false()))
     op.add_column('projects', sa.Column('github_archived', sa.Boolean(), nullable=False, server_default=sa.false()))
-        op.add_column('projects', sa.Column('homepage_url', sa.String(length=255), nullable=True))
+    op.add_column('projects', sa.Column('homepage_url', sa.String(length=255), nullable=True))
     op.create_index('ix_projects_github_repo_id', 'projects', ['github_repo_id'], unique=True)
 
 
