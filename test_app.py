@@ -288,12 +288,42 @@ def test_github_client_reads_readme_and_enriches_repo(monkeypatch):
     monkeypatch.setattr('github_client.requests.get', fake_get)
     repositories = GitHubClient('example', 'secret-token', FakeGitHubCache()).list_repositories()
 
-    assert repositories[0]['description'] == 'A useful project description.'
+    assert 'A useful project description.' in repositories[0]['description']
     assert repositories[0]['languages'] == {'Python': 100}
     assert repositories[0]['topics'] == ['portfolio']
     assert repositories[0]['preview_image'].endswith('/42/example/gaming-hub')
     assert all(headers['Authorization'] == 'Bearer secret-token' for _, headers, _ in calls)
     assert all(timeout == (3.05, 10) for _, _, timeout in calls)
+
+
+def test_readme_description_skips_run_section_and_code_blocks():
+    markdown = '''# Gaming Hub
+
+Gaming Hub helps players find a table.
+
+## Run Gaming Hub
+[](https://github.com/Al-ameenolanrewaju/gaminghub#run-gaming-hub)
+Gaming Hub runs on Flask and uses the local database.
+
+Install the dependencies and run the server:
+
+```sh
+pip install -r requirements.txt
+python manage.py
+```
+
+## Features
+Players can create and join game rooms.
+'''
+
+    description = GitHubClient._readme_paragraph(markdown)
+
+    assert 'Gaming Hub helps players find a table.' in description
+    assert 'Players can create and join game rooms.' in description
+    assert 'Run Gaming Hub' not in description
+    assert 'install the dependencies' not in description
+    assert 'pip install' not in description
+    assert 'https://github.com/Al-ameenolanrewaju/gaminghub' not in description
 
 
 class RecordingCursor:

@@ -54,17 +54,62 @@ class GitHubClient:
 
     @staticmethod
     def _readme_paragraph(markdown):
-        markdown = re.sub(r'```.*?```', '', markdown, flags=re.DOTALL)
-        for paragraph in re.split(r'\n\s*\n', markdown):
-            text = paragraph.strip()
-            if not text or text.startswith('#') or text.startswith('!['):
+        paragraphs = []
+        current_paragraph = []
+        ignored_heading_level = None
+        fence_character = None
+        fence_length = 0
+
+        def finish_paragraph():
+            if current_paragraph:
+                text = ' '.join(current_paragraph).strip()
+                if text:
+                    paragraphs.append(text)
+                current_paragraph.clear()
+
+        for line in markdown.splitlines():
+            heading = re.match(r'^\s{0,3}(#{1,6})\s+(.+?)\s*#*\s*$', line)
+            if heading:
+                level = len(heading.group(1))
+                if ignored_heading_level is not None:
+                    if level > ignored_heading_level:
+                        continue
+                    ignored_heading_level = None
+                if re.match(r'^run(?:\s|$)', heading.group(2), re.IGNORECASE):
+                    finish_paragraph()
+                    ignored_heading_level = level
+                    continue
+
+            if ignored_heading_level is not None:
                 continue
+
+            fence = re.match(r'^\s{0,3}(`{3,}|~{3,})', line)
+            if fence:
+                marker = fence.group(1)
+                if fence_character is None:
+                    finish_paragraph()
+                    fence_character = marker[0]
+                    fence_length = len(marker)
+                elif marker[0] == fence_character and len(marker) >= fence_length:
+                    fence_character = None
+                    fence_length = 0
+                continue
+            if fence_character is not None:
+                continue
+
+            text = re.sub(r'^\s{0,3}#{1,6}\s+', '', line)
+            text = re.sub(r'^\s*(?:[-*+]\s+|\d+[.)]\s+)', '', text)
             text = re.sub(r'!\[[^\]]*\]\([^)]*\)', '', text)
-            text = re.sub(r'\[([^\]]+)\]\([^)]*\)', r'\1', text)
-            text = re.sub(r'[`*_~>#]', '', text).strip()
+            text = re.sub(r'\[([^\]]*)\]\([^)]*\)', r'\1', text)
+            text = re.sub(r'<[^>]+>', '', text)
+            text = re.sub(r'[`*_~]', '', text).strip()
             if text:
-                return text
-        return ''
+                current_paragraph.append(text)
+            else:
+                finish_paragraph()
+
+        finish_paragraph()
+        return '\n\n'.join(paragraphs)
 
     def list_repositories(self, enrich=True):
         if not self.username:
