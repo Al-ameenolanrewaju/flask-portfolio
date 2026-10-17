@@ -97,15 +97,10 @@ Al-ameen | Python Flask Developer
     <div class="container">
         <div class="section-heading"><div><p class="eyebrow">03 / Services</p><h2 class="section-title">How I can help</h2></div><p class="section-caption">Focused, practical product work.</p></div>
         <div class="service-row">
-            {% set service_count = namespace(value=0) %}
-            {% for service_index in range(1, 5) %}
-                {% set service = content.get('service_' ~ service_index, {}) %}
-                {% if service.get('title') %}
-                {% set service_count.value = service_count.value + 1 %}
-                <article class="service-card"><span class="card-index">{{ '%02d'|format(service_count.value) }}</span><h3>{{ service.get('title') }}</h3><p>{{ service.get('content', '') }}</p></article>
-                {% endif %}
+            {% for service in services %}
+                <article class="service-card"><span class="card-index">{{ '%02d'|format(loop.index) }}</span><h3>{{ service.title }}</h3><p>{{ service.content }}</p></article>
             {% endfor %}
-            {% if service_count.value == 0 %}
+            {% if not services %}
             <p>No services added yet.</p>
             {% endif %}
         </div>

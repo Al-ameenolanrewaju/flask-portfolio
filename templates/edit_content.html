@@ -58,20 +58,25 @@
 
         <!-- Services Section -->
         <h4 id="services-section">Services Section</h4>
-        <p class="text-muted">Add up to four services. Empty slots stay hidden on the homepage.</p>
-        {% for service_index in range(1, 5) %}
-        {% set service = content.get('service_' ~ service_index, {}) %}
-        <div class="skill-item service-editor-item">
+        <p class="text-muted">Add as many services as you need. Empty services stay hidden on the homepage.</p>
+        <div id="services-wrapper">
+        {% set service_rows = services or [{'index': next_service_index, 'title': '', 'content': ''}] %}
+        {% for service in service_rows %}
+        {% set service_index = service['index'] %}
+        <div class="skill-item service-editor-item" data-service-index="{{ service_index }}">
             <div class="form-group">
-                <label>Service {{ service_index }} title</label>
-                <input type="text" name="service_{{ service_index }}_title" class="form-control" value="{{ service.get('title', '') }}" placeholder="e.g. Web Application Development">
+                <label for="service_{{ service_index }}_title">Service {{ loop.index }} title</label>
+                <input id="service_{{ service_index }}_title" type="text" name="service_{{ service_index }}_title" class="form-control" value="{{ service.get('title', '') }}" placeholder="e.g. Web Application Development">
             </div>
             <div class="form-group">
-                <label>Service {{ service_index }} description</label>
-                <textarea name="service_{{ service_index }}_content" class="form-control" rows="3" placeholder="Describe this service">{{ service.get('content', '') }}</textarea>
+                <label for="service_{{ service_index }}_content">Service {{ loop.index }} description</label>
+                <textarea id="service_{{ service_index }}_content" name="service_{{ service_index }}_content" class="form-control" rows="3" placeholder="Describe this service">{{ service.get('content', '') }}</textarea>
             </div>
+            <button type="button" class="btn btn-danger btn-sm remove-service">Remove service</button>
         </div>
         {% endfor %}
+        </div>
+        <button type="button" id="add-service" class="btn btn-primary btn-sm">+ Add service</button>
         <hr>
 
         <!-- Skills Section -->
@@ -118,6 +123,28 @@
         <button type="button" id="add-skill" class="btn btn-primary btn-sm">+ Add Skill Category</button>
 
 <script>
+let serviceIndex = {{ next_service_index }};
+document.getElementById('add-service').addEventListener('click', function(){
+    const wrapper = document.getElementById('services-wrapper');
+    const row = document.createElement('div');
+    row.className = 'skill-item service-editor-item';
+    row.dataset.serviceIndex = serviceIndex;
+    row.innerHTML = `
+        <input type="hidden" class="remove-service-marker" name="remove_service_ids" value="${serviceIndex}" disabled>
+        <div class="form-group">
+            <label for="service_${serviceIndex}_title">Service title</label>
+            <input id="service_${serviceIndex}_title" type="text" name="service_${serviceIndex}_title" class="form-control" placeholder="e.g. Web Application Development">
+        </div>
+        <div class="form-group">
+            <label for="service_${serviceIndex}_content">Service description</label>
+            <textarea id="service_${serviceIndex}_content" name="service_${serviceIndex}_content" class="form-control" rows="3" placeholder="Describe this service"></textarea>
+        </div>
+        <button type="button" class="btn btn-danger btn-sm remove-service">Remove service</button>
+    `;
+    wrapper.appendChild(row);
+    serviceIndex++;
+});
+
 let skillIndex = {{ skills|length if skills else 1 }};
 
 document.getElementById('add-skill').addEventListener('click', function(){
@@ -143,6 +170,17 @@ document.getElementById('add-skill').addEventListener('click', function(){
 
 // Remove skill dynamically
 document.addEventListener('click', function(e){
+    const removeService = e.target.closest('.remove-service');
+    if (removeService) {
+        const row = removeService.closest('.service-editor-item');
+        const marker = document.createElement('input');
+        marker.type = 'hidden';
+        marker.name = 'remove_service_ids';
+        marker.value = row.dataset.serviceIndex;
+        document.querySelector('.admin-form').appendChild(marker);
+        row.remove();
+        return;
+    }
     if(e.target && e.target.classList.contains('remove-skill')){
         e.target.closest('.skill-item').remove();
     }

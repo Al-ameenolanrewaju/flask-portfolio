@@ -60,6 +60,129 @@ def test_admin_has_direct_services_editor_link(client, monkeypatch):
     assert response.status_code == 200
     assert 'href="/admin/edit_content#services-section"' in page
 
+
+def test_homepage_renders_services_beyond_four(client, monkeypatch):
+    app_module.cache.clear()
+    monkeypatch.setattr(app_module, 'get_projects', lambda: [])
+    monkeypatch.setattr(app_module, 'get_content_from_db', lambda: {
+        'service_5': {'title': 'Fifth Service', 'content': 'Beyond the old limit.'},
+        'service_8': {'title': 'Eighth Service', 'content': 'Still supported.'},
+    })
+    monkeypatch.setattr(app_module, 'get_skills_from_table', lambda: {})
+
+    response = client.get('/')
+    page = response.get_data(as_text=True)
+
+    assert response.status_code == 200
+    assert 'Fifth Service' in page
+    assert 'Eighth Service' in page
+
+
+def test_services_editor_saves_service_five(client, monkeypatch):
+    authenticate_test_user(client, monkeypatch)
+    monkeypatch.setattr(app_module, 'ensure_db_schema', lambda: None)
+    statements = []
+
+    class FakeCursor:
+        def execute(self, sql, params=None):
+            statements.append((sql, params))
+
+        def fetchone(self):
+            return None
+
+        def close(self):
+            pass
+
+    class FakeConnection:
+        def cursor(self, cursor_factory=None):
+            return FakeCursor()
+
+        def commit(self):
+            pass
+
+        def close(self):
+            pass
+
+    monkeypatch.setattr(app_module, 'get_db_connection', lambda: FakeConnection())
+    response = client.post('/admin/edit_content', data={
+        'service_5_title': 'Fifth Service',
+        'service_5_content': 'The fifth service description.',
+    })
+
+    assert response.status_code == 302
+    assert any(
+        sql.startswith('INSERT INTO site_content') and params[0] == 'service_5'
+        for sql, params in statements
+    )
+
+
+def test_services_editor_deletes_removed_saved_service(client, monkeypatch):
+    authenticate_test_user(client, monkeypatch)
+    monkeypatch.setattr(app_module, 'ensure_db_schema', lambda: None)
+    statements = []
+
+    class FakeCursor:
+        def execute(self, sql, params=None):
+            statements.append((sql, params))
+
+        def fetchone(self):
+            return None
+
+        def close(self):
+            pass
+
+    class FakeConnection:
+        def cursor(self, cursor_factory=None):
+            return FakeCursor()
+
+        def commit(self):
+            pass
+
+        def close(self):
+            pass
+
+    monkeypatch.setattr(app_module, 'get_db_connection', lambda: FakeConnection())
+    response = client.post('/admin/edit_content', data={'remove_service_ids': '5'})
+
+    assert response.status_code == 302
+    assert ('DELETE FROM site_content WHERE section_name=%s', ('service_5',)) in statements
+
+
+def test_services_editor_loads_existing_service_above_four(client, monkeypatch):
+    authenticate_test_user(client, monkeypatch)
+    monkeypatch.setattr(app_module, 'ensure_db_schema', lambda: None)
+
+    class FakeCursor:
+        def execute(self, sql, params=None):
+            self.rows = [{
+                'id': 8,
+                'section_name': 'service_8',
+                'title': 'Eighth Service',
+                'content': 'Loaded from storage.',
+                'file': '',
+            }] if sql == 'SELECT * FROM site_content' else []
+
+        def fetchall(self):
+            return self.rows
+
+        def close(self):
+            pass
+
+    class FakeConnection:
+        def cursor(self, cursor_factory=None):
+            return FakeCursor()
+
+        def close(self):
+            pass
+
+    monkeypatch.setattr(app_module, 'get_db_connection', lambda: FakeConnection())
+    response = client.get('/admin/edit_content')
+    page = response.get_data(as_text=True)
+
+    assert response.status_code == 200
+    assert 'name="service_8_title"' in page
+    assert 'Eighth Service' in page
+
 def test_login_with_wrong_password(client):
     response = client.post('/admin/login', data={
         'username': 'wronguser',

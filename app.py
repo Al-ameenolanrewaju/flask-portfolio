@@ -199,6 +199,15 @@ def get_content_from_db():
         conn.close()
 
 
+def get_service_entries(content):
+    services = []
+    for section_name, service in content.items():
+        match = re.fullmatch(r'service_(\d+)', section_name)
+        if match and service.get('title'):
+            services.append({**service, 'index': int(match.group(1))})
+    return sorted(services, key=lambda service: service['index'])
+
+
 def get_projects():
     conn = get_db_connection()
     if not conn:
@@ -374,7 +383,8 @@ def home():
         projects = get_projects()
         content = get_content_from_db()
         skills = get_skills_from_table()
-        return render_template("home.html", projects=projects, content=content, skills=skills)
+        services = get_service_entries(content)
+        return render_template("home.html", projects=projects, content=content, skills=skills, services=services)
     except Exception as e:
         print(f"Error in home route: {e}")
         return f"An error occurred: {e}", 500
@@ -844,17 +854,30 @@ def edit_content():
             else:
                 cursor.execute("INSERT INTO site_content (section_name, title, content) VALUES ('about', %s, %s)", (about_title, about_content))
 
-            # Services use existing site_content rows: service_1 through service_4
-            for service_index in range(1, 5):
+            service_indexes = set()
+            for field_name in request.form:
+                match = re.fullmatch(r'service_(\d+)_title', field_name)
+                if match:
+                    service_indexes.add(int(match.group(1)))
+            removed_service_indexes = {
+                int(value) for value in request.form.getlist('remove_service_ids') if value.isdigit()
+            }
+            for service_index in removed_service_indexes:
+                cursor.execute("DELETE FROM site_content WHERE section_name=%s", (f'service_{service_index}',))
+
+            for service_index in sorted(service_indexes - removed_service_indexes):
                 service_title = request.form.get(f'service_{service_index}_title', '').strip()
                 service_content = request.form.get(f'service_{service_index}_content', '').strip()
                 section_name = f'service_{service_index}'
                 cursor.execute("SELECT id FROM site_content WHERE section_name=%s", (section_name,))
                 if cursor.fetchone():
-                    cursor.execute(
-                        "UPDATE site_content SET title=%s, content=%s WHERE section_name=%s",
-                        (service_title, service_content, section_name)
-                    )
+                    if service_title or service_content:
+                        cursor.execute(
+                            "UPDATE site_content SET title=%s, content=%s WHERE section_name=%s",
+                            (service_title, service_content, section_name)
+                        )
+                    else:
+                        cursor.execute("DELETE FROM site_content WHERE section_name=%s", (section_name,))
                 elif service_title or service_content:
                     cursor.execute(
                         "INSERT INTO site_content (section_name, title, content) VALUES (%s, %s, %s)",
@@ -935,7 +958,12 @@ def edit_content():
                 skills[cat] = []
             skills[cat].append(row['name'])
 
-        return render_template('edit_content.html', content=content or {}, skills=skills or {})
+        services = get_service_entries(content)
+        next_service_index = max((service['index'] for service in services), default=0) + 1
+        return render_template(
+            'edit_content.html', content=content or {}, skills=skills or {},
+            services=services, next_service_index=next_service_index
+        )
     except psycopg2.Error as e:
         flash(f'Error: {e}', 'danger')
         return redirect(url_for('admin'))
