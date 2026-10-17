@@ -1,5 +1,6 @@
 import pytest
 import base64
+import json
 from unittest.mock import Mock
 import app as app_module
 from app import app
@@ -116,6 +117,78 @@ def test_edit_project_get_shows_existing_values(client):
         assert 'https://example.com' in text
     finally:
         monkeypatch.undo()
+
+
+def test_edit_imported_project_tracks_hosted_url_separately(client, monkeypatch):
+    authenticate_test_user(client, monkeypatch)
+    statements = []
+
+    class FakeCursor:
+        def execute(self, sql, params=None):
+            statements.append((sql, params))
+
+        def fetchone(self):
+            return {
+                'title': 'WAJ Vtu',
+                'description': '',
+                'link': 'https://github.com/Al-ameenolanrewaju/WAJ-VTU',
+                'homepage_url': None,
+                'github_full_name': 'Al-ameenolanrewaju/WAJ-VTU',
+                'edited_fields': '[]',
+            }
+
+        def close(self):
+            pass
+
+    class FakeConnection:
+        def cursor(self, cursor_factory=None):
+            return FakeCursor()
+
+        def commit(self):
+            pass
+
+        def close(self):
+            pass
+
+    monkeypatch.setattr(app_module, 'get_db_connection', lambda: FakeConnection())
+    response = client.post('/edit_project/8', data={
+        'title': 'WAJ Vtu',
+        'description': '',
+        'link': 'https://waj-vtu.onrender.com',
+    })
+
+    update = next(params for sql, params in statements if sql.startswith('UPDATE projects'))
+    assert response.status_code == 302
+    assert update[2] == 'https://waj-vtu.onrender.com'
+    assert update[3] == 'https://waj-vtu.onrender.com'
+    assert 'link' in json.loads(update[4])
+
+
+def test_project_card_links_hosted_site_and_github_code_separately(client, monkeypatch):
+    app_module.cache.clear()
+    monkeypatch.setattr(app_module, 'get_projects', lambda: [{
+        'title': 'WAJ Vtu',
+        'description': 'Project description',
+        'link': 'https://waj-vtu.onrender.com',
+        'homepage_url': 'https://waj-vtu.onrender.com',
+        'github_full_name': 'Al-ameenolanrewaju/WAJ-VTU',
+        'edited_fields': [],
+        'image': '',
+        'languages': ['Python'],
+        'topics': [],
+        'stars': 1,
+        'last_pushed_at': None,
+        'created_at': None,
+    }])
+    monkeypatch.setattr(app_module, 'get_content_from_db', lambda: {})
+    monkeypatch.setattr(app_module, 'get_skills_from_table', lambda: {})
+
+    response = client.get('/')
+    page = response.get_data(as_text=True)
+
+    assert response.status_code == 200
+    assert 'href="https://waj-vtu.onrender.com"' in page
+    assert 'href="https://github.com/Al-ameenolanrewaju/WAJ-VTU"' in page
 
 
 def test_auth_login_uses_configured_credentials_when_user_missing(client):

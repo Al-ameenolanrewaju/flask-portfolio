@@ -296,8 +296,9 @@ class ProjectListResource(Resource):
     def get(self):
         projects = get_projects()
         for project in projects:
-            if 'created_at' in project and project['created_at']:
-                project['created_at'] = str(project['created_at'])
+            for field, value in project.items():
+                if isinstance(value, datetime):
+                    project[field] = value.isoformat()
         return projects, 200
 
     def post(self):
@@ -558,20 +559,32 @@ def edit_project(id):
             description = request.form.get('description', '').strip()
             link = request.form.get('link', '').strip()
             cursor = conn.cursor()
-            cursor.execute("SELECT edited_fields FROM projects WHERE id=%s", (id,))
+            cursor.execute("SELECT title, description, link, homepage_url, github_full_name, edited_fields FROM projects WHERE id=%s", (id,))
             row = cursor.fetchone()
             if not row:
                 flash('Project not found!', 'danger')
                 return redirect(url_for('admin'))
-            edited_fields = row.get('edited_fields') if isinstance(row, dict) else row[0]
+            if not isinstance(row, dict):
+                row = dict(zip(('title', 'description', 'link', 'homepage_url', 'github_full_name', 'edited_fields'), row))
+            edited_fields = row.get('edited_fields')
             try:
                 edited_fields = json.loads(edited_fields or '[]')
             except (TypeError, ValueError):
                 edited_fields = []
-            edited_fields = sorted(set(edited_fields) | {'title', 'description', 'link'})
+            edited_fields = set(edited_fields)
+            if title != row.get('title'):
+                edited_fields.add('title')
+            if description != row.get('description'):
+                edited_fields.add('description')
+            previous_live_link = row.get('homepage_url') if row.get('github_full_name') else row.get('link')
+            if link != (previous_live_link or ''):
+                edited_fields.add('link')
+
             cursor.execute(
-                "UPDATE projects SET title=%s, description=%s, link=%s, edited_fields=%s WHERE id=%s",
-                (title, description, link, json.dumps(edited_fields), id)
+                "UPDATE projects SET title=%s, description=%s, link=%s, homepage_url=%s, edited_fields=%s WHERE id=%s",
+                (title, description, link if 'link' in edited_fields else row.get('link'),
+                 link or None if row.get('github_full_name') else row.get('homepage_url'),
+                 json.dumps(sorted(edited_fields)), id)
             )
             conn.commit()
             cache.clear()
