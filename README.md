@@ -13,7 +13,7 @@ A full-stack portfolio website built with Python Flask, MySQL and Bootstrap.
 - **Caching:** Flask-Caching
 - **Security:** Flask-WTF (CSRF), Flask-Limiter
 - **Testing:** pytest
-- **Deployment:** Railway, Gunicorn, GitHub
+- **Deployment:** Render, Gunicorn, GitHub
 
 ## ✨ Features
 - Personal portfolio with projects and skills showcase
@@ -24,7 +24,7 @@ A full-stack portfolio website built with Python Flask, MySQL and Bootstrap.
 - File upload system
 - Automated testing with pytest
 - Rate limiting and CSRF protection
-- Cloud deployment on Railway
+- Cloud deployment on Render
 
 ## 🚀 Running Locally
 
@@ -74,7 +74,8 @@ flask db upgrade
 python app.py
 \```
 
-For daily GitHub synchronization, add a Railway cron service for this project and schedule `flask --app app sync-github-projects` once per day. The admin panel also provides a manual **Sync now** action.
+For daily GitHub synchronization, add a Render Cron Job for this project and schedule `flask --app app sync-github-projects` once per day. The admin panel also provides a manual **Sync now** action.
+
 ## 📡 API Endpoints
 | Method | Endpoint | Description |
 |--------|----------|-------------|
