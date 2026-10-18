@@ -12,7 +12,7 @@ from werkzeug.utils import secure_filename
 import time
 import re
 from concurrent.futures import ThreadPoolExecutor
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from flask_mail import Mail
 from flask_migrate import Migrate
 from flask_login import LoginManager, login_required, login_user
@@ -38,6 +38,12 @@ from reportlab.lib.units import mm
 from reportlab.platypus import Paragraph, SimpleDocTemplate, Spacer
 from scheduler import PostgresJobScheduler
 from link_checker import check_link
+from screenshot_provider import (
+    ScreenshotOneProvider,
+    ScreenshotQuotaExceeded,
+    create_fallback_card,
+    normalize_webp,
+)
 
 app = Flask(__name__)
 production = os.environ.get('RENDER', '').lower() == 'true'
@@ -611,6 +617,24 @@ def download_cv():
     return send_file(pdf, mimetype='application/pdf', as_attachment=True, download_name='Al-ameen_cv.pdf')
 
 
+@app.route('/project-screenshots/<int:project_id>.webp', methods=['GET'])
+def project_screenshot(project_id):
+    conn = get_db_connection()
+    cursor = None
+    try:
+        cursor = conn.cursor()
+        cursor.execute('SELECT image_data FROM project_screenshots WHERE project_id=%s', (project_id,))
+        row = cursor.fetchone()
+        if not row:
+            abort(404)
+        image_data = bytes(row[0])
+    finally:
+        if cursor:
+            cursor.close()
+        conn.close()
+    return send_file(io.BytesIO(image_data), mimetype='image/webp', max_age=3600)
+
+
 @app.route("/api/projects", methods=['GET'])
 def api_projects():
     return jsonify(get_projects()), 200
@@ -914,7 +938,7 @@ def sync_github_projects(repositories=None, mark_missing=True, import_new=False)
     present_ids = [repo['id'] for repo in repositories]
     try:
         cursor = conn.cursor(cursor_factory=RealDictCursor)
-        cursor.execute('SELECT id, github_repo_id, edited_fields FROM projects WHERE github_repo_id IS NOT NULL')
+        cursor.execute('SELECT id, github_repo_id, edited_fields, image FROM projects WHERE github_repo_id IS NOT NULL')
         existing = {row['github_repo_id']: row for row in cursor.fetchall()}
         for repo in repositories:
             repo_id = repo['id']
@@ -958,6 +982,8 @@ def sync_github_projects(repositories=None, mark_missing=True, import_new=False)
                 except ValueError:
                     edited = []
             updates = {key: value for key, value in values.items() if key not in edited}
+            if (row.get('image') or '').startswith('/project-screenshots/'):
+                updates.pop('image', None)
             updates['stars'] = values['stars']
             updates['last_pushed_at'] = values['last_pushed_at']
             updates['github_full_name'] = values['github_full_name']
@@ -1106,6 +1132,169 @@ def check_project_links():
         details = '\n'.join(new_failures[:8])
         send_whatsapp_alert(f'Portfolio link check found broken links:\n{details}'[:1300])
     return {'checked': len(projects), 'new_failures': len(new_failures)}
+
+
+SCREENSHOT_MONTHLY_LIMIT = 100
+
+
+def _screenshot_api_provider():
+    access_key = app.config.get('SCREENSHOTONE_ACCESS_KEY')
+    return ScreenshotOneProvider(access_key) if access_key else None
+
+
+def _reserve_screenshot_api_request():
+    month_start = datetime.now(timezone.utc).date().replace(day=1)
+    conn = get_db_connection()
+    cursor = None
+    try:
+        cursor = conn.cursor()
+        cursor.execute(
+            'INSERT INTO screenshot_usage (month_start, request_count, quota_exhausted) '
+            'VALUES (%s, 1, FALSE) ON CONFLICT (month_start) DO UPDATE '
+            'SET request_count=screenshot_usage.request_count + 1 '
+            'WHERE screenshot_usage.request_count < %s AND screenshot_usage.quota_exhausted=FALSE '
+            'RETURNING request_count',
+            (month_start, SCREENSHOT_MONTHLY_LIMIT),
+        )
+        claimed = cursor.fetchone()
+        if claimed:
+            conn.commit()
+            return True, False
+        cursor.execute(
+            'UPDATE screenshot_usage SET quota_exhausted=TRUE '
+            'WHERE month_start=%s AND quota_exhausted=FALSE RETURNING month_start',
+            (month_start,),
+        )
+        newly_exhausted = bool(cursor.fetchone())
+        conn.commit()
+        return False, newly_exhausted
+    except Exception:
+        conn.rollback()
+        raise
+    finally:
+        if cursor:
+            cursor.close()
+        conn.close()
+
+
+def _mark_screenshot_quota_exhausted():
+    month_start = datetime.now(timezone.utc).date().replace(day=1)
+    conn = get_db_connection()
+    cursor = None
+    try:
+        cursor = conn.cursor()
+        cursor.execute(
+            'UPDATE screenshot_usage SET quota_exhausted=TRUE '
+            'WHERE month_start=%s AND quota_exhausted=FALSE RETURNING month_start',
+            (month_start,),
+        )
+        newly_exhausted = bool(cursor.fetchone())
+        conn.commit()
+        return newly_exhausted
+    except Exception:
+        conn.rollback()
+        raise
+    finally:
+        if cursor:
+            cursor.close()
+        conn.close()
+
+
+def _store_project_screenshot(project_id, image_data, source):
+    conn = get_db_connection()
+    cursor = None
+    try:
+        cursor = conn.cursor()
+        cursor.execute(
+            'INSERT INTO project_screenshots (project_id, image_data, width, height, source, updated_at) '
+            'VALUES (%s, %s, 1280, 720, %s, NOW()) ON CONFLICT (project_id) DO UPDATE SET '
+            'image_data=EXCLUDED.image_data, width=EXCLUDED.width, height=EXCLUDED.height, '
+            'source=EXCLUDED.source, updated_at=EXCLUDED.updated_at',
+            (project_id, image_data, source),
+        )
+        cursor.execute(
+            'UPDATE projects SET image=%s WHERE id=%s AND (edited_fields IS NULL OR edited_fields NOT LIKE %s)',
+            (f'/project-screenshots/{project_id}.webp', project_id, '%"image"%'),
+        )
+        conn.commit()
+        cache.clear()
+    except Exception:
+        conn.rollback()
+        raise
+    finally:
+        if cursor:
+            cursor.close()
+        conn.close()
+
+
+def refresh_project_screenshots():
+    conn = get_db_connection()
+    if not conn:
+        raise psycopg2.OperationalError('Database connection unavailable')
+    cursor = None
+    try:
+        cursor = conn.cursor(cursor_factory=RealDictCursor)
+        cursor.execute(
+            'SELECT id, title, description, link, homepage_url, github_full_name, '
+            'languages, topics, edited_fields FROM projects WHERE is_visible=TRUE'
+        )
+        projects = [dict(project) for project in cursor.fetchall()]
+    finally:
+        if cursor:
+            cursor.close()
+        conn.close()
+
+    provider = _screenshot_api_provider()
+    api_blocked = provider is None
+    quota_alerted = False
+    api_failures = 0
+    generated = 0
+    for project in projects:
+        edited_fields = project.get('edited_fields') or []
+        if isinstance(edited_fields, str):
+            try:
+                edited_fields = json.loads(edited_fields)
+            except ValueError:
+                edited_fields = []
+        if 'image' in edited_fields:
+            continue
+
+        live_url = project.get('homepage_url') if project.get('github_full_name') else project.get('link')
+        if not live_url:
+            continue
+        technologies = _skill_values(project.get('languages')) + _skill_values(project.get('topics'))
+        image_data = None
+        source = 'fallback'
+
+        if provider and not api_blocked:
+            allowed, newly_exhausted = _reserve_screenshot_api_request()
+            if not allowed:
+                api_blocked = True
+                if newly_exhausted and not quota_alerted:
+                    send_whatsapp_alert('ScreenshotOne free quota reached. Generated project cards will be used until next month.')
+                    quota_alerted = True
+            else:
+                try:
+                    image_data = normalize_webp(provider.capture(live_url))
+                    source = 'screenshotone'
+                except ScreenshotQuotaExceeded:
+                    api_blocked = True
+                    newly_exhausted = _mark_screenshot_quota_exhausted()
+                    if newly_exhausted and not quota_alerted:
+                        send_whatsapp_alert('ScreenshotOne free quota reached. Generated project cards will be used until next month.')
+                        quota_alerted = True
+                except Exception:
+                    logger.exception('ScreenshotOne capture failed for project %s', project['id'])
+                    api_failures += 1
+
+        if image_data is None:
+            image_data = create_fallback_card(project.get('title', ''), live_url, technologies)
+        _store_project_screenshot(project['id'], image_data, source)
+        generated += 1
+
+    if api_failures:
+        send_whatsapp_alert(f'ScreenshotOne failed for {api_failures} project(s); generated cards were saved instead.')
+    return {'generated': generated, 'api_failures': api_failures}
 
 
 @app.route('/webhooks/github', methods=['POST'])
@@ -1433,6 +1622,7 @@ job_scheduler = PostgresJobScheduler(
         'daily-github-sync': {'func': _scheduled_github_sync, 'interval': timedelta(days=1)},
         'daily-cv-regeneration': {'func': regenerate_cv, 'interval': timedelta(days=1)},
         'weekly-link-check': {'func': check_project_links, 'interval': timedelta(days=7)},
+        'weekly-screenshot-refresh': {'func': refresh_project_screenshots, 'interval': timedelta(days=7)},
     },
     on_failure=_scheduler_failure_alert,
 )

@@ -738,6 +738,122 @@ def test_admin_shows_broken_link_warning(client, monkeypatch):
     assert 'Demo link broken' in response.get_data(as_text=True)
 
 
+def test_screenshot_refresh_saves_a_fallback_card_when_api_is_unconfigured(monkeypatch):
+    from io import BytesIO
+    from PIL import Image
+
+    project = {
+        'id': 17, 'title': 'Card project', 'description': 'Generated preview',
+        'link': 'https://demo.example', 'homepage_url': None, 'github_full_name': None,
+        'languages': '["Python"]', 'topics': '["flask"]', 'edited_fields': '[]',
+    }
+    stored = {}
+
+    class Cursor:
+        def execute(self, sql, params=None):
+            if sql.startswith('INSERT INTO project_screenshots'):
+                stored.update({'project_id': params[0], 'image_data': params[1], 'source': params[2]})
+
+        def fetchall(self):
+            return [project]
+
+        def fetchone(self):
+            return None
+
+        def close(self):
+            pass
+
+    class Connection:
+        def cursor(self, cursor_factory=None):
+            return Cursor()
+
+        def commit(self):
+            pass
+
+        def rollback(self):
+            pass
+
+        def close(self):
+            pass
+
+    monkeypatch.setattr(app_module, 'get_db_connection', lambda: Connection())
+    monkeypatch.setattr(app_module, '_screenshot_api_provider', lambda: None)
+
+    result = app_module.refresh_project_screenshots()
+
+    with Image.open(BytesIO(stored['image_data'])) as image:
+        assert image.format == 'WEBP'
+        assert image.size == (1280, 720)
+    assert result == {'generated': 1, 'api_failures': 0}
+    assert stored['source'] == 'fallback'
+
+
+def test_screenshot_quota_exhaustion_stops_api_calls_and_alerts_once(monkeypatch):
+    projects = [
+        {
+            'id': project_id, 'title': f'Project {project_id}', 'description': '',
+            'link': f'https://demo{project_id}.example', 'homepage_url': None, 'github_full_name': None,
+            'languages': '[]', 'topics': '[]', 'edited_fields': '[]',
+        }
+        for project_id in (1, 2)
+    ]
+    saves = []
+    alerts = []
+    calls = []
+    class Cursor:
+        def __init__(self):
+            self.next_row = None
+
+        def execute(self, sql, params=None):
+            if sql.startswith('INSERT INTO screenshot_usage'):
+                self.next_row = (1,)
+            elif sql.startswith('UPDATE screenshot_usage'):
+                self.next_row = ('2026-10-01',)
+            elif sql.startswith('INSERT INTO project_screenshots'):
+                saves.append(params)
+
+        def fetchall(self):
+            return projects
+
+        def fetchone(self):
+            row = self.next_row
+            self.next_row = None
+            return row
+
+        def close(self):
+            pass
+
+    class Connection:
+        def cursor(self, cursor_factory=None):
+            return Cursor()
+
+        def commit(self):
+            pass
+
+        def rollback(self):
+            pass
+
+        def close(self):
+            pass
+
+    class Provider:
+        def capture(self, url):
+            calls.append(url)
+            raise app_module.ScreenshotQuotaExceeded('free quota reached')
+
+    monkeypatch.setattr(app_module, 'get_db_connection', lambda: Connection())
+    monkeypatch.setattr(app_module, '_screenshot_api_provider', lambda: Provider())
+    monkeypatch.setattr(app_module, 'send_whatsapp_alert', alerts.append)
+
+    result = app_module.refresh_project_screenshots()
+
+    assert result == {'generated': 2, 'api_failures': 0}
+    assert calls == ['https://demo1.example']
+    assert len(alerts) == 1
+    assert len(saves) == 2
+    assert all(params[2] == 'fallback' for params in saves)
+
+
 def test_github_import_persists_selected_repository(client, monkeypatch):
     authenticate_test_user(client, monkeypatch)
     connection = RecordingConnection()

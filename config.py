@@ -37,6 +37,7 @@ class Config:
     RESEND_TO = os.environ.get("RESEND_TO", MAIL_USERNAME)
     CALLMEBOT_PHONE = os.environ.get("CALLMEBOT_PHONE")
     CALLMEBOT_API_KEY = os.environ.get("CALLMEBOT_API_KEY")
+    SCREENSHOTONE_ACCESS_KEY = os.environ.get("SCREENSHOTONE_ACCESS_KEY")
 
 
 class DevelopmentConfig(Config):

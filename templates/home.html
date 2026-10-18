@@ -132,7 +132,7 @@ Al-ameen | Python Flask Developer
                     {% set code_link = 'https://github.com/' ~ project.github_full_name if project.github_full_name else project.link %}
                     <div class="project-card{% if 'afrigen' in project_title|lower %} project-card-featured{% endif %}">
                         {% if project.image %}
-                        <div class="project-image"><img src="{{ project.image if project.image.startswith('http') else url_for('static', filename='uploads/' ~ project.image) }}" alt="Preview of {{ project_title }}" loading="lazy"></div>
+                        <div class="project-image"><img src="{{ project.image if project.image.startswith('http') or project.image.startswith('/') else url_for('static', filename='uploads/' ~ project.image) }}" alt="Preview of {{ project_title }}" width="1280" height="720" loading="lazy"></div>
                         {% else %}
                         <div class="project-image project-image-placeholder" aria-hidden="true"><span>{{ project_title }}</span></div>
                         {% endif %}
