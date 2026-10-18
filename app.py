@@ -37,6 +37,7 @@ from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.lib.units import mm
 from reportlab.platypus import Paragraph, SimpleDocTemplate, Spacer
 from scheduler import PostgresJobScheduler
+from link_checker import check_link
 
 app = Flask(__name__)
 production = os.environ.get('RENDER', '').lower() == 'true'
@@ -469,6 +470,19 @@ def _whatsapp_provider():
     if not phone or not api_key:
         return None
     return CallMeBotProvider(phone, api_key)
+
+
+def send_whatsapp_alert(message):
+    provider = _whatsapp_provider()
+    if not provider:
+        logger.info('CallMeBot is not configured; skipping WhatsApp alert')
+        return False
+    try:
+        provider.send_message(message)
+        return True
+    except Exception:
+        logger.exception('WhatsApp alert failed')
+        return False
 
 
 def send_contact_alerts(name, email, subject, message, portfolio_url):
@@ -1049,6 +1063,51 @@ def mark_github_repository_missing(repo_id):
         conn.close()
 
 
+def check_project_links():
+    conn = get_db_connection()
+    if not conn:
+        raise psycopg2.OperationalError('Database connection unavailable')
+    cursor = None
+    new_failures = []
+    try:
+        cursor = conn.cursor(cursor_factory=RealDictCursor)
+        cursor.execute(
+            'SELECT id, title, link, homepage_url, github_full_name, '
+            'demo_link_status, repo_link_status FROM projects'
+        )
+        projects = [dict(project) for project in cursor.fetchall()]
+        checked_at = datetime.now().astimezone()
+        for project in projects:
+            demo_url = project.get('homepage_url') if project.get('github_full_name') else project.get('link')
+            repo_url = f"https://github.com/{project['github_full_name']}" if project.get('github_full_name') else None
+            demo_status = check_link(demo_url) if demo_url else None
+            repo_status = check_link(repo_url) if repo_url else None
+            cursor.execute(
+                'UPDATE projects SET demo_link_status=%s, demo_link_checked_at=%s, '
+                'repo_link_status=%s, repo_link_checked_at=%s WHERE id=%s',
+                (demo_status, checked_at if demo_url else None,
+                 repo_status, checked_at if repo_url else None, project['id'])
+            )
+            if demo_status == 'broken' and project.get('demo_link_status') != 'broken':
+                new_failures.append(f"{project.get('title')}: demo {demo_url}")
+            if repo_status == 'broken' and project.get('repo_link_status') != 'broken':
+                new_failures.append(f"{project.get('title')}: repository {repo_url}")
+        conn.commit()
+        cache.clear()
+    except Exception:
+        conn.rollback()
+        raise
+    finally:
+        if cursor:
+            cursor.close()
+        conn.close()
+
+    if new_failures:
+        details = '\n'.join(new_failures[:8])
+        send_whatsapp_alert(f'Portfolio link check found broken links:\n{details}'[:1300])
+    return {'checked': len(projects), 'new_failures': len(new_failures)}
+
+
 @app.route('/webhooks/github', methods=['POST'])
 @limiter.limit('60 per minute')
 @csrf.exempt
@@ -1373,6 +1432,7 @@ job_scheduler = PostgresJobScheduler(
     {
         'daily-github-sync': {'func': _scheduled_github_sync, 'interval': timedelta(days=1)},
         'daily-cv-regeneration': {'func': regenerate_cv, 'interval': timedelta(days=1)},
+        'weekly-link-check': {'func': check_project_links, 'interval': timedelta(days=7)},
     },
     on_failure=_scheduler_failure_alert,
 )

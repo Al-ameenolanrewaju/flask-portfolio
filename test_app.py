@@ -628,6 +628,116 @@ def test_admin_scheduled_jobs_page_and_run_now(client, monkeypatch):
     assert response.headers['Location'].endswith('/admin/jobs')
 
 
+def test_link_check_saves_health_and_alerts_only_on_new_breakage(monkeypatch):
+    project = {
+        'id': 9,
+        'title': 'Demo project',
+        'link': 'https://demo.example',
+        'homepage_url': 'https://demo.example',
+        'github_full_name': 'owner/project',
+        'demo_link_status': 'ok',
+        'repo_link_status': 'ok',
+    }
+    updates = []
+    alerts = []
+
+    class Cursor:
+        def execute(self, sql, params=None):
+            if sql.startswith('UPDATE projects'):
+                updates.append(params)
+                project['demo_link_status'] = params[0]
+                project['repo_link_status'] = params[2]
+
+        def fetchall(self):
+            return [project]
+
+        def close(self):
+            pass
+
+    class Connection:
+        def cursor(self, cursor_factory=None):
+            return Cursor()
+
+        def commit(self):
+            pass
+
+        def rollback(self):
+            pass
+
+        def close(self):
+            pass
+
+    monkeypatch.setattr(app_module, 'get_db_connection', lambda: Connection())
+    monkeypatch.setattr(app_module, 'check_link', lambda url: 'broken' if 'demo.example' in url else 'ok')
+    monkeypatch.setattr(app_module, 'send_whatsapp_alert', alerts.append)
+
+    result = app_module.check_project_links()
+    app_module.check_project_links()
+
+    assert result == {'checked': 1, 'new_failures': 1}
+    assert len(updates) == 2
+    assert updates[0][0] == 'broken'
+    assert updates[0][2] == 'ok'
+    assert len(alerts) == 1
+    assert 'demo.example' in alerts[0]
+
+
+def test_homepage_hides_broken_live_demo_link(client, monkeypatch):
+    app_module.cache.clear()
+    monkeypatch.setattr(app_module, 'get_projects', lambda: [{
+        'id': 1, 'title': 'Broken demo', 'description': 'Unavailable', 'link': 'https://demo.example',
+        'homepage_url': 'https://demo.example', 'github_full_name': 'owner/project',
+        'edited_fields': [], 'languages': [], 'topics': [], 'stars': 0, 'image': '',
+        'demo_link_status': 'broken', 'created_at': None, 'last_pushed_at': None,
+    }])
+    monkeypatch.setattr(app_module, 'get_content_from_db', lambda: {})
+    monkeypatch.setattr(app_module, 'get_skills_from_table', lambda: {})
+    monkeypatch.setattr(app_module, 'get_auto_skills_from_projects', lambda: {})
+
+    response = client.get('/')
+    page = response.get_data(as_text=True)
+
+    assert response.status_code == 200
+    assert 'Open live site for Broken demo' not in page
+    assert 'View source code for Broken demo' in page
+
+
+def test_admin_shows_broken_link_warning(client, monkeypatch):
+    authenticate_test_user(client, monkeypatch)
+    monkeypatch.setattr(app_module, 'ensure_db_schema', lambda: None)
+    project = {
+        'id': 5, 'title': 'Broken demo', 'description': 'Unavailable', 'github_full_name': 'owner/project',
+        'demo_link_status': 'broken', 'repo_link_status': 'ok', 'github_missing': False,
+        'github_archived': False, 'stars': 1, 'is_visible': True, 'is_pinned': False, 'sort_order': 0,
+    }
+
+    class Cursor:
+        rows = []
+
+        def execute(self, sql, params=None):
+            self.rows = [project] if sql.startswith('SELECT * FROM projects') else []
+
+        def fetchall(self):
+            return self.rows
+
+        def close(self):
+            pass
+
+    class Connection:
+        def cursor(self, cursor_factory=None):
+            return Cursor()
+
+        def close(self):
+            pass
+
+    monkeypatch.setattr(app_module, 'get_db_connection', lambda: Connection())
+
+    response = client.get('/admin')
+
+    assert response.status_code == 200
+    assert 'Demo link broken' in response.get_data(as_text=True)
+
+
 def test_github_import_persists_selected_repository(client, monkeypatch):
     authenticate_test_user(client, monkeypatch)
     connection = RecordingConnection()

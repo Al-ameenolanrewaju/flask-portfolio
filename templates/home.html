@@ -151,7 +151,7 @@ Al-ameen | Python Flask Developer
                                 {% if updated %}<time datetime="{{ updated.isoformat() }}">Updated {{ updated.strftime('%b %Y') }}</time>{% endif %}
                             </div>
                             <div class="project-links">
-                                {% if live_link %}<a href="{{ live_link }}" class="project-link" target="_blank" rel="noopener noreferrer" aria-label="Open live site for {{ project_title }}">Live site <span aria-hidden="true">↗</span></a>{% endif %}
+                                {% if live_link and project.demo_link_status != 'broken' %}<a href="{{ live_link }}" class="project-link" target="_blank" rel="noopener noreferrer" aria-label="Open live site for {{ project_title }}">Live site <span aria-hidden="true">↗</span></a>{% endif %}
                                 {% if code_link %}<a href="{{ code_link }}" class="project-link" target="_blank" rel="noopener noreferrer" aria-label="View source code for {{ project_title }}">Code <span aria-hidden="true">↗</span></a>{% endif %}
                             </div>
                         </div>

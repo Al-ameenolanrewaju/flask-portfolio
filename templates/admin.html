@@ -408,6 +408,9 @@ body {
                         <td>
                             {% if project.github_missing %}<span class="badge-custom" role="status">Missing on GitHub</span>{% endif %}
                             {% if project.github_archived %}<span class="badge-custom" role="status">Archived</span>{% endif %}
+                            {% if project.demo_link_status == 'broken' %}<span class="badge-custom" role="status">Demo link broken</span>{% endif %}
+                            {% if project.repo_link_status == 'broken' %}<span class="badge-custom" role="status">Repository link broken</span>{% endif %}
+                            {% if project.demo_link_checked_at %}<small>Links checked {{ project.demo_link_checked_at.strftime('%Y-%m-%d') }}</small>{% endif %}
                             <form action="{{ url_for('project_settings', id=project.id) }}" method="POST" class="project-admin-settings">
                                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                                 <label><input type="checkbox" name="is_visible" {% if project.is_visible %}checked{% endif %}> Visible</label>
