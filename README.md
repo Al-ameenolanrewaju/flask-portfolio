@@ -77,6 +77,12 @@ SCREENSHOTONE_ACCESS_KEY=your-screenshotone-access-key
 GROQ_API_KEY=your-groq-api-key
 GROQ_MODEL=llama-3.3-70b-versatile
 GROQ_DAILY_REQUEST_CAP=10
+GROQ_REPLY_RESERVED_REQUESTS=2
+INBOX_IMAP_HOST=imap.example.com
+INBOX_IMAP_PORT=993
+INBOX_USER=your-dedicated-inbox@example.com
+INBOX_PASSWORD=your-mailbox-app-password
+INBOX_BODY_RETENTION_DAYS=30
 ```
 
 5. Apply database migrations before using the new schema:
@@ -119,6 +125,12 @@ Set production values in the Render dashboard. Keep secrets out of Git.
 | `GROQ_API_KEY` | Groq console | AI summary generation is skipped; existing approved drafts remain live. |
 | `GROQ_MODEL` | Choose an available Groq model; defaults to `llama-3.3-70b-versatile` | The default model is used. |
 | `GROQ_DAILY_REQUEST_CAP` | Set an integer in Render; defaults to `10` | Daily cap defaults to 10 requests. |
+| `GROQ_REPLY_RESERVED_REQUESTS` | Optional integer in Render; defaults to `2` | When IMAP is configured, two daily Groq requests remain available for reply classification before lower-priority generation uses the full cap. |
+| `INBOX_IMAP_HOST` | Your mailbox provider's IMAP server hostname | Reply tracking is skipped until IMAP is configured. |
+| `INBOX_IMAP_PORT` | Your provider's SSL IMAP port; defaults to `993` | Secure IMAP uses port 993. |
+| `INBOX_USER` | Dedicated mailbox address | Reply tracking is skipped until a mailbox is configured; application replies use this address when available. |
+| `INBOX_PASSWORD` | Create an app password in your mailbox provider's security settings | Reply tracking is skipped; a mailbox app password is required. |
+| `INBOX_BODY_RETENTION_DAYS` | Optional integer; defaults to `30` | Message bodies are never stored; short excerpts are deleted after 30 days. |
 
 ## Local Checks
 Run `make check`, or run `scripts/check.ps1` from PowerShell on Windows. In Git Bash, enable the optional pre-push hook with `git config core.hooksPath .githooks`.

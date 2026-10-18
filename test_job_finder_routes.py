@@ -32,6 +32,12 @@ def test_job_finder_page_requires_admin_login(job_client):
     assert response.status_code == 302
 
 
+def test_job_finder_inbox_requires_admin_login(job_client):
+    response = job_client.get('/admin/job-finder/inbox')
+
+    assert response.status_code == 302
+
+
 def test_job_finder_dashboard_renders_private_preferences_and_attributions(job_client, monkeypatch):
     _authenticate(job_client, monkeypatch)
     monkeypatch.setattr(job_finder_service, 'get_preferences', lambda: DEFAULT_PREFERENCES)

@@ -41,6 +41,12 @@ class Config:
     GROQ_API_KEY = os.environ.get("GROQ_API_KEY")
     GROQ_MODEL = os.environ.get("GROQ_MODEL", "llama-3.3-70b-versatile")
     GROQ_DAILY_REQUEST_CAP = os.environ.get("GROQ_DAILY_REQUEST_CAP", "10")
+    GROQ_REPLY_RESERVED_REQUESTS = os.environ.get("GROQ_REPLY_RESERVED_REQUESTS", "2")
+    INBOX_IMAP_HOST = os.environ.get("INBOX_IMAP_HOST")
+    INBOX_IMAP_PORT = os.environ.get("INBOX_IMAP_PORT", "993")
+    INBOX_USER = os.environ.get("INBOX_USER")
+    INBOX_PASSWORD = os.environ.get("INBOX_PASSWORD")
+    INBOX_BODY_RETENTION_DAYS = os.environ.get("INBOX_BODY_RETENTION_DAYS", "30")
     SCREENSHOTONE_ACCESS_KEY = os.environ.get("SCREENSHOTONE_ACCESS_KEY")
 
 

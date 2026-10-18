@@ -21,6 +21,7 @@ from job_finder_service import (
     job_finder_service,
     parse_preferences,
 )
+from reply_tracking import build_job_reply_to
 
 logger = logging.getLogger(__name__)
 job_finder = Blueprint('job_finder', __name__, url_prefix='/admin/job-finder')
@@ -43,6 +44,62 @@ def dashboard():
         'job_finder.html', preferences=preferences, jobs=jobs,
         source_runs=source_runs, source_registry=job_finder_service.sources,
     )
+
+
+@job_finder.route('/inbox', methods=['GET'])
+@login_required
+def inbox():
+    tracker = current_app.extensions.get('inbox_reply_tracker')
+    if tracker is None:
+        abort(503)
+    view_all = request.args.get('view') == 'all'
+    try:
+        replies = tracker.list_replies(needs_review=None if view_all else True)
+    except Exception:
+        logger.exception('Inbox replies could not be loaded')
+        flash('Inbox replies are unavailable. Apply pending database migrations and try again.', 'danger')
+        replies = []
+    return render_template('job_finder_inbox.html', replies=replies, view_all=view_all)
+
+
+@job_finder.route('/inbox/<int:reply_id>/review', methods=['POST'])
+@login_required
+def review_reply(reply_id):
+    tracker = current_app.extensions.get('inbox_reply_tracker')
+    if tracker is None:
+        abort(503)
+    try:
+        updated = tracker.review_reply(reply_id, request.form.get('status', ''))
+    except ValueError as error:
+        flash(str(error), 'danger')
+    except Exception:
+        logger.exception('Inbox reply review failed for %s', reply_id)
+        flash('Reply review failed. No status change was saved.', 'danger')
+    else:
+        if not updated:
+            abort(404)
+        flash('Reply reviewed and the selected status saved.', 'success')
+    return redirect(url_for('main.job_finder.inbox'))
+
+
+@job_finder.route('/inbox/<int:reply_id>/undo', methods=['POST'])
+@login_required
+def undo_reply(reply_id):
+    tracker = current_app.extensions.get('inbox_reply_tracker')
+    if tracker is None:
+        abort(503)
+    try:
+        undone = tracker.undo_status_change(reply_id)
+    except ValueError as error:
+        flash(str(error), 'warning')
+    except Exception:
+        logger.exception('Inbox reply status undo failed for %s', reply_id)
+        flash('The status change could not be undone.', 'danger')
+    else:
+        if not undone:
+            abort(404)
+        flash('The automatic job status change was undone.', 'success')
+    return redirect(url_for('main.job_finder.inbox'))
 
 
 @job_finder.route('/master-profile', methods=['GET', 'POST'])
@@ -217,7 +274,9 @@ def send_preview(job_id):
 
     subject, body = _email_preview(job)
     sender = current_app.config.get('RESEND_FROM') or 'onboarding@resend.dev'
-    reply_to = current_app.config.get('CONTACT_EMAIL') or ''
+    reply_to = build_job_reply_to(
+        current_app.config.get('INBOX_USER') or current_app.config.get('CONTACT_EMAIL'), job['id'],
+    )
     can_send = bool(current_app.config.get('RESEND_API_KEY') and reply_to and job.get('cover_letter'))
     return render_template(
         'job_finder_send_preview.html', job=job, subject=subject, body=body,
@@ -248,7 +307,9 @@ def send_email(job_id):
         payload = {
             'from': current_app.config.get('RESEND_FROM') or 'onboarding@resend.dev',
             'to': [job['application_email']],
-            'reply_to': current_app.config.get('CONTACT_EMAIL'),
+            'reply_to': build_job_reply_to(
+                current_app.config.get('INBOX_USER') or current_app.config.get('CONTACT_EMAIL'), job_id,
+            ),
             'subject': subject,
             'html': body,
             'attachments': [{'filename': 'Al-ameen_cv.pdf', 'content': cv_attachment}],

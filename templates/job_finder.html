@@ -10,6 +10,7 @@
             <p class="text-muted">Private to your admin account. Matching is automated; verify each role and its terms on the original posting.</p>
         </div>
         <div class="d-flex gap-2">
+            <a href="{{ url_for('main.job_finder.inbox') }}" class="btn btn-outline-primary">Reply inbox</a>
             <a href="{{ url_for('main.job_finder.master_profile') }}" class="btn btn-outline-primary">Master profile</a>
             <a href="{{ url_for('admin') }}" class="btn btn-outline-secondary">Back to admin</a>
         </div>

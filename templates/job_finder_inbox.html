@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block title %}Reply Inbox | Job Finder{% endblock %}
+
+{% block content %}
+<main class="container py-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1>Reply inbox</h1>
+            <p class="text-muted">Classified replies are private. Email content is never followed as instructions or used to send a response.</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="{{ url_for('main.job_finder.inbox', view='all' if not view_all else 'review') }}" class="btn btn-outline-secondary">{{ 'Needs review' if view_all else 'All replies' }}</a>
+            <a href="{{ url_for('main.job_finder.dashboard') }}" class="btn btn-outline-secondary">Job Finder</a>
+        </div>
+    </div>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for category, message in messages %}
+        <div class="alert alert-{{ category }}" role="status">{{ message }}</div>
+        {% endfor %}
+    {% endwith %}
+    <section aria-label="Classified email replies">
+        {% for reply in replies %}
+        <article class="border-bottom py-4">
+            <div class="d-flex justify-content-between flex-wrap gap-2">
+                <h2 class="h5 mb-1">{{ reply.subject or '(no subject)' }}</h2>
+                <span>{{ reply.category|replace('_', ' ')|title }} · {{ '%.0f'|format(reply.confidence * 100) }}% confidence</span>
+            </div>
+            <p class="mb-1">From {{ reply.email_from }}{% if reply.job_id %} · {{ reply.job_company }} · {{ reply.job_title }}{% else %} · Unmatched{% endif %}</p>
+            <p class="text-muted">Matched by {{ reply.match_strategy|replace('_', ' ') }}{% if reply.received_at %} · {{ reply.received_at }}{% endif %}</p>
+            {% if reply.excerpt %}<blockquote class="border-start ps-3">{{ reply.excerpt }}</blockquote>{% endif %}
+            {% if reply.needs_review %}
+            <form action="{{ url_for('main.job_finder.review_reply', reply_id=reply.id) }}" method="post" class="d-flex gap-2 align-items-end flex-wrap">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <label for="status-{{ reply.id }}">Review status</label>
+                <select class="form-control" id="status-{{ reply.id }}" name="status" required>
+                    <option value="">Choose status</option>
+                    {% for status in ('applied', 'responded', 'interview', 'offer', 'rejected', 'ignored') %}
+                    <option value="{{ status }}">{{ status|title }}</option>
+                    {% endfor %}
+                </select>
+                <button type="submit" class="btn btn-primary">Save review</button>
+            </form>
+            {% endif %}
+            {% if reply.status_before and reply.status_after and reply.status_before != reply.status_after and not reply.undone_at %}
+            <form action="{{ url_for('main.job_finder.undo_reply', reply_id=reply.id) }}" method="post" class="mt-2">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button type="submit" class="btn btn-outline-warning">Undo status change ({{ reply.status_after }} → {{ reply.status_before }})</button>
+            </form>
+            {% elif reply.undone_at %}<p class="text-muted">Automatic status change undone.</p>{% endif %}
+        </article>
+        {% else %}
+        <p class="text-muted">No replies in this view.</p>
+        {% endfor %}
+    </section>
+</main>
+{% endblock %}

@@ -50,6 +50,7 @@ from job_finder_service import job_finder_service
 from link_checker import check_link, is_public_http_url
 from models import User, db
 from og_images import create_og_image
+from reply_tracking import InboxReplyTracker
 from routes.auth import auth
 from routes.main import main
 from scheduler import PostgresJobScheduler
@@ -1512,11 +1513,22 @@ def _save_ai_draft(project_id, readme_hash, draft):
         conn.close()
 
 
-def _claim_groq_api_request():
+def _claim_groq_api_request(priority='normal'):
     try:
         daily_cap = max(1, int(app.config.get('GROQ_DAILY_REQUEST_CAP', 10)))
     except (TypeError, ValueError):
         daily_cap = 10
+    if priority == 'reply':
+        request_limit = daily_cap
+    else:
+        inbox_configured = all(app.config.get(key) for key in (
+            'INBOX_IMAP_HOST', 'INBOX_USER', 'INBOX_PASSWORD',
+        ))
+        try:
+            reserved = max(0, int(app.config.get('GROQ_REPLY_RESERVED_REQUESTS', 2))) if inbox_configured else 0
+        except (TypeError, ValueError):
+            reserved = 2 if inbox_configured else 0
+        request_limit = daily_cap - min(reserved, max(0, daily_cap - 1))
     usage_date = datetime.now(UTC).date()
     conn = get_db_connection()
     cursor = None
@@ -1527,11 +1539,11 @@ def _claim_groq_api_request():
             'INSERT INTO groq_usage (usage_date, request_count, quota_alerted) VALUES (%s, 1, FALSE) '
             'ON CONFLICT (usage_date) DO UPDATE SET request_count=groq_usage.request_count + 1 '
             'WHERE groq_usage.request_count < %s RETURNING request_count',
-            (usage_date, daily_cap),
+            (usage_date, request_limit),
         )
         row = cursor.fetchone()
         allowed = bool(row)
-        if allowed and row[0] >= daily_cap or not allowed:
+        if priority == 'reply' and (not allowed or row[0] >= daily_cap):
             cursor.execute(
                 'UPDATE groq_usage SET quota_alerted=TRUE WHERE usage_date=%s AND quota_alerted=FALSE '
                 'RETURNING usage_date',
@@ -1590,6 +1602,12 @@ def generate_ai_summaries():
 
 
 job_finder_service.groq_request_guard = _claim_groq_api_request
+inbox_reply_tracker = InboxReplyTracker(
+    get_db_connection,
+    lambda: app.config,
+    request_guard=lambda: _claim_groq_api_request('reply'),
+)
+app.extensions['inbox_reply_tracker'] = inbox_reply_tracker
 
 
 @app.route('/webhooks/github', methods=['POST'])
@@ -1920,6 +1938,7 @@ job_scheduler = PostgresJobScheduler(
         'weekly-screenshot-refresh': {'func': refresh_project_screenshots, 'interval': timedelta(days=7)},
         'daily-ai-summaries': {'func': generate_ai_summaries, 'interval': timedelta(days=1)},
         'job-finder-fetch': {'func': job_finder_service.run_scheduled_scan, 'interval': timedelta(hours=6)},
+        'inbox-reply-scan': {'func': inbox_reply_tracker.poll_inbox, 'interval': timedelta(minutes=15)},
     },
     on_failure=_scheduler_failure_alert,
 )

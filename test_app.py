@@ -25,6 +25,58 @@ def test_home_page(client):
     assert response.status_code == 200
 
 
+def test_groq_budget_reserves_requests_for_configured_reply_inbox(monkeypatch):
+    claims = []
+
+    class Cursor:
+        def __init__(self):
+            self.sql = ''
+            self.params = None
+
+        def execute(self, sql, params=None):
+            self.sql = sql
+            self.params = params
+            if sql.startswith('INSERT INTO groq_usage'):
+                claims.append(params[1])
+
+        def fetchone(self):
+            return (self.params[1],) if self.sql.startswith('INSERT INTO groq_usage') else None
+
+        def close(self):
+            pass
+
+    class Connection:
+        def __init__(self):
+            self.db_cursor = Cursor()
+
+        def cursor(self):
+            return self.db_cursor
+
+        def commit(self):
+            pass
+
+        def rollback(self):
+            pass
+
+        def close(self):
+            pass
+
+    monkeypatch.setattr(app_module, 'get_db_connection', Connection)
+    monkeypatch.setattr(app_module, 'send_whatsapp_alert', lambda message: None)
+    for key, value in {
+        'GROQ_DAILY_REQUEST_CAP': '10',
+        'GROQ_REPLY_RESERVED_REQUESTS': '2',
+        'INBOX_IMAP_HOST': 'imap.example.test',
+        'INBOX_USER': 'inbox@example.test',
+        'INBOX_PASSWORD': 'test-password',
+    }.items():
+        monkeypatch.setitem(app.config, key, value)
+
+    assert app_module._claim_groq_api_request() is True
+    assert app_module._claim_groq_api_request('reply') is True
+    assert claims == [8, 10]
+
+
 def test_auto_skills_count_distinct_projects_case_insensitively():
     skills = app_module.build_auto_skills([
         {'languages': '["Python", "JavaScript"]', 'topics': '["flask", "web"]'},
