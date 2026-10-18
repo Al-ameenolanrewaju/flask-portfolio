@@ -3,6 +3,7 @@ import json
 import logging
 from base64 import b64encode
 from html import escape
+from zoneinfo import ZoneInfo
 
 from flask import (
     Blueprint,
@@ -16,6 +17,8 @@ from flask import (
 )
 from flask_login import current_user, login_required
 
+from calendar_files import build_ics
+from interview_service import InterviewService
 from job_finder_service import (
     DEFAULT_PREFERENCES,
     job_finder_service,
@@ -25,6 +28,7 @@ from reply_tracking import build_job_reply_to
 
 logger = logging.getLogger(__name__)
 job_finder = Blueprint('job_finder', __name__, url_prefix='/admin/job-finder')
+interview_service = InterviewService(job_finder_service.connection_factory)
 
 
 @job_finder.route('/', methods=['GET'])
@@ -100,6 +104,75 @@ def undo_reply(reply_id):
             abort(404)
         flash('The automatic job status change was undone.', 'success')
     return redirect(url_for('main.job_finder.inbox'))
+
+
+@job_finder.route('/jobs/<int:job_id>/interviews', methods=['GET', 'POST'])
+@login_required
+def interviews(job_id):
+    job = job_finder_service.get_job(job_id)
+    if not job:
+        abort(404)
+    if request.method == 'POST':
+        try:
+            saved_id = interview_service.save(
+                job_id,
+                request.form,
+                current_app.config.get('CALENDAR_TIMEZONE', 'Africa/Lagos'),
+                request.form.get('interview_id') or None,
+            )
+        except ValueError as error:
+            flash(str(error), 'danger')
+        except Exception:
+            logger.exception('Interview details could not be saved for job %s', job_id)
+            flash('Interview details could not be saved.', 'danger')
+        else:
+            if saved_id is None:
+                abort(404)
+            flash('Interview details saved.', 'success')
+            return redirect(url_for('main.job_finder.interviews', job_id=job_id, edit=saved_id))
+
+    events = interview_service.list_for_job(job_id)
+    events = [
+        {
+            **saved_event,
+            'local_time': saved_event['starts_at'].astimezone(
+                ZoneInfo(saved_event['timezone']),
+            ).strftime('%Y-%m-%d %H:%M'),
+        }
+        for saved_event in events
+    ]
+    edit_id = request.form.get('interview_id') if request.method == 'POST' else request.args.get('edit')
+    event = interview_service.get(job_id, edit_id) if edit_id and str(edit_id).isdigit() else None
+    if edit_id and event is None and request.method == 'GET':
+        abort(404)
+    form_event = {}
+    if event:
+        local_start = event['starts_at'].astimezone(ZoneInfo(event['timezone']))
+        form_event = {
+            **event,
+            'date': local_start.strftime('%Y-%m-%d'),
+            'time': local_start.strftime('%H:%M'),
+            'fold': local_start.fold,
+        }
+    else:
+        form_event = {'timezone': current_app.config.get('CALENDAR_TIMEZONE', 'Africa/Lagos'), 'duration_minutes': 60}
+    return render_template('job_finder_interviews.html', job=job, events=events, event=form_event)
+
+
+@job_finder.route('/jobs/<int:job_id>/interviews/<int:interview_id>.ics', methods=['GET'])
+@login_required
+def download_interview_ics(job_id, interview_id):
+    job = job_finder_service.get_job(job_id)
+    event = interview_service.get(job_id, interview_id)
+    if not job or not event:
+        abort(404)
+    briefing_url = f"{request.url_root.rstrip('/')}/admin/job-finder/jobs/{job_id}/briefing"
+    response = current_app.response_class(
+        build_ics(event, job, briefing_url),
+        mimetype='text/calendar',
+    )
+    response.headers['Content-Disposition'] = f'attachment; filename="interview-{interview_id}.ics"'
+    return response
 
 
 @job_finder.route('/master-profile', methods=['GET', 'POST'])

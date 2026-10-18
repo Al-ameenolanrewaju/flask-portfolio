@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+
+{% block title %}Interview Calendar | Job Finder{% endblock %}
+
+{% block content %}
+<main class="container py-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1>Interview calendar</h1>
+            <p>{{ job.company }} · {{ job.title }}</p>
+        </div>
+        <a href="{{ url_for('main.job_finder.dashboard') }}" class="btn btn-outline-secondary">Job Finder</a>
+    </div>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for category, message in messages %}
+        <div class="alert alert-{{ category }}" role="status">{{ message }}</div>
+        {% endfor %}
+    {% endwith %}
+    <section aria-labelledby="interview-form-title" class="mb-5">
+        <h2 id="interview-form-title">{{ 'Edit interview' if event.id else 'Add interview' }}</h2>
+        <form method="post">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            {% if event.id %}<input type="hidden" name="interview_id" value="{{ event.id }}">{% endif %}
+            <div class="row">
+                <div class="col-md-3 form-group">
+                    <label for="interview-date">Date</label>
+                    <input class="form-control" id="interview-date" name="date" type="date" value="{{ event.date or '' }}" required>
+                </div>
+                <div class="col-md-3 form-group">
+                    <label for="interview-time">Local time</label>
+                    <input class="form-control" id="interview-time" name="time" type="time" value="{{ event.time or '' }}" required>
+                </div>
+                <div class="col-md-3 form-group">
+                    <label for="interview-timezone">IANA timezone</label>
+                    <input class="form-control" id="interview-timezone" name="timezone" value="{{ event.timezone }}" required>
+                </div>
+                <div class="col-md-3 form-group">
+                    <label for="interview-duration">Duration (minutes)</label>
+                    <input class="form-control" id="interview-duration" name="duration_minutes" type="number" min="15" max="480" step="15" value="{{ event.duration_minutes or 60 }}" required>
+                </div>
+                <div class="col-md-6 form-group">
+                    <label for="interview-location">Location</label>
+                    <input class="form-control" id="interview-location" name="location" value="{{ event.location or '' }}" maxlength="500">
+                </div>
+                <div class="col-md-6 form-group">
+                    <label for="interview-link">Meeting link</label>
+                    <input class="form-control" id="interview-link" name="meeting_url" type="url" value="{{ event.meeting_url or '' }}" maxlength="1000">
+                </div>
+                <div class="col-md-6 form-group">
+                    <label for="interviewer">Interviewer</label>
+                    <input class="form-control" id="interviewer" name="interviewer" value="{{ event.interviewer or '' }}" maxlength="250">
+                </div>
+                <div class="col-md-6 form-group">
+                    <label for="time-fold">Repeated local time during daylight-saving change</label>
+                    <select class="form-control" id="time-fold" name="fold">
+                        <option value="0" {% if event.fold != 1 %}selected{% endif %}>First occurrence</option>
+                        <option value="1" {% if event.fold == 1 %}selected{% endif %}>Second occurrence</option>
+                    </select>
+                </div>
+            </div>
+            <button class="btn btn-primary" type="submit">Save interview</button>
+        </form>
+    </section>
+    <section aria-labelledby="saved-interviews-title">
+        <h2 id="saved-interviews-title">Saved interviews</h2>
+        {% for saved_event in events %}
+        <article class="border-bottom py-3">
+            <strong>{{ saved_event.local_time }} {{ saved_event.timezone }}</strong>
+            <span> · {{ saved_event.interviewer or 'Interviewer not listed' }}</span>
+            <a class="btn btn-sm btn-outline-primary" href="{{ url_for('main.job_finder.interviews', job_id=job.id, edit=saved_event.id) }}">Edit</a>
+            <a class="btn btn-sm btn-outline-secondary" href="{{ url_for('main.job_finder.download_interview_ics', job_id=job.id, interview_id=saved_event.id) }}">Download .ics</a>
+        </article>
+        {% else %}
+        <p class="text-muted">No interviews scheduled.</p>
+        {% endfor %}
+    </section>
+</main>
+{% endblock %}

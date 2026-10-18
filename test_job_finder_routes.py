@@ -1,3 +1,4 @@
+from datetime import datetime, timezone
 from typing import ClassVar
 
 import pytest
@@ -7,7 +8,10 @@ from app import app
 from config import TestingConfig
 from job_finder_service import DEFAULT_PREFERENCES
 from models import User
+from routes import job_finder as job_finder_module
 from routes.job_finder import job_finder_service
+
+UTC = timezone.utc  # noqa: UP017
 
 
 @pytest.fixture
@@ -36,6 +40,29 @@ def test_job_finder_inbox_requires_admin_login(job_client):
     response = job_client.get('/admin/job-finder/inbox')
 
     assert response.status_code == 302
+
+
+def test_interview_calendar_download_is_private_and_returns_ics(job_client, monkeypatch):
+    response = job_client.get('/admin/job-finder/jobs/12/interviews/7.ics')
+    assert response.status_code == 302
+
+    _authenticate(job_client, monkeypatch)
+    monkeypatch.setattr(job_finder_service, 'get_job', lambda job_id: {
+        'id': job_id, 'title': 'Python Developer', 'company': 'Acme',
+    })
+    monkeypatch.setattr(job_finder_module.interview_service, 'get', lambda job_id, event_id: {
+        'id': event_id, 'uid': 'interview-7@example.test',
+        'starts_at': datetime(2026, 10, 19, 8, 30, tzinfo=UTC),
+        'timezone': 'Africa/Lagos', 'duration_minutes': 60,
+        'location': 'Lagos office', 'meeting_url': '', 'interviewer': 'Ada',
+    })
+
+    response = job_client.get('/admin/job-finder/jobs/12/interviews/7.ics')
+
+    assert response.status_code == 200
+    assert response.mimetype == 'text/calendar'
+    assert 'attachment; filename="interview-7.ics"' in response.headers['Content-Disposition']
+    assert b'UID:interview-7@example.test' in response.data
 
 
 def test_job_finder_dashboard_renders_private_preferences_and_attributions(job_client, monkeypatch):
