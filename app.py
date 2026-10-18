@@ -256,6 +256,59 @@ def get_skills_from_table():
         conn.close()
 
 
+def _skill_values(value):
+    if isinstance(value, str):
+        try:
+            value = json.loads(value)
+        except ValueError:
+            return []
+    return value if isinstance(value, list) else []
+
+
+def build_auto_skills(projects):
+    categories = {'Languages': {}, 'Topics': {}}
+    for project in projects:
+        for category, field in (('Languages', 'languages'), ('Topics', 'topics')):
+            seen = set()
+            for value in _skill_values(project.get(field)):
+                name = str(value).strip()
+                normalized = name.casefold()
+                if not normalized or normalized in seen:
+                    continue
+                seen.add(normalized)
+                entry = categories[category].setdefault(normalized, {'name': name, 'project_count': 0})
+                entry['project_count'] += 1
+
+    return {
+        category: sorted(entries.values(), key=lambda entry: (-entry['project_count'], entry['name'].casefold()))
+        for category, entries in categories.items()
+        if entries
+    }
+
+
+def get_auto_skills_from_projects():
+    conn = None
+    cursor = None
+    try:
+        conn = get_db_connection()
+        if not conn:
+            return {}
+        cursor = conn.cursor(cursor_factory=RealDictCursor)
+        cursor.execute(
+            'SELECT languages, topics FROM projects '
+            'WHERE github_repo_id IS NOT NULL AND COALESCE(github_missing, FALSE)=FALSE'
+        )
+        return build_auto_skills(cursor.fetchall())
+    except Exception:
+        logger.exception('Could not load automatically generated skills')
+        return {}
+    finally:
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
+
+
 def _send_resend_email(payload):
     api_key = app.config.get('RESEND_API_KEY')
     if not api_key:
@@ -427,8 +480,10 @@ def home():
         projects = get_projects()
         content = get_content_from_db()
         skills = get_skills_from_table()
+        auto_skills = get_auto_skills_from_projects()
         services = get_service_entries(content)
-        return render_template("home.html", projects=projects, content=content, skills=skills, services=services)
+        return render_template("home.html", projects=projects, content=content, skills=skills,
+                       auto_skills=auto_skills, services=services)
     except Exception as e:
         print(f"Error in home route: {e}")
         return f"An error occurred: {e}", 500

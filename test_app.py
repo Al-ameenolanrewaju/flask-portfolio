@@ -23,6 +23,37 @@ def test_home_page(client):
     response = client.get('/')
     assert response.status_code == 200
 
+
+def test_auto_skills_count_distinct_projects_case_insensitively():
+    skills = app_module.build_auto_skills([
+        {'languages': '["Python", "JavaScript"]', 'topics': '["flask", "web"]'},
+        {'languages': ['python', 'TypeScript'], 'topics': ['Flask', 'api']},
+        {'languages': 'invalid', 'topics': ['api', '']},
+    ])
+
+    languages = {item['name'].casefold(): item['project_count'] for item in skills['Languages']}
+    topics = {item['name'].casefold(): item['project_count'] for item in skills['Topics']}
+    assert languages == {'python': 2, 'javascript': 1, 'typescript': 1}
+    assert topics == {'flask': 2, 'api': 2, 'web': 1}
+
+
+def test_homepage_shows_generated_counts_with_manual_skills(client, monkeypatch):
+    app_module.cache.clear()
+    monkeypatch.setattr(app_module, 'get_projects', lambda: [])
+    monkeypatch.setattr(app_module, 'get_content_from_db', lambda: {})
+    monkeypatch.setattr(app_module, 'get_skills_from_table', lambda: {'Hand-edited': ['Custom skill']})
+    monkeypatch.setattr(app_module, 'get_auto_skills_from_projects', lambda: {
+        'Topics': [{'name': 'Flask', 'project_count': 4}],
+    })
+
+    response = client.get('/')
+    page = response.get_data(as_text=True)
+
+    assert response.status_code == 200
+    assert 'Custom skill' in page
+    assert 'Flask: 4 projects' in page
+
+
 def test_404_page(client):
     response = client.get('/nonexistent-page')
     assert response.status_code == 404

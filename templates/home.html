@@ -54,7 +54,7 @@ Al-ameen | Python Flask Developer
     </div>
     <div class="container hero-stats" aria-label="Portfolio statistics">
         <div class="stat-item"><strong>{{ projects|length }}</strong><span>Projects shipped</span></div>
-        <div class="stat-item"><strong>{{ skills|length }}</strong><span>Skill groups</span></div>
+        <div class="stat-item"><strong>{{ skills|length + auto_skills|length }}</strong><span>Skill groups</span></div>
         <div class="stat-item"><strong>{{ content|length }}</strong><span>Content sections</span></div>
     </div>
 </section>
@@ -85,10 +85,23 @@ Al-ameen | Python Flask Developer
                 </div>
                 {% endfor %}
             {% else %}
+                {% if not auto_skills %}
                 <div class="col-md-12">
                     <p>No skills added yet.</p>
                 </div>
+                {% endif %}
             {% endif %}
+            {% for skill_category, skill_items in auto_skills.items() %}
+            <div class="col-md-4">
+                <div class="skill-box"><span class="card-index">0{{ skills|length + loop.index }}</span>
+                    <h4>{{ skill_category }}</h4>
+                    <span class="skill-rule"></span>
+                    {% for item in skill_items %}
+                    <p><span class="skill-dot"></span>{{ item.name }}: {{ item.project_count }} project{% if item.project_count != 1 %}s{% endif %}</p>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endfor %}
         </div>
     </div>
 </section>
