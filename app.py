@@ -11,6 +11,7 @@ from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timedelta, timezone
 from typing import ClassVar
 from xml.sax.saxutils import escape
+from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 import psycopg2
 import resend
@@ -62,6 +63,7 @@ from screenshot_provider import (
     create_fallback_card,
     normalize_webp,
 )
+from weekly_report import WeeklyReportService
 from whatsapp import CallMeBotProvider
 
 UTC = timezone.utc  # noqa: UP017
@@ -1641,6 +1643,12 @@ company_briefing_service = CompanyBriefingService(
     request_guard=_claim_groq_api_request,
 )
 app.extensions['company_briefing_service'] = company_briefing_service
+weekly_report_service = WeeklyReportService(
+    get_db_connection,
+    lambda: app.config,
+    _send_resend_email,
+)
+app.extensions['weekly_report_service'] = weekly_report_service
 
 
 def triage_contact_message(message_id, portfolio_url):
@@ -2043,6 +2051,21 @@ def _scheduler_failure_alert(job_name, error):
         provider.send_message(f'Portfolio job {job_name} failed: {str(error)[:500]}')
 
 
+def _weekly_report_cron():
+    timezone_name = app.config.get('CALENDAR_TIMEZONE', 'Africa/Lagos')
+    try:
+        zone = ZoneInfo(timezone_name)
+    except (TypeError, ZoneInfoNotFoundError):
+        logger.warning('Invalid calendar timezone %r; weekly report uses Africa/Lagos', timezone_name)
+        zone = ZoneInfo('Africa/Lagos')
+    try:
+        hour = min(23, max(0, int(app.config.get('WEEKLY_REPORT_HOUR', 8))))
+        minute = min(59, max(0, int(app.config.get('WEEKLY_REPORT_MINUTE', 0))))
+    except (TypeError, ValueError):
+        hour, minute = 8, 0
+    return {'day_of_week': 'mon', 'hour': hour, 'minute': minute, 'timezone': zone}
+
+
 job_scheduler = PostgresJobScheduler(
     get_db_connection,
     {
@@ -2053,6 +2076,11 @@ job_scheduler = PostgresJobScheduler(
         'daily-ai-summaries': {'func': generate_ai_summaries, 'interval': timedelta(days=1)},
         'job-finder-fetch': {'func': job_finder_service.run_scheduled_scan, 'interval': timedelta(hours=6)},
         'inbox-reply-scan': {'func': inbox_reply_tracker.poll_inbox, 'interval': timedelta(minutes=15)},
+        'weekly-admin-report': {
+            'func': weekly_report_service.send_weekly_report,
+            'interval': timedelta(days=7),
+            'cron': _weekly_report_cron(),
+        },
     },
     on_failure=_scheduler_failure_alert,
 )

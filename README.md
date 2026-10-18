@@ -80,6 +80,9 @@ GROQ_DAILY_REQUEST_CAP=10
 GROQ_REPLY_RESERVED_REQUESTS=2
 CALENDAR_TIMEZONE=Africa/Lagos
 RESULTS_MIN_APPLICATIONS=10
+PUBLIC_BASE_URL=https://your-portfolio.onrender.com
+WEEKLY_REPORT_HOUR=8
+WEEKLY_REPORT_MINUTE=0
 INBOX_IMAP_HOST=imap.example.com
 INBOX_IMAP_PORT=993
 INBOX_USER=your-dedicated-inbox@example.com
@@ -135,6 +138,9 @@ Set production values in the Render dashboard. Keep secrets out of Git.
 | `INBOX_BODY_RETENTION_DAYS` | Optional integer; defaults to `30` | Message bodies are never stored; short excerpts are deleted after 30 days. |
 | `CALENDAR_TIMEZONE` | IANA timezone name; defaults to `Africa/Lagos` | Interview forms use Africa/Lagos. Each event stores its timezone and is exported as the equivalent UTC instant. |
 | `RESULTS_MIN_APPLICATIONS` | Optional integer; defaults to `10` | Groups with fewer applications show a low-sample warning; no score recommendation is made without this minimum. |
+| `PUBLIC_BASE_URL` | Your portfolio's public HTTPS URL; Render's `RENDER_EXTERNAL_HOSTNAME` is used if unset | Weekly report is recorded as failed and retried if neither public hostname is available, so its dashboard link is never silently omitted. |
+| `WEEKLY_REPORT_HOUR` | Optional local hour from `0` to `23`; defaults to `8` | Weekly report runs at 08:00 Monday in `CALENDAR_TIMEZONE`. |
+| `WEEKLY_REPORT_MINUTE` | Optional minute from `0` to `59`; defaults to `0` | Weekly report runs at minute 0. |
 
 ## Local Checks
 Run `make check`, or run `scripts/check.ps1` from PowerShell on Windows. In Git Bash, enable the optional pre-push hook with `git config core.hooksPath .githooks`.

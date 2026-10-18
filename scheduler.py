@@ -4,6 +4,7 @@ from datetime import datetime, timezone
 from threading import Lock
 
 from apscheduler.schedulers.background import BackgroundScheduler
+from apscheduler.triggers.cron import CronTrigger
 
 UTC = timezone.utc  # noqa: UP017
 
@@ -63,11 +64,16 @@ class PostgresJobScheduler:
                 self._leader_connection = connection
                 self.scheduler = BackgroundScheduler(timezone=UTC)
                 for job_name, definition in self.jobs.items():
-                    next_run = self._next_run(job_name, definition['interval'])
+                    cron = definition.get('cron')
+                    trigger = CronTrigger(**cron) if cron else 'interval'
+                    next_run = self._next_run(job_name, definition['interval'], cron)
+                    job_options = {'trigger': trigger} if cron else {
+                        'trigger': trigger,
+                        'seconds': definition['interval'].total_seconds(),
+                    }
                     self.scheduler.add_job(
                         self.run_job,
-                        trigger='interval',
-                        seconds=definition['interval'].total_seconds(),
+                        **job_options,
                         id=job_name,
                         args=[job_name],
                         next_run_time=next_run,
@@ -145,14 +151,17 @@ class PostgresJobScheduler:
                 connection.close()
         self._last_lock_attempt = None
 
-    def _next_run(self, job_name, interval):
+    def _next_run(self, job_name, interval, cron=None):
         connection = self._leader_connection
         cursor = connection.cursor()
         cursor.execute('SELECT last_run_at FROM job_runs WHERE job_name=%s', (job_name,))
         row = cursor.fetchone()
         last_run = self._utc(row[0]) if row else None
         now = datetime.now(UTC)
-        next_run = now if last_run is None or now >= last_run + interval else last_run + interval
+        if cron:
+            next_run = CronTrigger(**cron).get_next_fire_time(last_run, now)
+        else:
+            next_run = now if last_run is None or now >= last_run + interval else last_run + interval
         cursor.execute(
             "INSERT INTO job_runs (job_name, status, next_run_at) VALUES (%s, 'never', %s) "
             'ON CONFLICT (job_name) DO UPDATE SET next_run_at=EXCLUDED.next_run_at',
@@ -170,7 +179,12 @@ class PostgresJobScheduler:
         connection = None
         cursor = None
         locked = False
-        next_run = datetime.now(UTC) + definition['interval']
+        now = datetime.now(UTC)
+        cron = definition.get('cron')
+        next_run = (
+            CronTrigger(**cron).get_next_fire_time(now, now)
+            if cron else now + definition['interval']
+        )
         try:
             connection = self.connection_factory()
             cursor = connection.cursor()

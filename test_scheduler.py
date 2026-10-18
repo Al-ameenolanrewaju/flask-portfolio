@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta, timezone
+from zoneinfo import ZoneInfo
 
 from scheduler import PostgresJobScheduler
 
@@ -95,3 +96,15 @@ def test_failed_job_is_recorded_and_alert_failure_does_not_escape():
     assert alerts == [('broken-job', 'upstream unavailable')]
     assert any("'failed'" in statement for statement, _ in connection.statements)
     assert connection.closed
+
+
+def test_weekly_cron_trigger_runs_monday_morning_in_the_configured_timezone():
+    from apscheduler.triggers.cron import CronTrigger
+
+    zone = ZoneInfo('Africa/Lagos')
+    trigger = CronTrigger(day_of_week='mon', hour=8, minute=0, timezone=zone)
+    now = datetime(2026, 10, 18, 10, 0, tzinfo=zone)
+
+    next_run = trigger.get_next_fire_time(None, now)
+
+    assert next_run == datetime(2026, 10, 19, 8, 0, tzinfo=zone)
