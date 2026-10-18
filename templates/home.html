@@ -25,11 +25,9 @@ Al-ameen | Python Flask Developer
                 <a href="#contact" class="btn btn-quiet btn-lg">Let's connect</a>
             </div>
 
-            {% if content.get('cv_file') and content['cv_file'].get('file') %}
-            <a href="{{ url_for('static', filename='uploads/' ~ content['cv_file']['file']) }}" class="cv-link" download>
+            <a href="{{ url_for('download_cv') }}" class="cv-link">
                 <i class="fas fa-arrow-down" aria-hidden="true"></i> Download CV
             </a>
-            {% endif %}
         </div>
 
         <div class="hero-visual" aria-label="Profile introduction">

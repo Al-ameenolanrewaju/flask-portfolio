@@ -54,6 +54,37 @@ def test_homepage_shows_generated_counts_with_manual_skills(client, monkeypatch)
     assert 'Flask: 4 projects' in page
 
 
+def test_cv_pdf_is_cached_and_regenerated_when_site_data_changes(client, monkeypatch, tmp_path):
+    data = {
+        'name': 'Al-ameen Olanrewaju',
+        'about': 'Builds web applications.',
+        'manual_skills': {'Backend': ['Python']},
+        'auto_skills': {'Topics': [{'name': 'Flask', 'project_count': 2}]},
+        'projects': [{'title': 'Portfolio', 'description': 'A portfolio.', 'technologies': ['Flask']}],
+        'contact': 'hello@example.com',
+    }
+    monkeypatch.setattr(app_module, '_cv_data', lambda: data)
+    monkeypatch.setattr(app_module, 'CV_PDF_PATH', str(tmp_path / 'Al-ameen_cv.pdf'))
+    monkeypatch.setattr(app_module, '_cv_cache_hash', None)
+    original_build = app_module._build_cv_pdf
+    generated = []
+
+    def build(data_to_render):
+        generated.append(data_to_render['about'])
+        return original_build(data_to_render)
+
+    monkeypatch.setattr(app_module, '_build_cv_pdf', build)
+    first = client.get('/cv.pdf')
+    second = client.get('/cv.pdf')
+    data['about'] = 'Builds reliable web applications.'
+    third = client.get('/cv.pdf')
+
+    assert first.status_code == second.status_code == third.status_code == 200
+    assert first.data.startswith(b'%PDF')
+    assert len(generated) == 2
+    assert generated == ['Builds web applications.', 'Builds reliable web applications.']
+
+
 def test_404_page(client):
     response = client.get('/nonexistent-page')
     assert response.status_code == 404

@@ -1,8 +1,12 @@
-from flask import Flask, render_template, request, url_for, redirect, flash, jsonify, abort
+from flask import Flask, render_template, request, url_for, redirect, flash, jsonify, abort, send_file
 import psycopg2
 from psycopg2.extras import RealDictCursor
 import os
 import json
+import hashlib
+import io
+import tempfile
+from xml.sax.saxutils import escape
 from werkzeug.utils import secure_filename
 import time
 import re
@@ -27,6 +31,10 @@ from external_http import request_with_retries
 from routes.main import main
 from routes.auth import auth
 from whatsapp import CallMeBotProvider
+from reportlab.lib.pagesizes import A4
+from reportlab.lib.styles import getSampleStyleSheet
+from reportlab.lib.units import mm
+from reportlab.platypus import Paragraph, SimpleDocTemplate, Spacer
 
 app = Flask(__name__)
 production = os.environ.get('RENDER', '').lower() == 'true'
@@ -64,6 +72,8 @@ logger = logging.getLogger(__name__)
 
 cache = Cache(app, config={'CACHE_TYPE': 'SimpleCache'})
 github_api_cache = SimpleCache(default_timeout=600)
+CV_PDF_PATH = os.path.join(app.root_path, 'static', 'files', 'Al-ameen_cv.pdf')
+_cv_cache_hash = None
 contact_alert_executor = ThreadPoolExecutor(max_workers=2, thread_name_prefix='contact-alerts')
 csrf = CSRFProtect(app)
 limiter = Limiter(
@@ -309,6 +319,93 @@ def get_auto_skills_from_projects():
             conn.close()
 
 
+def _cv_data():
+    content = get_content_from_db()
+    return {
+        'name': content.get('hero', {}).get('title') or 'Al-ameen Olanrewaju',
+        'about': content.get('about', {}).get('content', ''),
+        'manual_skills': get_skills_from_table(),
+        'auto_skills': get_auto_skills_from_projects(),
+        'projects': [
+            {
+                'title': project.get('title', ''),
+                'description': project.get('description', ''),
+                'technologies': (project.get('languages') or []) + (project.get('topics') or []),
+            }
+            for project in get_projects()
+        ],
+        'contact': app.config.get('RESEND_TO') or app.config.get('MAIL_USERNAME') or '',
+    }
+
+
+def _cv_paragraph(value):
+    plain_text = str(value).encode('latin-1', 'replace').decode('latin-1')
+    return escape(plain_text).replace('\n', '<br/>')
+
+
+def _build_cv_pdf(data):
+    output = io.BytesIO()
+    styles = getSampleStyleSheet()
+    story = [Paragraph(_cv_paragraph(data['name']), styles['Title']), Spacer(1, 5 * mm)]
+    story.append(Paragraph('About', styles['Heading2']))
+    story.append(Paragraph(_cv_paragraph(data['about'] or 'Portfolio developer.'), styles['BodyText']))
+    story.append(Spacer(1, 4 * mm))
+
+    story.append(Paragraph('Skills', styles['Heading2']))
+    for category, names in data['manual_skills'].items():
+        story.append(Paragraph(f'<b>{_cv_paragraph(category)}</b>: {_cv_paragraph(", ".join(names))}', styles['BodyText']))
+    for category, items in data['auto_skills'].items():
+        labels = ', '.join(f"{item['name']} ({item['project_count']} projects)" for item in items)
+        story.append(Paragraph(f'<b>{_cv_paragraph(category)}</b>: {_cv_paragraph(labels)}', styles['BodyText']))
+    story.append(Spacer(1, 4 * mm))
+
+    story.append(Paragraph('Projects', styles['Heading2']))
+    for project in data['projects']:
+        story.append(Paragraph(f"<b>{_cv_paragraph(project['title'])}</b>", styles['BodyText']))
+        if project['description']:
+            story.append(Paragraph(_cv_paragraph(project['description']), styles['BodyText']))
+        if project['technologies']:
+            story.append(Paragraph(_cv_paragraph(', '.join(project['technologies'])), styles['BodyText']))
+        story.append(Spacer(1, 2 * mm))
+
+    story.append(Paragraph('Contact', styles['Heading2']))
+    contact = data['contact'] or 'Use the contact form on the portfolio website.'
+    story.append(Paragraph(_cv_paragraph(contact), styles['BodyText']))
+    SimpleDocTemplate(
+        output, pagesize=A4, rightMargin=18 * mm, leftMargin=18 * mm,
+        topMargin=18 * mm, bottomMargin=18 * mm, title=data['name']
+    ).build(story)
+    return output.getvalue()
+
+
+def regenerate_cv(data=None):
+    global _cv_cache_hash
+    data = data if data is not None else _cv_data()
+    content_hash = hashlib.sha256(json.dumps(data, sort_keys=True, default=str).encode('utf-8')).hexdigest()
+    pdf = _build_cv_pdf(data)
+    output_dir = os.path.dirname(CV_PDF_PATH)
+    os.makedirs(output_dir, exist_ok=True)
+    temporary_path = None
+    try:
+        with tempfile.NamedTemporaryFile(dir=output_dir, suffix='.pdf', delete=False) as temporary_file:
+            temporary_path = temporary_file.name
+            temporary_file.write(pdf)
+        os.replace(temporary_path, CV_PDF_PATH)
+        _cv_cache_hash = content_hash
+    finally:
+        if temporary_path and os.path.exists(temporary_path):
+            os.unlink(temporary_path)
+    return content_hash
+
+
+def ensure_cv_is_current():
+    data = _cv_data()
+    content_hash = hashlib.sha256(json.dumps(data, sort_keys=True, default=str).encode('utf-8')).hexdigest()
+    if _cv_cache_hash != content_hash or not os.path.isfile(CV_PDF_PATH) or os.path.getsize(CV_PDF_PATH) == 0:
+        regenerate_cv(data)
+    return CV_PDF_PATH
+
+
 def _send_resend_email(payload):
     api_key = app.config.get('RESEND_API_KEY')
     if not api_key:
@@ -487,6 +584,15 @@ def home():
     except Exception as e:
         print(f"Error in home route: {e}")
         return f"An error occurred: {e}", 500
+
+
+@app.route('/cv.pdf', methods=['GET'])
+@limiter.limit('30 per hour')
+def download_cv():
+    path = ensure_cv_is_current()
+    with open(path, 'rb') as cv_file:
+        pdf = io.BytesIO(cv_file.read())
+    return send_file(pdf, mimetype='application/pdf', as_attachment=True, download_name='Al-ameen_cv.pdf')
 
 
 @app.route("/api/projects", methods=['GET'])
