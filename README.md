@@ -79,6 +79,9 @@ python app.py
 
 For daily GitHub synchronization, add a Render Cron Job for this project and schedule `flask --app app sync-github-projects` once per day. The admin panel also provides a manual **Sync now** action.
 
+## Local Checks
+Run `make check`, or run `scripts/check.ps1` from PowerShell on Windows. In Git Bash, enable the optional pre-push hook with `git config core.hooksPath .githooks`.
+
 ## 📡 API Endpoints
 | Method | Endpoint | Description |
 |--------|----------|-------------|
