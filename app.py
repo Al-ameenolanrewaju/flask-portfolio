@@ -3,11 +3,10 @@ import psycopg2
 from psycopg2.extras import RealDictCursor
 import os
 import json
-from urllib.request import Request, urlopen
-from urllib.error import HTTPError, URLError
 from werkzeug.utils import secure_filename
 import time
 import re
+from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime
 from flask_mail import Mail
 from flask_migrate import Migrate
@@ -24,8 +23,10 @@ from config import DevelopmentConfig, ProductionConfig
 from models import db, User
 from github_client import GitHubAPIError, GitHubClient
 from github_webhooks import verify_github_signature
+from external_http import request_with_retries
 from routes.main import main
 from routes.auth import auth
+from whatsapp import CallMeBotProvider
 
 app = Flask(__name__)
 production = os.environ.get('RENDER', '').lower() == 'true'
@@ -63,6 +64,7 @@ logger = logging.getLogger(__name__)
 
 cache = Cache(app, config={'CACHE_TYPE': 'SimpleCache'})
 github_api_cache = SimpleCache(default_timeout=600)
+contact_alert_executor = ThreadPoolExecutor(max_workers=2, thread_name_prefix='contact-alerts')
 csrf = CSRFProtect(app)
 limiter = Limiter(
     app=app,
@@ -254,12 +256,27 @@ def get_skills_from_table():
         conn.close()
 
 
-def send_resend_contact_notification(name, email, subject, message):
-    """Send a contact notification through Resend when configured."""
+def _send_resend_email(payload):
     api_key = app.config.get('RESEND_API_KEY')
+    if not api_key:
+        logger.info('Resend is not configured; skipping email')
+        return False
+    response = request_with_retries(
+        'POST',
+        'https://api.resend.com/emails',
+        json=payload,
+        headers={'Authorization': f'Bearer {api_key}', 'Content-Type': 'application/json'},
+        timeout=(3.05, 10),
+    )
+    response.raise_for_status()
+    return True
+
+
+def send_resend_contact_notification(name, email, subject, message, portfolio_url):
+    """Send a contact notification through Resend when configured."""
     sender = app.config.get('RESEND_FROM')
     recipient = app.config.get('RESEND_TO')
-    if not api_key or not sender or not recipient:
+    if not sender or not recipient:
         logger.info('Resend is not configured; skipping contact notification')
         return False
 
@@ -269,33 +286,60 @@ def send_resend_contact_notification(name, email, subject, message):
         email=email,
         subject=subject,
         message=message,
-        portfolio_url=request.url_root.rstrip('/')
+        portfolio_url=portfolio_url,
     )
-    payload = json.dumps({
+    return _send_resend_email({
         'from': sender,
         'to': [recipient],
         'subject': f'Portfolio contact: {subject or "No Subject"}',
         'html': html,
         'reply_to': email,
-    }).encode('utf-8')
-    resend_request = Request(
-        'https://api.resend.com/emails',
-        data=payload,
-        headers={
-            'Authorization': f'Bearer {api_key}',
-            'Content-Type': 'application/json',
-        },
-        method='POST'
-    )
+    })
 
-    try:
-        with urlopen(resend_request, timeout=10) as response:
-            response.read()
-        logger.info('Resend contact notification sent from %s', email)
-        return True
-    except (HTTPError, URLError, TimeoutError) as error:
-        logger.error('Resend contact notification failed: %s', error)
+
+def send_resend_contact_reply(name, email):
+    sender = app.config.get('RESEND_FROM')
+    if not sender:
+        logger.info('Resend sender is not configured; skipping contact auto-reply')
         return False
+    html = render_template('email/contact_autoreply.html', name=name)
+    return _send_resend_email({
+        'from': sender,
+        'to': [email],
+        'subject': 'Thanks for reaching out',
+        'html': html,
+    })
+
+
+def _whatsapp_provider():
+    phone = app.config.get('CALLMEBOT_PHONE')
+    api_key = app.config.get('CALLMEBOT_API_KEY')
+    if not phone or not api_key:
+        return None
+    return CallMeBotProvider(phone, api_key)
+
+
+def send_contact_alerts(name, email, subject, message, portfolio_url):
+    with app.app_context():
+        try:
+            send_resend_contact_notification(name, email, subject, message, portfolio_url)
+        except Exception:
+            logger.exception('Contact notification email failed')
+
+        try:
+            send_resend_contact_reply(name, email)
+        except Exception:
+            logger.exception('Contact auto-reply failed')
+
+        provider = _whatsapp_provider()
+        if not provider:
+            logger.info('CallMeBot is not configured; skipping WhatsApp alert')
+            return
+        alert = f'New portfolio message from {name} <{email}>: {message}'
+        try:
+            provider.send_message(alert)
+        except Exception:
+            logger.exception('CallMeBot contact alert failed')
 
 
 # ================== REST API ==================
@@ -434,24 +478,33 @@ def contact():
         flash('Please fill in all required fields', 'danger')
         return redirect(url_for('home') + '#contact')
 
-    # Save to database
-    conn = get_db_connection()
-    if conn:
-        try:
-            cursor = conn.cursor()
-            cursor.execute(
-                "INSERT INTO contact_messages (name, email, subject, message) VALUES (%s, %s, %s, %s)",
-                (name, email, subject, message)
-            )
-            conn.commit()
+    conn = None
+    cursor = None
+    try:
+        conn = get_db_connection()
+        if not conn:
+            raise psycopg2.OperationalError('Database connection unavailable')
+        cursor = conn.cursor()
+        cursor.execute(
+            "INSERT INTO contact_messages (name, email, subject, message) VALUES (%s, %s, %s, %s)",
+            (name, email, subject, message)
+        )
+        conn.commit()
+    except Exception:
+        if conn:
+            conn.rollback()
+        logger.exception('Contact message could not be saved')
+        flash('Your message could not be saved. Please try again.', 'danger')
+        return redirect(url_for('home') + '#contact')
+    finally:
+        if cursor:
             cursor.close()
-            logger.info(f"Message saved from {name}")
-        except Exception as e:
-            logger.error(f"Database error: {e}")
-        finally:
+        if conn:
             conn.close()
 
-    send_resend_contact_notification(name, email, subject, message)
+    contact_alert_executor.submit(
+        send_contact_alerts, name, email, subject, message, request.url_root.rstrip('/')
+    )
 
     flash("Message sent successfully! We'll get back to you soon.", "success")
     return redirect(url_for('home', success=1) + '#contact')

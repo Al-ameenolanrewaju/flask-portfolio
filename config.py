@@ -35,6 +35,8 @@ class Config:
     RESEND_API_KEY = os.environ.get("RESEND_API_KEY")
     RESEND_FROM = os.environ.get("RESEND_FROM", MAIL_DEFAULT_SENDER or MAIL_USERNAME)
     RESEND_TO = os.environ.get("RESEND_TO", MAIL_USERNAME)
+    CALLMEBOT_PHONE = os.environ.get("CALLMEBOT_PHONE")
+    CALLMEBOT_API_KEY = os.environ.get("CALLMEBOT_API_KEY")
 
 
 class DevelopmentConfig(Config):
