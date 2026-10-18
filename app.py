@@ -42,6 +42,7 @@ from reportlab.platypus import Paragraph, SimpleDocTemplate, Spacer
 from werkzeug.security import check_password_hash, generate_password_hash
 from werkzeug.utils import secure_filename
 
+from company_briefing import CompanyBriefingService
 from config import DevelopmentConfig, ProductionConfig
 from contact_triage import ContactTriageService
 from github_client import GitHubAPIError, GitHubClient
@@ -1633,6 +1634,13 @@ contact_triage_service = ContactTriageService(
     request_guard=lambda: _claim_groq_api_request(),
 )
 app.extensions['contact_triage_service'] = contact_triage_service
+company_briefing_service = CompanyBriefingService(
+    get_db_connection,
+    lambda: app.config,
+    lambda: job_finder_service._load_public_profile()['projects'],
+    request_guard=_claim_groq_api_request,
+)
+app.extensions['company_briefing_service'] = company_briefing_service
 
 
 def triage_contact_message(message_id, portfolio_url):

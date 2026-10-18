@@ -131,6 +131,7 @@
                 {% if job.status == 'applied' %}<button class="btn btn-default" type="submit" name="action" value="interview">Mark interview</button><button class="btn btn-default" type="submit" name="action" value="reject">Mark rejected</button>{% endif %}
             </form>
             {% if job.status == 'interview' %}<a class="btn btn-outline-primary mt-2" href="{{ url_for('main.job_finder.interviews', job_id=job.id) }}">Interview calendar</a>{% endif %}
+                <a class="btn btn-outline-primary mt-2" href="{{ url_for('main.company_briefing.view', job_id=job.id) }}">Company briefing</a>
         </article>
         {% else %}
         <p>No jobs found yet. Save your preferences and run a scan.</p>

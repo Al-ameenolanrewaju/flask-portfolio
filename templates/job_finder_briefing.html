@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block title %}Company Briefing | Job Finder{% endblock %}
+
+{% block content %}
+<main class="container py-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1>Company briefing</h1>
+            <p>{{ job.company }} · {{ job.title }}</p>
+        </div>
+        <a href="{{ url_for('main.job_finder.dashboard') }}" class="btn btn-outline-secondary">Job Finder</a>
+    </div>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for category, message in messages %}
+        <div class="alert alert-{{ category }}" role="status">{{ message }}</div>
+        {% endfor %}
+    {% endwith %}
+    <form method="post" class="mb-4">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <label for="company-website">Company website URL (optional)</label>
+        <input class="form-control mb-2" id="company-website" name="company_url" type="url" maxlength="1000" value="{{ company_url }}" placeholder="https://company.example">
+        <button class="btn btn-primary" type="submit">{{ 'Refresh briefing' if briefing else 'Generate briefing' }}</button>
+    </form>
+    {% if briefing %}
+    <p class="alert alert-warning">This briefing is AI-generated from the cited pages only. Facts and dates may be incomplete; verify this yourself with the source sites.</p>
+    {% for key, label in [
+        ('company_summary', 'What the company does'),
+        ('products', 'Products'),
+        ('size_location', 'Size and location'),
+        ('recent_news', 'Recent news on the site'),
+        ('interview_topics', 'Possible interview topics tied to public projects'),
+        ('questions_to_ask', 'Questions to ask'),
+    ] %}
+    <section class="border-bottom py-3" aria-labelledby="briefing-{{ key }}">
+        <h2 class="h4" id="briefing-{{ key }}">{{ label }}</h2>
+        {% set section = briefing.briefing_json.get(key, 'not found') %}
+        {% if section is string %}<p>{{ section }}</p>{% else %}<ul>{% for item in section %}<li>{{ item }}</li>{% endfor %}</ul>{% endif %}
+        <small class="text-muted">Sources:
+            {% for source in briefing.sources_json %}
+            <a href="{{ source.url }}" target="_blank" rel="noopener noreferrer">{{ source.url }}</a> (fetched {{ source.fetched_at }}){% if not loop.last %}; {% endif %}
+            {% else %}No sources recorded.{% endfor %}
+        </small>
+    </section>
+    {% endfor %}
+    {% else %}
+    <p class="text-muted">No briefing saved yet. Generate one from the public job posting and an optional public company website.</p>
+    {% endif %}
+</main>
+{% endblock %}
