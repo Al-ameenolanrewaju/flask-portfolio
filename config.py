@@ -37,6 +37,9 @@ class Config:
     RESEND_TO = os.environ.get("RESEND_TO", MAIL_USERNAME)
     CALLMEBOT_PHONE = os.environ.get("CALLMEBOT_PHONE")
     CALLMEBOT_API_KEY = os.environ.get("CALLMEBOT_API_KEY")
+    GROQ_API_KEY = os.environ.get("GROQ_API_KEY")
+    GROQ_MODEL = os.environ.get("GROQ_MODEL", "llama-3.3-70b-versatile")
+    GROQ_DAILY_REQUEST_CAP = os.environ.get("GROQ_DAILY_REQUEST_CAP", "10")
     SCREENSHOTONE_ACCESS_KEY = os.environ.get("SCREENSHOTONE_ACCESS_KEY")
 
 

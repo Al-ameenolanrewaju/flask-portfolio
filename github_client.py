@@ -163,3 +163,14 @@ class GitHubClient:
         except (ValueError, KeyError):
             return ''
         return self._readme_paragraph(markdown)
+
+    def get_repository_readme(self, full_name):
+        readme = self._get_json(f'{self.API_ROOT}/repos/{full_name}/readme', allow_missing=True)
+        if not readme or not readme.get('content'):
+            return ''
+        try:
+            if readme.get('encoding') == 'base64':
+                return base64.b64decode(readme['content']).decode('utf-8', errors='replace')
+            return readme['content']
+        except (ValueError, KeyError):
+            return ''

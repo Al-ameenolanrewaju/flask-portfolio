@@ -45,6 +45,7 @@ from screenshot_provider import (
     normalize_webp,
 )
 from og_images import create_og_image
+from groq_client import GroqClient, GroqDailyCapReached, GroqRateLimitExceeded
 
 app = Flask(__name__)
 production = os.environ.get('RENDER', '').lower() == 'true'
@@ -244,6 +245,23 @@ def get_projects():
                     project[field] = json.loads(project.get(field) or '[]')
                 except (TypeError, ValueError):
                     project[field] = []
+        try:
+            cursor.execute(
+                'SELECT project_id, summary, description, case_study_problem, '
+                'case_study_built, case_study_result FROM project_ai_drafts WHERE status=%s',
+                ('approved',),
+            )
+            approved_drafts = {row['project_id']: dict(row) for row in cursor.fetchall()}
+        except Exception:
+            conn.rollback()
+            approved_drafts = {}
+        for project in projects:
+            draft = approved_drafts.get(project['id'], {})
+            project['ai_summary'] = draft.get('summary', '')
+            project['ai_description'] = draft.get('description', '')
+            project['ai_case_study_problem'] = draft.get('case_study_problem', '')
+            project['ai_case_study_built'] = draft.get('case_study_built', '')
+            project['ai_case_study_result'] = draft.get('case_study_result', '')
         return projects
     except psycopg2.Error as e:
         print(f"Error getting projects: {e}")
@@ -809,6 +827,68 @@ def admin():
         conn.close()
 
 
+@app.route('/admin/ai-drafts', methods=['GET'])
+@login_required
+def admin_ai_drafts():
+    conn = get_db_connection()
+    if not conn:
+        flash('Database connection error', 'danger')
+        return render_template('admin_ai_drafts.html', drafts=[])
+    cursor = None
+    try:
+        cursor = conn.cursor(cursor_factory=RealDictCursor)
+        cursor.execute(
+            'SELECT d.*, p.title AS project_title, p.github_full_name '
+            'FROM project_ai_drafts d JOIN projects p ON p.id=d.project_id '
+            "ORDER BY CASE WHEN d.status='pending' THEN 0 ELSE 1 END, p.title"
+        )
+        drafts = [dict(row) for row in cursor.fetchall()]
+        return render_template('admin_ai_drafts.html', drafts=drafts)
+    except Exception:
+        logger.exception('Could not load AI summary drafts')
+        flash('AI summary drafts are temporarily unavailable.', 'danger')
+        return render_template('admin_ai_drafts.html', drafts=[])
+    finally:
+        if cursor:
+            cursor.close()
+        conn.close()
+
+
+@app.route('/admin/ai-drafts/<int:project_id>', methods=['POST'])
+@login_required
+def update_ai_draft(project_id):
+    conn = get_db_connection()
+    if not conn:
+        flash('Database connection error', 'danger')
+        return redirect(url_for('admin_ai_drafts'))
+    cursor = None
+    try:
+        cursor = conn.cursor(cursor_factory=RealDictCursor)
+        cursor.execute('SELECT status FROM project_ai_drafts WHERE project_id=%s', (project_id,))
+        draft = cursor.fetchone()
+        if not draft:
+            abort(404)
+        status = 'approved' if request.form.get('action') == 'approve' else draft['status']
+        cursor.execute(
+            'UPDATE project_ai_drafts SET summary=%s, description=%s, case_study_problem=%s, '
+            'case_study_built=%s, case_study_result=%s, status=%s, updated_at=NOW() WHERE project_id=%s',
+            (request.form.get('summary', '').strip(), request.form.get('description', '').strip(),
+             request.form.get('case_study_problem', '').strip(), request.form.get('case_study_built', '').strip(),
+             request.form.get('case_study_result', '').strip(), status, project_id),
+        )
+        conn.commit()
+        cache.clear()
+        flash('Draft approved and published.' if status == 'approved' else 'Draft saved.', 'success')
+    except Exception:
+        conn.rollback()
+        raise
+    finally:
+        if cursor:
+            cursor.close()
+        conn.close()
+    return redirect(url_for('admin_ai_drafts'))
+
+
 @app.route('/admin/jobs', methods=['GET'])
 @login_required
 def admin_jobs():
@@ -1328,6 +1408,152 @@ def refresh_project_screenshots():
     return {'generated': generated, 'api_failures': api_failures}
 
 
+def _readme_hash(readme):
+    return hashlib.sha256(readme.encode('utf-8')).hexdigest()
+
+
+def _github_ai_projects():
+    conn = get_db_connection()
+    cursor = None
+    try:
+        cursor = conn.cursor(cursor_factory=RealDictCursor)
+        cursor.execute(
+            'SELECT id, github_full_name FROM projects '
+            'WHERE github_repo_id IS NOT NULL AND COALESCE(github_missing, FALSE)=FALSE'
+        )
+        return [dict(row) for row in cursor.fetchall()]
+    finally:
+        if cursor:
+            cursor.close()
+        conn.close()
+
+
+def _existing_ai_readme_hash(project_id):
+    conn = get_db_connection()
+    cursor = None
+    try:
+        cursor = conn.cursor()
+        cursor.execute('SELECT readme_hash FROM project_ai_drafts WHERE project_id=%s', (project_id,))
+        row = cursor.fetchone()
+        return row[0] if row else None
+    finally:
+        if cursor:
+            cursor.close()
+        conn.close()
+
+
+def _save_ai_draft(project_id, readme_hash, draft):
+    case_study = draft['case_study']
+    conn = get_db_connection()
+    cursor = None
+    try:
+        cursor = conn.cursor()
+        cursor.execute(
+            'INSERT INTO project_ai_drafts (project_id, readme_hash, summary, description, '
+            'case_study_problem, case_study_built, case_study_result, status, generated_at, updated_at) '
+            "VALUES (%s, %s, %s, %s, %s, %s, %s, 'pending', NOW(), NOW()) "
+            'ON CONFLICT (project_id) DO UPDATE SET readme_hash=EXCLUDED.readme_hash, '
+            'summary=EXCLUDED.summary, description=EXCLUDED.description, '
+            'case_study_problem=EXCLUDED.case_study_problem, case_study_built=EXCLUDED.case_study_built, '
+            "case_study_result=EXCLUDED.case_study_result, status='pending', generated_at=NOW(), updated_at=NOW()",
+            (project_id, readme_hash, draft['summary'], draft['description'], case_study['problem'],
+             case_study['what_i_built'], case_study['result']),
+        )
+        conn.commit()
+        cache.clear()
+    except Exception:
+        conn.rollback()
+        raise
+    finally:
+        if cursor:
+            cursor.close()
+        conn.close()
+
+
+def _claim_groq_api_request():
+    try:
+        daily_cap = max(1, int(app.config.get('GROQ_DAILY_REQUEST_CAP', 10)))
+    except (TypeError, ValueError):
+        daily_cap = 10
+    usage_date = datetime.now(timezone.utc).date()
+    conn = get_db_connection()
+    cursor = None
+    alert_needed = False
+    try:
+        cursor = conn.cursor()
+        cursor.execute(
+            'INSERT INTO groq_usage (usage_date, request_count, quota_alerted) VALUES (%s, 1, FALSE) '
+            'ON CONFLICT (usage_date) DO UPDATE SET request_count=groq_usage.request_count + 1 '
+            'WHERE groq_usage.request_count < %s RETURNING request_count',
+            (usage_date, daily_cap),
+        )
+        row = cursor.fetchone()
+        allowed = bool(row)
+        if allowed and row[0] >= daily_cap:
+            cursor.execute(
+                'UPDATE groq_usage SET quota_alerted=TRUE WHERE usage_date=%s AND quota_alerted=FALSE '
+                'RETURNING usage_date',
+                (usage_date,),
+            )
+            alert_needed = bool(cursor.fetchone())
+        elif not allowed:
+            cursor.execute(
+                'UPDATE groq_usage SET quota_alerted=TRUE WHERE usage_date=%s AND quota_alerted=FALSE '
+                'RETURNING usage_date',
+                (usage_date,),
+            )
+            alert_needed = bool(cursor.fetchone())
+        conn.commit()
+    except Exception:
+        conn.rollback()
+        raise
+    finally:
+        if cursor:
+            cursor.close()
+        conn.close()
+    if alert_needed:
+        send_whatsapp_alert('Groq daily request cap reached. New README drafts will resume tomorrow.')
+    return allowed
+
+
+def generate_ai_summaries():
+    api_key = app.config.get('GROQ_API_KEY')
+    if not api_key:
+        logger.info('Groq is not configured; skipping AI summaries')
+        return {'generated': 0, 'unchanged': 0, 'failures': 0}
+    projects = _github_ai_projects()
+    github = _github_client()
+    groq = GroqClient(api_key, app.config.get('GROQ_MODEL', 'llama-3.3-70b-versatile'))
+    generated = 0
+    unchanged = 0
+    failures = 0
+    for project in projects:
+        try:
+            readme = github.get_repository_readme(project['github_full_name'])
+            if not readme:
+                continue
+            readme_hash = _readme_hash(readme)
+            if _existing_ai_readme_hash(project['id']) == readme_hash:
+                unchanged += 1
+                continue
+            draft = groq.generate(readme, before_request=_claim_groq_api_request)
+            _save_ai_draft(project['id'], readme_hash, draft)
+            generated += 1
+        except GroqDailyCapReached:
+            break
+        except GroqRateLimitExceeded:
+            logger.warning('Groq rate limit reached while generating project summaries')
+            send_whatsapp_alert('Groq is rate-limiting README summaries. Remaining drafts are deferred to the next scheduled run.')
+            break
+        except Exception:
+            logger.exception('Could not generate an AI draft for project %s', project['id'])
+            failures += 1
+
+    if failures:
+        send_whatsapp_alert(f'AI README summaries failed for {failures} project(s); existing drafts and the site are unchanged.')
+    return {'generated': generated, 'unchanged': unchanged, 'failures': failures}
+
+
 @app.route('/webhooks/github', methods=['POST'])
 @limiter.limit('60 per minute')
 @csrf.exempt
@@ -1654,6 +1880,7 @@ job_scheduler = PostgresJobScheduler(
         'daily-cv-regeneration': {'func': regenerate_cv, 'interval': timedelta(days=1)},
         'weekly-link-check': {'func': check_project_links, 'interval': timedelta(days=7)},
         'weekly-screenshot-refresh': {'func': refresh_project_screenshots, 'interval': timedelta(days=7)},
+        'daily-ai-summaries': {'func': generate_ai_summaries, 'interval': timedelta(days=1)},
     },
     on_failure=_scheduler_failure_alert,
 )

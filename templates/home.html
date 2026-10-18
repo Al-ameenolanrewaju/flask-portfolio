@@ -139,7 +139,17 @@ Al-ameen | Python Flask Developer
                         <div class="project-card-body">
                             <p class="card-index">PROJECT {{ '%02d'|format(loop.index) }}</p>
                             <h4>{{ project_title }}</h4>
+                            {% if project.ai_summary %}<p class="project-summary">{{ project.ai_summary }}</p>{% endif %}
                             <p class="project-description">{{ project_description }}</p>
+                            {% if project.ai_description %}<p class="project-ai-description">{{ project.ai_description }}</p>{% endif %}
+                            {% if project.ai_case_study_problem or project.ai_case_study_built or project.ai_case_study_result %}
+                            <details class="project-case-study">
+                                <summary>Case study</summary>
+                                {% if project.ai_case_study_problem %}<p><strong>Problem</strong> {{ project.ai_case_study_problem }}</p>{% endif %}
+                                {% if project.ai_case_study_built %}<p><strong>What I built</strong> {{ project.ai_case_study_built }}</p>{% endif %}
+                                {% if project.ai_case_study_result %}<p><strong>Result</strong> {{ project.ai_case_study_result }}</p>{% endif %}
+                            </details>
+                            {% endif %}
                             <div class="project-meta">
                                 {% for technology in (project.languages or []) + (project.topics or []) %}
                                 <span class="project-tag">{{ technology }}</span>

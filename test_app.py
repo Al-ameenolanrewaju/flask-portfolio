@@ -893,6 +893,184 @@ def test_screenshot_quota_exhaustion_stops_api_calls_and_alerts_once(monkeypatch
     assert all(params[2] == 'fallback' for params in saves)
 
 
+def test_ai_draft_must_be_approved_before_public_data_loader_exposes_it(monkeypatch):
+    projects = [
+        {'id': 11, 'title': 'Approved', 'languages': '[]', 'topics': '[]', 'edited_fields': '[]'},
+        {'id': 12, 'title': 'Pending', 'languages': '[]', 'topics': '[]', 'edited_fields': '[]'},
+    ]
+    approved = [{
+        'project_id': 11, 'summary': 'An approved summary.', 'description': 'Approved description.',
+        'case_study_problem': 'Problem.', 'case_study_built': 'Built.', 'case_study_result': 'Result.',
+    }]
+
+    class Cursor:
+        rows = []
+
+        def execute(self, sql, params=None):
+            self.rows = projects if sql.startswith('SELECT * FROM projects') else approved
+            if 'project_ai_drafts' in sql:
+                assert params == ('approved',)
+
+        def fetchall(self):
+            return self.rows
+
+        def close(self):
+            pass
+
+    class Connection:
+        def cursor(self, cursor_factory=None):
+            return Cursor()
+
+        def close(self):
+            pass
+
+        def rollback(self):
+            pass
+
+    monkeypatch.setattr(app_module, 'get_db_connection', lambda: Connection())
+
+    loaded = app_module.get_projects()
+
+    assert loaded[0]['ai_summary'] == 'An approved summary.'
+    assert loaded[0]['ai_case_study_result'] == 'Result.'
+    assert loaded[1]['ai_summary'] == ''
+
+
+def test_ai_draft_save_and_approval_flow(client, monkeypatch):
+    authenticate_test_user(client, monkeypatch)
+    saved = []
+    current_status = {'value': 'pending'}
+
+    class Cursor:
+        def execute(self, sql, params=None):
+            if sql.startswith('UPDATE project_ai_drafts'):
+                saved.append(params)
+                current_status['value'] = params[5]
+
+        def fetchone(self):
+            return {'status': current_status['value']}
+
+        def close(self):
+            pass
+
+    class Connection:
+        def cursor(self, cursor_factory=None):
+            return Cursor()
+
+        def commit(self):
+            pass
+
+        def rollback(self):
+            pass
+
+        def close(self):
+            pass
+
+    monkeypatch.setattr(app_module, 'get_db_connection', lambda: Connection())
+    fields = {
+        'summary': 'Edited summary', 'description': 'Edited description.',
+        'case_study_problem': 'Problem', 'case_study_built': 'What I built', 'case_study_result': 'Result',
+    }
+
+    saved_response = client.post('/admin/ai-drafts/11', data={**fields, 'action': 'save'})
+    approved_response = client.post('/admin/ai-drafts/11', data={**fields, 'action': 'approve'})
+
+    assert saved_response.status_code == approved_response.status_code == 302
+    assert saved[0][5] == 'pending'
+    assert saved[1][5] == 'approved'
+
+
+def test_admin_ai_drafts_page_lists_pending_drafts(client, monkeypatch):
+    authenticate_test_user(client, monkeypatch)
+    draft = {
+        'project_id': 11, 'project_title': 'Readme project', 'github_full_name': 'owner/repo',
+        'summary': 'Pending summary', 'description': 'Pending description.',
+        'case_study_problem': 'Problem', 'case_study_built': 'Built', 'case_study_result': 'Unknown',
+        'status': 'pending', 'readme_hash': 'abc',
+    }
+
+    class Cursor:
+        def execute(self, sql, params=None):
+            pass
+
+        def fetchall(self):
+            return [draft]
+
+        def close(self):
+            pass
+
+    class Connection:
+        def cursor(self, cursor_factory=None):
+            return Cursor()
+
+        def close(self):
+            pass
+
+    monkeypatch.setattr(app_module, 'get_db_connection', lambda: Connection())
+
+    response = client.get('/admin/ai-drafts')
+    page = response.get_data(as_text=True)
+
+    assert response.status_code == 200
+    assert 'Readme project' in page
+    assert 'Approve and publish' in page
+    assert 'Pending summary' in page
+
+
+def test_github_client_decodes_raw_readme_for_ai_processing(monkeypatch):
+    readme = '# Facts from the README'
+    encoded = base64.b64encode(readme.encode('utf-8')).decode('ascii')
+    client = GitHubClient('owner')
+    monkeypatch.setattr(client, '_get_json', lambda url, allow_missing=False: {
+        'encoding': 'base64', 'content': encoded,
+    })
+
+    assert client.get_repository_readme('owner/repo') == readme
+
+
+def test_ai_summaries_skip_unchanged_readmes(monkeypatch):
+    project = {'id': 21, 'github_full_name': 'owner/repo'}
+    readme = '# Documented facts'
+    readme_hash = app_module._readme_hash(readme)
+    current_hash = {'value': None}
+    generated = []
+    saved = []
+
+    class Github:
+        def get_repository_readme(self, full_name):
+            return readme
+
+    class FakeGroq:
+        def __init__(self, api_key, model):
+            pass
+
+        def generate(self, contents, before_request):
+            generated.append(contents)
+            return {
+                'summary': 'Summary', 'description': 'Two sentences. Another sentence.',
+                'case_study': {'problem': 'unknown', 'what_i_built': 'unknown', 'result': 'unknown'},
+            }
+
+    def save(project_id, content_hash, draft):
+        saved.append((project_id, content_hash, draft))
+        current_hash['value'] = content_hash
+
+    monkeypatch.setitem(app_module.app.config, 'GROQ_API_KEY', 'test-key')
+    monkeypatch.setattr(app_module, '_github_ai_projects', lambda: [project])
+    monkeypatch.setattr(app_module, '_github_client', lambda: Github())
+    monkeypatch.setattr(app_module, '_existing_ai_readme_hash', lambda project_id: current_hash['value'])
+    monkeypatch.setattr(app_module, '_save_ai_draft', save)
+    monkeypatch.setattr(app_module, 'GroqClient', FakeGroq)
+
+    first = app_module.generate_ai_summaries()
+    second = app_module.generate_ai_summaries()
+
+    assert first['generated'] == 1
+    assert second['unchanged'] == 1
+    assert generated == [readme]
+    assert saved[0][1] == readme_hash
+
+
 def test_github_import_persists_selected_repository(client, monkeypatch):
     authenticate_test_user(client, monkeypatch)
     connection = RecordingConnection()

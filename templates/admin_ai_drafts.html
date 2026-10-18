@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block title %}AI Project Drafts | Admin{% endblock %}
+
+{% block content %}
+<main class="container py-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>AI project drafts</h1>
+        <a href="{{ url_for('admin') }}" class="btn btn-outline-secondary">Back to admin</a>
+    </div>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for category, message in messages %}
+        <div class="alert alert-{{ category }}" role="status">{{ message }}</div>
+        {% endfor %}
+    {% endwith %}
+    {% for draft in drafts %}
+    <section class="ai-draft-entry mb-5">
+        <div class="d-flex justify-content-between align-items-center">
+            <h2>{{ draft.project_title }}</h2>
+            <span class="label label-{% if draft.status == 'pending' %}warning{% else %}success{% endif %}">{{ draft.status|title }}</span>
+        </div>
+        {% if draft.github_full_name %}<p><a href="https://github.com/{{ draft.github_full_name }}" target="_blank" rel="noopener noreferrer">{{ draft.github_full_name }}</a></p>{% endif %}
+        <form action="{{ url_for('update_ai_draft', project_id=draft.project_id) }}" method="post">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div class="form-group">
+                <label for="summary-{{ draft.project_id }}">One-line summary</label>
+                <textarea class="form-control" id="summary-{{ draft.project_id }}" name="summary" rows="2" required>{{ draft.summary }}</textarea>
+            </div>
+            <div class="form-group">
+                <label for="description-{{ draft.project_id }}">Description</label>
+                <textarea class="form-control" id="description-{{ draft.project_id }}" name="description" rows="3" required>{{ draft.description }}</textarea>
+            </div>
+            <div class="form-group">
+                <label for="problem-{{ draft.project_id }}">Problem</label>
+                <textarea class="form-control" id="problem-{{ draft.project_id }}" name="case_study_problem" rows="2" required>{{ draft.case_study_problem }}</textarea>
+            </div>
+            <div class="form-group">
+                <label for="built-{{ draft.project_id }}">What I built</label>
+                <textarea class="form-control" id="built-{{ draft.project_id }}" name="case_study_built" rows="2" required>{{ draft.case_study_built }}</textarea>
+            </div>
+            <div class="form-group">
+                <label for="result-{{ draft.project_id }}">Result</label>
+                <textarea class="form-control" id="result-{{ draft.project_id }}" name="case_study_result" rows="2" required>{{ draft.case_study_result }}</textarea>
+            </div>
+            <button class="btn btn-default" type="submit" name="action" value="save">Save draft</button>
+            {% if draft.status != 'approved' %}<button class="btn btn-primary" type="submit" name="action" value="approve">Approve and publish</button>{% endif %}
+        </form>
+    </section>
+    {% else %}
+    <p>No AI drafts are available.</p>
+    {% endfor %}
+</main>
+{% endblock %}
