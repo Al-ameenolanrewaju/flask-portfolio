@@ -500,96 +500,67 @@ body {
     <!-- Contact Messages Section -->
     <div class="section-card">
         <div class="section-header">
-            <h3><i class="fas fa-envelope"></i> Contact Messages</h3>
+            <h3><i class="fas fa-envelope"></i> Contact Triage</h3>
             <span class="badge-custom badge-success">{{ messages|length }} Total</span>
         </div>
         <div class="section-body">
+            <nav class="mb-3" aria-label="Contact message filters">
+                <a class="btn-custom btn-sm" href="{{ url_for('admin') }}">All messages</a>
+                <a class="btn-custom btn-sm" href="{{ url_for('admin', label='spam') }}">Spam review</a>
+            </nav>
             {% if messages %}
-            <table class="table-custom">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Name</th>
-                        <th>Email</th>
-                        <th>Subject</th>
-                        <th>Message</th>
-                        <th>Date</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for msg in messages %}
-                    <tr>
-                        <td><span class="badge-custom badge-success">#{{ msg.id }}</span></td>
-                        <td><i class="fas fa-user"></i> {{ msg.name }}</td>
-                        <td><a href="mailto:{{ msg.email }}" style="color: var(--primary-color);">{{ msg.email }}</a></td>
-                        <td>{{ msg.subject or 'No Subject' }}</td>
-                        <td>{{ msg.message[:30] }}{% if msg.message|length > 30 %}...{% endif %}</td>
-                        <td><small><i class="far fa-calendar-alt"></i> {{ msg.created_at.strftime('%Y-%m-%d') if msg.created_at else 'N/A' }}</small></td>
-                        <td>
-                            <button class="btn-custom btn-danger-custom btn-sm delete-btn" data-id="{{ msg.id }}">
-                                <i class="fas fa-trash"></i> Delete
-                            </button>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+                {% for msg in messages %}
+                <article class="border-bottom py-4">
+                    <div class="d-flex justify-content-between flex-wrap gap-2">
+                        <h4 class="h5">{{ msg.subject or 'No subject' }}</h4>
+                        <span>{{ (msg.triage_label or 'other')|title }} · {{ (msg.priority or 'normal')|title }} priority</span>
+                    </div>
+                    <p class="mb-1">{{ msg.name }} · <a href="mailto:{{ msg.email }}">{{ msg.email }}</a></p>
+                    <p class="text-muted">{{ msg.created_at.strftime('%Y-%m-%d %H:%M') if msg.created_at else 'Date unavailable' }} · Triage: {{ msg.triage_status or 'pending' }} · Reply: {{ msg.reply_status or 'pending' }}</p>
+                    <details class="mb-3">
+                        <summary>Original message</summary>
+                        <p class="mt-2">{{ msg.message }}</p>
+                    </details>
+                    {% if msg.triage_status == 'complete' or msg.reply_draft %}
+                    <form action="{{ url_for('update_contact_reply_draft', id=msg.id) }}" method="post" class="mb-3">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        {% if contact_label %}<input type="hidden" name="label" value="{{ contact_label }}">{% endif %}
+                        <label for="contact-draft-{{ msg.id }}">Reply draft</label>
+                        <textarea class="form-control" id="contact-draft-{{ msg.id }}" name="reply_draft" rows="4" maxlength="4000" required>{{ msg.reply_draft or '' }}</textarea>
+                        {% if msg.reply_status not in ['sending', 'sent'] %}
+                        <button class="btn-custom btn-sm mt-2" type="submit" name="action" value="save">Save pending draft</button>
+                        <button class="btn-custom btn-primary btn-sm mt-2" type="submit" name="action" value="approve">Approve draft</button>
+                        {% endif %}
+                    </form>
+                    {% elif msg.triage_status == 'failed' %}
+                    <form action="{{ url_for('retry_contact_triage', id=msg.id) }}" method="post" class="mb-3">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        {% if contact_label %}<input type="hidden" name="label" value="{{ contact_label }}">{% endif %}
+                        <button class="btn-custom btn-sm" type="submit">Retry triage</button>
+                    </form>
+                    {% else %}
+                    <p class="text-muted">Triage is pending. No reply will be sent automatically.</p>
+                    {% endif %}
+                    {% if msg.reply_status == 'approved' %}
+                    <form action="{{ url_for('send_contact_reply', id=msg.id) }}" method="post" onsubmit="return confirm('Send this approved reply to {{ msg.email|e }}?')">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <input type="hidden" name="confirm_send" value="yes">
+                        {% if contact_label %}<input type="hidden" name="label" value="{{ contact_label }}">{% endif %}
+                        <button class="btn-custom btn-success-custom btn-sm" type="submit">Confirm and send approved reply</button>
+                    </form>
+                    {% elif msg.reply_status == 'sent' %}
+                    <p class="text-success">Approved reply sent.</p>
+                    {% endif %}
+                </article>
+                {% endfor %}
             {% else %}
-            <p class="text-center text-muted">No contact messages yet.</p>
+            <p class="text-center text-muted">No contact messages in this view.</p>
             {% endif %}
         </div>
     </div>
 </div>
 
-<!-- SweetAlert -->
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-document.querySelectorAll('.delete-btn').forEach(button => {
-    button.addEventListener('click', () => {
-        const msgId = button.getAttribute('data-id');
-
-        Swal.fire({
-            title: 'Are you sure?',
-            text: "This message will be permanently deleted!",
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#ef4444',
-            cancelButtonColor: '#3b82f6',
-            confirmButtonText: 'Yes, delete it!',
-            cancelButtonText: 'Cancel',
-            background: '#ffffff',
-            backdrop: `
-                rgba(0,0,0,0.4)
-                left top
-                no-repeat
-            `
-        }).then((result) => {
-            if (result.isConfirmed) {
-                // Create a form dynamically and submit POST
-                const form = document.createElement('form');
-                form.method = 'POST';
-                form.action = `/admin/delete_message/${msgId}`;
-                const csrfInput = document.createElement('input');
-                csrfInput.type = 'hidden';
-                csrfInput.name = 'csrf_token';
-                csrfInput.value = '{{ csrf_token() }}';
-                form.appendChild(csrfInput);
-                document.body.appendChild(form);
-                form.submit();
-
-                Swal.fire({
-                    title: 'Deleted!',
-                    text: 'The message has been deleted.',
-                    icon: 'success',
-                    confirmButtonColor: '#10b981',
-                    timer: 2000
-                });
-            }
-        });
-    });
-});
-
 // Auto-hide alerts after 5 seconds
 setTimeout(function() {
     document.querySelectorAll('.alert-custom').forEach(alert => {

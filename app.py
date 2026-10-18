@@ -43,6 +43,7 @@ from werkzeug.security import check_password_hash, generate_password_hash
 from werkzeug.utils import secure_filename
 
 from config import DevelopmentConfig, ProductionConfig
+from contact_triage import ContactTriageService
 from github_client import GitHubAPIError, GitHubClient
 from github_webhooks import verify_github_signature
 from groq_client import GroqClient, GroqDailyCapReached, GroqRateLimitExceeded
@@ -495,17 +496,17 @@ def send_resend_contact_notification(name, email, subject, message, portfolio_ur
     })
 
 
-def send_resend_contact_reply(name, email):
+def send_resend_contact_draft(contact_message):
     sender = app.config.get('RESEND_FROM')
     if not sender:
-        logger.info('Resend sender is not configured; skipping contact auto-reply')
-        return False
-    html = render_template('email/contact_autoreply.html', name=name)
+        raise RuntimeError('Resend sender is not configured.')
+    body = escape(contact_message['reply_draft']).replace('\n', '<br>')
     return _send_resend_email({
         'from': sender,
-        'to': [email],
-        'subject': 'Thanks for reaching out',
-        'html': html,
+        'to': [contact_message['email']],
+        'reply_to': app.config.get('CONTACT_EMAIL') or None,
+        'subject': f"Re: {contact_message['subject'] or 'Your message'}"[:255],
+        'html': f'<p>{body}</p>',
     })
 
 
@@ -530,22 +531,25 @@ def send_whatsapp_alert(message):
         return False
 
 
-def send_contact_alerts(name, email, subject, message, portfolio_url):
+def send_contact_alerts(name, email, subject, message, portfolio_url, priority='normal'):
+    if priority != 'high':
+        return False
     with app.app_context():
         try:
-            send_resend_contact_reply(name, email)
-        except Exception:
-            logger.exception('Contact auto-reply failed')
+            send_resend_contact_notification(name, email, subject, message, portfolio_url)
+        except Exception as error:  # noqa: BLE001
+            logger.error('High-priority contact email alert failed (%s)', type(error).__name__)
 
         provider = _whatsapp_provider()
         if not provider:
             logger.info('CallMeBot is not configured; skipping WhatsApp alert')
-            return
-        alert = f'New portfolio message from {name} <{email}>: {message}'
+            return True
+        alert = f'High-priority portfolio contact from {name} <{email}>: {subject}'
         try:
             provider.send_message(alert)
-        except Exception:
-            logger.exception('CallMeBot contact alert failed')
+        except Exception as error:  # noqa: BLE001
+            logger.error('High-priority contact WhatsApp alert failed (%s)', type(error).__name__)
+        return True
 
 
 # ================== REST API ==================
@@ -753,15 +757,18 @@ def contact():
 
     conn = None
     cursor = None
+    message_id = None
     try:
         conn = get_db_connection()
         if not conn:
             raise psycopg2.OperationalError('Database connection unavailable')
         cursor = conn.cursor()
         cursor.execute(
-            "INSERT INTO contact_messages (name, email, subject, message) VALUES (%s, %s, %s, %s)",
+            "INSERT INTO contact_messages (name, email, subject, message) VALUES (%s, %s, %s, %s) RETURNING id",
             (name, email, subject, message)
         )
+        saved_message = cursor.fetchone()
+        message_id = saved_message[0] if saved_message else None
         conn.commit()
     except Exception:
         if conn:
@@ -775,18 +782,18 @@ def contact():
         if conn:
             conn.close()
 
-    try:
-        send_resend_contact_notification(name, email, subject, message, request.url_root.rstrip('/'))
-    except Exception as exc:  # noqa: BLE001
-        logger.error('Contact notification email failed (%s)', type(exc).__name__)
-        flash("We couldn't send your message just now. Please try again shortly.", 'danger')
-        return redirect(url_for('home') + '#contact')
-
-    contact_alert_executor.submit(
-        send_contact_alerts, name, email, subject, message, request.url_root.rstrip('/')
-    )
-
-    flash("Thanks for reaching out. Your message has been sent successfully.", "success")
+    if message_id:
+        try:
+            contact_alert_executor.submit(
+                triage_contact_message, message_id, request.url_root.rstrip('/'),
+            )
+        except Exception:
+            logger.exception('Contact triage could not be queued for message %s', message_id)
+            try:
+                contact_triage_service.mark_failed(message_id)
+            except Exception:
+                logger.exception('Unqueued contact triage failure could not be recorded for message %s', message_id)
+    flash('Thanks for reaching out. Your message is saved for review.', 'success')
     return redirect(url_for('home') + '#contact')
 
 
@@ -828,7 +835,14 @@ def admin():
         projects = [dict(r) for r in cursor.fetchall()]
         cursor.execute("SELECT * FROM site_content")
         content_data = [dict(r) for r in cursor.fetchall()]
-        cursor.execute("SELECT * FROM contact_messages ORDER BY created_at DESC")
+        label_filter = request.args.get('label')
+        if label_filter in {'recruiter', 'client', 'collaboration', 'spam', 'other'}:
+            cursor.execute(
+                'SELECT * FROM contact_messages WHERE triage_label=%s ORDER BY created_at DESC',
+                (label_filter,),
+            )
+        else:
+            cursor.execute("SELECT * FROM contact_messages ORDER BY created_at DESC")
         messages = [dict(r) for r in cursor.fetchall()]
         cursor.execute("SELECT category, name FROM skills ORDER BY category, id")
         skill_rows = [dict(r) for r in cursor.fetchall()]
@@ -847,7 +861,10 @@ def admin():
             if cat not in skills:
                 skills[cat] = []
             skills[cat].append(row['name'])
-        return render_template('admin.html', projects=projects, messages=messages, content=content, skills=skills)
+        return render_template(
+            'admin.html', projects=projects, messages=messages, content=content, skills=skills,
+            contact_label=label_filter if label_filter in {'recruiter', 'client', 'collaboration', 'spam', 'other'} else None,
+        )
     except psycopg2.Error as e:
         print(f"Database error in admin: {e}")
         flash(f'Database error: {e}', 'danger')
@@ -1608,6 +1625,35 @@ inbox_reply_tracker = InboxReplyTracker(
     request_guard=lambda: _claim_groq_api_request('reply'),
 )
 app.extensions['inbox_reply_tracker'] = inbox_reply_tracker
+contact_triage_service = ContactTriageService(
+    get_db_connection,
+    lambda: app.config,
+    job_finder_service.get_master_profile,
+    job_finder_service._load_public_profile,
+    request_guard=lambda: _claim_groq_api_request(),
+)
+app.extensions['contact_triage_service'] = contact_triage_service
+
+
+def triage_contact_message(message_id, portfolio_url):
+    with app.app_context():
+        try:
+            result = contact_triage_service.triage(message_id)
+        except Exception as error:  # noqa: BLE001
+            try:
+                contact_triage_service.mark_failed(message_id)
+            except Exception:
+                logger.exception('Contact triage failure could not be recorded for message %s', message_id)
+            logger.error('Contact triage failed for message %s (%s)', message_id, type(error).__name__)
+            return None
+        if not result or not result['saved'] or result['priority'] != 'high':
+            return result
+        message = result['message']
+        send_contact_alerts(
+            message['name'], message['email'], message['subject'], message['message'],
+            portfolio_url, priority=result['priority'],
+        )
+        return result
 
 
 @app.route('/webhooks/github', methods=['POST'])
@@ -1900,21 +1946,81 @@ def edit_content():
 @app.route('/admin/delete_message/<int:id>', methods=['POST'])
 @login_required
 def delete_message(id):
-    conn = get_db_connection()
-    if not conn:
-        flash('Database connection error', 'danger')
-        return redirect(url_for('admin'))
-    try:
-        cursor = conn.cursor()
-        cursor.execute("DELETE FROM contact_messages WHERE id=%s", (id,))
-        conn.commit()
-        flash('Message deleted successfully!', 'success')
-    except psycopg2.Error as e:
-        flash(f'Error: {e}', 'danger')
-    finally:
-        cursor.close()
-        conn.close()
+    flash('Contact messages are retained. Use the Spam label to review unwanted messages.', 'warning')
     return redirect(url_for('admin'))
+
+
+@app.route('/admin/contact-messages/<int:id>/triage', methods=['POST'])
+@login_required
+def retry_contact_triage(id):
+    service = app.extensions['contact_triage_service']
+    try:
+        retried = service.retry_triage(id)
+    except Exception:
+        logger.exception('Contact triage retry failed for message %s', id)
+        flash('Contact triage could not be queued.', 'danger')
+    else:
+        if not retried:
+            abort(404)
+        try:
+            contact_alert_executor.submit(triage_contact_message, id, request.url_root.rstrip('/'))
+        except Exception:
+            logger.exception('Contact triage could not be queued for message %s', id)
+            try:
+                service.mark_failed(id)
+            except Exception:
+                logger.exception('Unqueued contact triage failure could not be recorded for message %s', id)
+            flash('Contact triage could not be queued.', 'danger')
+        else:
+            flash('Contact triage queued for retry.', 'success')
+    return redirect(url_for('admin', label=request.form.get('label') or None))
+
+
+@app.route('/admin/contact-messages/<int:id>/draft', methods=['POST'])
+@login_required
+def update_contact_reply_draft(id):
+    service = app.extensions['contact_triage_service']
+    action = request.form.get('action', 'save')
+    if action not in {'save', 'approve'}:
+        abort(400)
+    try:
+        updated = service.update_draft(id, request.form.get('reply_draft', ''), approve=action == 'approve')
+    except ValueError as error:
+        flash(str(error), 'danger')
+    except Exception:
+        logger.exception('Contact reply draft update failed for message %s', id)
+        flash('The contact reply draft could not be saved.', 'danger')
+    else:
+        if not updated:
+            abort(404)
+        if action == 'approve':
+            flash('Reply approved. It will not send until you confirm.', 'success')
+        else:
+            flash('Reply draft saved as pending.', 'success')
+    return redirect(url_for('admin', label=request.form.get('label') or None))
+
+
+@app.route('/admin/contact-messages/<int:id>/send', methods=['POST'])
+@login_required
+def send_contact_reply(id):
+    if request.form.get('confirm_send') != 'yes':
+        abort(400)
+    service = app.extensions['contact_triage_service']
+    contact_message = service.claim_send(id)
+    if not contact_message:
+        abort(409)
+    try:
+        send_resend_contact_draft(contact_message)
+        service.finish_send(id, True)
+        flash('Approved contact reply sent and recorded.', 'success')
+    except Exception as error:  # noqa: BLE001
+        logger.error('Contact reply send failed for message %s (%s)', id, type(error).__name__)
+        try:
+            service.finish_send(id, False)
+        except Exception:
+            logger.exception('Contact reply send failure state could not be recorded for message %s', id)
+        flash('The contact reply could not be sent. The approved draft remains available.', 'danger')
+    return redirect(url_for('admin', label=request.form.get('label') or None))
 
 
 def _scheduled_github_sync():

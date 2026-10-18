@@ -40,10 +40,13 @@ def test_callmebot_provider_uses_configured_recipient_and_retries(monkeypatch):
     )]
 
 
-def test_contact_is_saved_before_background_alerts_and_alert_failures_are_isolated(client, monkeypatch):
+def test_contact_is_saved_before_triage_and_sends_no_automatic_reply(client, monkeypatch):
     class FakeCursor:
         def execute(self, *args, **kwargs):
             pass
+
+        def fetchone(self):
+            return (42,)
 
         def close(self):
             pass
@@ -72,7 +75,10 @@ def test_contact_is_saved_before_background_alerts_and_alert_failures_are_isolat
             queued.append((function, args))
 
     monkeypatch.setattr(app_module, 'get_db_connection', lambda: connection)
-    monkeypatch.setattr(app_module, 'send_resend_contact_notification', lambda *args: True)
+    monkeypatch.setattr(
+        app_module, 'send_resend_contact_notification',
+        lambda *args: pytest.fail('contact submission must not immediately send an alert'),
+    )
     monkeypatch.setattr(app_module, 'contact_alert_executor', FakeExecutor())
     monkeypatch.setitem(app.config, 'CALLMEBOT_PHONE', 'phone')
     monkeypatch.setitem(app.config, 'CALLMEBOT_API_KEY', 'key')
@@ -87,39 +93,25 @@ def test_contact_is_saved_before_background_alerts_and_alert_failures_are_isolat
     assert response.status_code == 302
     assert connection.committed
     assert len(queued) == 1
-
-    calls = []
-
-    def failed_alert(*args, **kwargs):
-        calls.append(args)
-        raise RuntimeError('provider unavailable')
-
-    class FailedWhatsAppProvider:
-        def send_message(self, message):
-            calls.append(message)
-            raise RuntimeError('CallMeBot unavailable')
-
-    monkeypatch.setattr(app_module, 'send_resend_contact_notification', failed_alert)
-    monkeypatch.setattr(app_module, 'send_resend_contact_reply', failed_alert)
-    monkeypatch.setattr(app_module, '_whatsapp_provider', lambda: FailedWhatsAppProvider())
-    queued[0][0](*queued[0][1])
-
-    assert len(calls) == 2
+    assert queued[0][0] is app_module.triage_contact_message
 
 
-def test_sender_autoreply_uses_resend_and_escapes_name(monkeypatch):
+def test_explicit_contact_draft_send_uses_resend_and_escapes_html(monkeypatch):
     captured = []
     monkeypatch.setitem(app.config, 'RESEND_API_KEY', 'resend-key')
     monkeypatch.setitem(app.config, 'RESEND_FROM', 'Portfolio <hello@example.com>')
     monkeypatch.setattr(app_module.resend.Emails, 'send', lambda payload: captured.append(payload))
 
     with app.app_context():
-        assert app_module.send_resend_contact_reply('<Sender>', 'sender@example.com')
+        assert app_module.send_resend_contact_draft({
+            'email': 'sender@example.com', 'subject': 'Question',
+            'reply_draft': '<script>draft</script>',
+        })
 
     payload = captured[0]
     assert payload['to'] == ['sender@example.com']
-    assert 'Thanks for reaching out' in payload['subject']
-    assert '&lt;Sender&gt;' in payload['html']
+    assert payload['subject'] == 'Re: Question'
+    assert '&lt;script&gt;draft&lt;/script&gt;' in payload['html']
 
 
 def test_contact_notification_uses_configured_sender_recipient_and_reply_to(monkeypatch):
@@ -166,43 +158,67 @@ def test_contact_rejects_invalid_email_and_missing_subject(client, monkeypatch):
     assert 'valid email address' in message
 
 
-def test_contact_email_failure_is_friendly_and_does_not_log_secrets(client, monkeypatch, caplog):
-    class FakeCursor:
-        def execute(self, *args, **kwargs):
-            pass
+def test_contact_alerts_are_sent_only_for_high_priority(monkeypatch):
+    alerts = []
+    monkeypatch.setattr(app_module, 'send_resend_contact_notification', lambda *args: alerts.append('email'))
 
-        def close(self):
-            pass
+    class Provider:
+        def send_message(self, text):
+            alerts.append('whatsapp')
 
-    class FakeConnection:
-        def cursor(self):
-            return FakeCursor()
+    monkeypatch.setattr(app_module, '_whatsapp_provider', lambda: Provider())
 
-        def commit(self):
-            pass
+    assert app_module.send_contact_alerts(
+        'Visitor', 'visitor@example.com', 'Question', 'Message', 'https://site.test',
+    ) is False
+    assert alerts == []
+    assert app_module.send_contact_alerts(
+        'Visitor', 'visitor@example.com', 'Question', 'Message', 'https://site.test', priority='high',
+    ) is True
+    assert alerts == ['email', 'whatsapp']
 
-        def rollback(self):
-            pass
 
-        def close(self):
-            pass
-
-    monkeypatch.setattr(app_module, 'get_db_connection', lambda: FakeConnection())
+def test_triage_worker_never_sends_the_generated_reply(monkeypatch):
+    alerts = []
+    monkeypatch.setattr(app_module.contact_triage_service, 'triage', lambda message_id: {
+        'saved': True,
+        'priority': 'high',
+        'reply_draft': 'A draft for explicit approval.',
+        'message': {
+            'name': 'Visitor', 'email': 'visitor@example.com', 'subject': 'Question', 'message': 'Hello',
+        },
+    })
+    monkeypatch.setattr(app_module, 'send_contact_alerts', lambda *args, **kwargs: alerts.append(args))
     monkeypatch.setattr(
-        app_module, 'send_resend_contact_notification',
-        lambda *args: (_ for _ in ()).throw(RuntimeError('re_super-secret-key')),
+        app_module, 'send_resend_contact_draft',
+        lambda *args: pytest.fail('triage must never send the generated reply'),
     )
 
-    response = client.post('/contact', data={
-        'name': 'Visitor',
-        'email': 'visitor@example.com',
-        'subject': 'Question',
-        'message': 'Hello',
-    })
+    result = app_module.triage_contact_message(42, 'https://portfolio.example')
 
-    assert response.status_code == 302
+    assert result['saved'] is True
+    assert len(alerts) == 1
+
+
+def test_contact_reply_requires_a_separate_send_confirmation(client, monkeypatch):
+    from models import User
+
+    user = User(id=99125, username='contact-admin', email='contact-admin@example.com', password='unused')
+    monkeypatch.setattr(app_module.login_manager, '_user_callback', lambda user_id: user)
     with client.session_transaction() as session:
-        category, message = session['_flashes'][-1]
-    assert category == 'danger'
-    assert 'try again shortly' in message
-    assert 're_super-secret-key' not in caplog.text
+        session['_user_id'] = str(user.id)
+        session['_fresh'] = True
+
+    class Service:
+        def claim_send(self, message_id):
+            pytest.fail('missing send confirmation must not claim or send the draft')
+
+    monkeypatch.setitem(app.extensions, 'contact_triage_service', Service())
+    monkeypatch.setattr(
+        app_module, 'send_resend_contact_draft',
+        lambda *args: pytest.fail('missing send confirmation must not call Resend'),
+    )
+
+    response = client.post('/admin/contact-messages/42/send', data={})
+
+    assert response.status_code == 400
