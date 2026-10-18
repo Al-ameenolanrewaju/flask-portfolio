@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block title %}Scheduled Jobs | Admin{% endblock %}
+
+{% block content %}
+<main class="container py-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Scheduled jobs</h1>
+        <a href="{{ url_for('admin') }}" class="btn btn-outline-secondary">Back to admin</a>
+    </div>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for category, message in messages %}
+        <div class="alert alert-{{ category }}" role="status">{{ message }}</div>
+        {% endfor %}
+    {% endwith %}
+    <div class="table-responsive">
+        <table class="table align-middle">
+            <thead><tr><th>Job</th><th>Last run</th><th>Status</th><th>Next run</th><th>Action</th></tr></thead>
+            <tbody>
+                {% for job in jobs %}
+                <tr>
+                    <th scope="row">{{ job.job_name|replace('-', ' ')|title }}</th>
+                    <td>{{ job.last_run_at.strftime('%Y-%m-%d %H:%M UTC') if job.last_run_at else 'Never' }}</td>
+                    <td>{{ job.status|title }}{% if job.last_error %}<span class="text-danger" title="{{ job.last_error }}"> (error)</span>{% endif %}</td>
+                    <td>{{ job.next_run_at.strftime('%Y-%m-%d %H:%M UTC') if job.next_run_at else 'Pending startup' }}</td>
+                    <td>
+                        <form action="{{ url_for('run_scheduled_job', job_name=job.job_name) }}" method="post">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <button class="btn btn-sm btn-primary" type="submit">Run now</button>
+                        </form>
+                    </td>
+                </tr>
+                {% else %}
+                <tr><td colspan="5">No scheduled jobs are available.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</main>
+{% endblock %}

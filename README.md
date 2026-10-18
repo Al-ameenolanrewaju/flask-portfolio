@@ -77,7 +77,7 @@ flask db upgrade
 python app.py
 \```
 
-For daily GitHub synchronization, add a Render Cron Job for this project and schedule `flask --app app sync-github-projects` once per day. The admin panel also provides a manual **Sync now** action.
+Scheduled GitHub sync and CV refresh run inside the Flask service. Apply database migrations with `flask db upgrade` before deploying; the admin panel includes job status and a manual **Run now** action.
 
 ## Local Checks
 Run `make check`, or run `scripts/check.ps1` from PowerShell on Windows. In Git Bash, enable the optional pre-push hook with `git config core.hooksPath .githooks`.

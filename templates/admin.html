@@ -327,6 +327,7 @@ body {
         <div>
             <h1><i class="fas fa-cog"></i> Admin Dashboard</h1>
             <p>Welcome back, Administrator! Manage your portfolio content here.</p>
+            <a href="{{ url_for('admin_jobs') }}" class="btn-custom btn-primary-custom">Scheduled jobs</a>
         </div>
         <form action="{{ url_for('auth.logout') }}" method="POST">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">

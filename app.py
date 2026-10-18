@@ -6,12 +6,13 @@ import json
 import hashlib
 import io
 import tempfile
+import atexit
 from xml.sax.saxutils import escape
 from werkzeug.utils import secure_filename
 import time
 import re
 from concurrent.futures import ThreadPoolExecutor
-from datetime import datetime
+from datetime import datetime, timedelta
 from flask_mail import Mail
 from flask_migrate import Migrate
 from flask_login import LoginManager, login_required, login_user
@@ -35,6 +36,7 @@ from reportlab.lib.pagesizes import A4
 from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.lib.units import mm
 from reportlab.platypus import Paragraph, SimpleDocTemplate, Spacer
+from scheduler import PostgresJobScheduler
 
 app = Flask(__name__)
 production = os.environ.get('RENDER', '').lower() == 'true'
@@ -738,6 +740,31 @@ def admin():
         conn.close()
 
 
+@app.route('/admin/jobs', methods=['GET'])
+@login_required
+def admin_jobs():
+    try:
+        jobs = job_scheduler.statuses()
+    except Exception:
+        logger.exception('Could not load scheduled job status')
+        flash('Scheduled job status is temporarily unavailable.', 'danger')
+        jobs = []
+    return render_template('admin_jobs.html', jobs=jobs)
+
+
+@app.route('/admin/jobs/<job_name>/run', methods=['POST'])
+@login_required
+def run_scheduled_job(job_name):
+    if job_name not in job_scheduler.jobs:
+        abort(404)
+    succeeded = job_scheduler.run_job(job_name)
+    flash(
+        f'{job_name} completed.' if succeeded else f'{job_name} failed or is already running.',
+        'success' if succeeded else 'danger',
+    )
+    return redirect(url_for('admin_jobs'))
+
+
 @app.route('/add_project', methods=['GET', 'POST'])
 @login_required
 def add_project():
@@ -1327,6 +1354,37 @@ def delete_message(id):
         cursor.close()
         conn.close()
     return redirect(url_for('admin'))
+
+
+def _scheduled_github_sync():
+    result = sync_github_projects()
+    cache.clear()
+    return result
+
+
+def _scheduler_failure_alert(job_name, error):
+    provider = _whatsapp_provider()
+    if provider:
+        provider.send_message(f'Portfolio job {job_name} failed: {str(error)[:500]}')
+
+
+job_scheduler = PostgresJobScheduler(
+    get_db_connection,
+    {
+        'daily-github-sync': {'func': _scheduled_github_sync, 'interval': timedelta(days=1)},
+        'daily-cv-regeneration': {'func': regenerate_cv, 'interval': timedelta(days=1)},
+    },
+    on_failure=_scheduler_failure_alert,
+)
+
+
+@app.before_request
+def start_background_scheduler():
+    if production and not app.testing and DATABASE_URL.startswith(('postgres://', 'postgresql://')):
+        job_scheduler.start_if_needed()
+
+
+atexit.register(job_scheduler.stop)
 
 
 if __name__ == '__main__':

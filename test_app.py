@@ -607,6 +607,27 @@ def authenticate_test_user(client, monkeypatch):
         session['_fresh'] = True
 
 
+def test_admin_scheduled_jobs_page_and_run_now(client, monkeypatch):
+    authenticate_test_user(client, monkeypatch)
+    monkeypatch.setattr(app_module.job_scheduler, 'statuses', lambda: [{
+        'job_name': 'daily-github-sync',
+        'last_run_at': None,
+        'status': 'never',
+        'next_run_at': None,
+        'last_error': None,
+        'interval': app_module.timedelta(days=1),
+    }])
+    monkeypatch.setattr(app_module.job_scheduler, 'run_job', lambda job_name: True)
+
+    page = client.get('/admin/jobs')
+    response = client.post('/admin/jobs/daily-github-sync/run')
+
+    assert page.status_code == 200
+    assert 'Daily Github Sync' in page.get_data(as_text=True)
+    assert response.status_code == 302
+    assert response.headers['Location'].endswith('/admin/jobs')
+
+
 def test_github_import_persists_selected_repository(client, monkeypatch):
     authenticate_test_user(client, monkeypatch)
     connection = RecordingConnection()
