@@ -2,6 +2,7 @@ import base64
 import re
 
 import requests
+from external_http import request_with_retries
 
 
 class GitHubAPIError(Exception):
@@ -30,7 +31,7 @@ class GitHubClient:
         if self.token:
             headers['Authorization'] = f'Bearer {self.token}'
         try:
-            response = requests.get(url, headers=headers, timeout=(3.05, 10))
+            response = request_with_retries('GET', url, headers=headers, timeout=(3.05, 10))
         except requests.RequestException as error:
             raise GitHubAPIError('GitHub could not be reached. Your saved projects are unchanged.') from error
 

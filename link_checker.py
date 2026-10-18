@@ -9,7 +9,7 @@ from external_http import request_with_retries
 MAX_REDIRECTS = 8
 
 
-def _is_public_http_url(url):
+def is_public_http_url(url):
     try:
         parsed = urlparse(url)
         if parsed.scheme not in {'http', 'https'} or not parsed.hostname or parsed.username or parsed.password:
@@ -29,7 +29,7 @@ def check_link(url):
     current_url = (url or '').strip()
     visited = set()
     for redirect_number in range(MAX_REDIRECTS + 1):
-        if not _is_public_http_url(current_url) or current_url in visited:
+        if not is_public_http_url(current_url) or current_url in visited:
             return 'broken'
         visited.add(current_url)
         response = None

@@ -37,7 +37,7 @@ from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.lib.units import mm
 from reportlab.platypus import Paragraph, SimpleDocTemplate, Spacer
 from scheduler import PostgresJobScheduler
-from link_checker import check_link
+from link_checker import check_link, is_public_http_url
 from screenshot_provider import (
     ScreenshotOneProvider,
     ScreenshotQuotaExceeded,
@@ -1387,7 +1387,9 @@ def refresh_project_screenshots():
         image_data = None
         source = 'fallback'
 
-        if provider and not api_blocked:
+        if provider and not is_public_http_url(live_url):
+            logger.warning('Skipping screenshot API for non-public project URL: %s', live_url)
+        if provider and not api_blocked and is_public_http_url(live_url):
             allowed, newly_exhausted = _reserve_screenshot_api_request()
             if not allowed:
                 api_blocked = True

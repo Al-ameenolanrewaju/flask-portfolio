@@ -33,3 +33,10 @@ def test_check_link_rejects_redirect_loops_and_private_targets(monkeypatch):
     assert link_checker.check_link('https://example.com/start') == 'broken'
     request.assert_called_once()
     assert link_checker.check_link('http://127.0.0.1/admin') == 'broken'
+
+
+def test_public_url_validator_rejects_private_and_credentialed_urls():
+    assert not link_checker.is_public_http_url('http://127.0.0.1/private')
+    assert not link_checker.is_public_http_url('http://localhost/private')
+    assert not link_checker.is_public_http_url('https://user:pass@example.com')
+    assert link_checker.is_public_http_url('https://example.com/demo')

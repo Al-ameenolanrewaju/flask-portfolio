@@ -492,14 +492,14 @@ def test_github_client_reads_readme_and_enriches_repo(monkeypatch):
     }
     calls = []
 
-    def fake_get(url, headers, timeout):
+    def fake_get(method, url, headers, timeout):
         calls.append((url, headers, timeout))
         response = Mock(status_code=200, headers={})
         response.json.return_value = replies[url.removeprefix(GitHubClient.API_ROOT)]
         response.raise_for_status.return_value = None
         return response
 
-    monkeypatch.setattr('github_client.requests.get', fake_get)
+    monkeypatch.setattr('github_client.request_with_retries', fake_get)
     repositories = GitHubClient('example', 'secret-token', FakeGitHubCache()).list_repositories()
 
     assert 'A useful project description.' in repositories[0]['description']
@@ -893,6 +893,53 @@ def test_screenshot_quota_exhaustion_stops_api_calls_and_alerts_once(monkeypatch
     assert all(params[2] == 'fallback' for params in saves)
 
 
+def test_screenshot_api_never_receives_private_project_urls(monkeypatch):
+    project = {
+        'id': 18, 'title': 'Local test', 'description': '', 'link': 'http://127.0.0.1/private',
+        'homepage_url': None, 'github_full_name': None, 'languages': '[]', 'topics': '[]', 'edited_fields': '[]',
+    }
+    saved = []
+
+    class Cursor:
+        def execute(self, sql, params=None):
+            if sql.startswith('INSERT INTO project_screenshots'):
+                saved.append(params)
+
+        def fetchall(self):
+            return [project]
+
+        def fetchone(self):
+            return None
+
+        def close(self):
+            pass
+
+    class Connection:
+        def cursor(self, cursor_factory=None):
+            return Cursor()
+
+        def commit(self):
+            pass
+
+        def rollback(self):
+            pass
+
+        def close(self):
+            pass
+
+    class Provider:
+        def capture(self, url):
+            raise AssertionError('Private URLs must not reach ScreenshotOne')
+
+    monkeypatch.setattr(app_module, 'get_db_connection', lambda: Connection())
+    monkeypatch.setattr(app_module, '_screenshot_api_provider', lambda: Provider())
+
+    result = app_module.refresh_project_screenshots()
+
+    assert result == {'generated': 1, 'api_failures': 0}
+    assert saved[0][2] == 'fallback'
+
+
 def test_ai_draft_must_be_approved_before_public_data_loader_exposes_it(monkeypatch):
     projects = [
         {'id': 11, 'title': 'Approved', 'languages': '[]', 'topics': '[]', 'edited_fields': '[]'},
@@ -1235,7 +1282,7 @@ def test_github_client_wraps_network_failures(monkeypatch):
     def raise_timeout(*args, **kwargs):
         raise requests.Timeout('request timed out')
 
-    monkeypatch.setattr('github_client.requests.get', raise_timeout)
+    monkeypatch.setattr('github_client.request_with_retries', raise_timeout)
     with pytest.raises(GitHubAPIError, match='could not be reached'):
         GitHubClient('example').list_repositories()
 
