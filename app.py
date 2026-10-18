@@ -414,6 +414,8 @@ def regenerate_cv(data=None):
     global _cv_cache_hash
     data = data if data is not None else _cv_data()
     content_hash = hashlib.sha256(json.dumps(data, sort_keys=True, default=str).encode('utf-8')).hexdigest()
+    if _cv_cache_hash == content_hash and os.path.isfile(CV_PDF_PATH) and os.path.getsize(CV_PDF_PATH) > 0:
+        return content_hash
     pdf = _build_cv_pdf(data)
     output_dir = os.path.dirname(CV_PDF_PATH)
     os.makedirs(output_dir, exist_ok=True)
@@ -868,7 +870,7 @@ def update_ai_draft(project_id):
         draft = cursor.fetchone()
         if not draft:
             abort(404)
-        status = 'approved' if request.form.get('action') == 'approve' else draft['status']
+        status = 'approved' if request.form.get('action') == 'approve' else 'pending'
         cursor.execute(
             'UPDATE project_ai_drafts SET summary=%s, description=%s, case_study_problem=%s, '
             'case_study_built=%s, case_study_result=%s, status=%s, updated_at=NOW() WHERE project_id=%s',
@@ -1269,8 +1271,16 @@ def _reserve_screenshot_api_request():
         )
         claimed = cursor.fetchone()
         if claimed:
+            newly_exhausted = False
+            if claimed[0] >= SCREENSHOT_MONTHLY_LIMIT:
+                cursor.execute(
+                    'UPDATE screenshot_usage SET quota_exhausted=TRUE '
+                    'WHERE month_start=%s AND quota_exhausted=FALSE RETURNING month_start',
+                    (month_start,),
+                )
+                newly_exhausted = bool(cursor.fetchone())
             conn.commit()
-            return True, False
+            return True, newly_exhausted
         cursor.execute(
             'UPDATE screenshot_usage SET quota_exhausted=TRUE '
             'WHERE month_start=%s AND quota_exhausted=FALSE RETURNING month_start',
@@ -1347,7 +1357,7 @@ def refresh_project_screenshots():
         cursor = conn.cursor(cursor_factory=RealDictCursor)
         cursor.execute(
             'SELECT id, title, description, link, homepage_url, github_full_name, '
-            'languages, topics, edited_fields FROM projects WHERE is_visible=TRUE'
+            'languages, topics, edited_fields FROM projects'
         )
         projects = [dict(project) for project in cursor.fetchall()]
     finally:
@@ -1385,6 +1395,9 @@ def refresh_project_screenshots():
                     send_whatsapp_alert('ScreenshotOne free quota reached. Generated project cards will be used until next month.')
                     quota_alerted = True
             else:
+                if newly_exhausted and not quota_alerted:
+                    send_whatsapp_alert('ScreenshotOne free quota reached. Generated project cards will be used until next month.')
+                    quota_alerted = True
                 try:
                     image_data = normalize_webp(provider.capture(live_url))
                     source = 'screenshotone'
@@ -1523,7 +1536,7 @@ def generate_ai_summaries():
         return {'generated': 0, 'unchanged': 0, 'failures': 0}
     projects = _github_ai_projects()
     github = _github_client()
-    groq = GroqClient(api_key, app.config.get('GROQ_MODEL', 'llama-3.3-70b-versatile'))
+    groq = GroqClient(api_key, app.config.get('GROQ_MODEL'))
     generated = 0
     unchanged = 0
     failures = 0
@@ -1684,7 +1697,7 @@ def project_settings(id):
 
 @app.cli.command('sync-github-projects')
 def sync_github_projects_command():
-    """Refresh GitHub-backed projects; suitable for a daily Render Cron Job."""
+    """Refresh GitHub-backed projects manually; the in-app scheduler runs daily."""
     try:
         imported, updated = sync_github_projects()
         print(f'GitHub sync complete: {imported} imported, {updated} updated.')
@@ -1877,7 +1890,7 @@ job_scheduler = PostgresJobScheduler(
     get_db_connection,
     {
         'daily-github-sync': {'func': _scheduled_github_sync, 'interval': timedelta(days=1)},
-        'daily-cv-regeneration': {'func': regenerate_cv, 'interval': timedelta(days=1)},
+        'daily-cv-regeneration': {'func': ensure_cv_is_current, 'interval': timedelta(days=1)},
         'weekly-link-check': {'func': check_project_links, 'interval': timedelta(days=7)},
         'weekly-screenshot-refresh': {'func': refresh_project_screenshots, 'interval': timedelta(days=7)},
         'daily-ai-summaries': {'func': generate_ai_summaries, 'interval': timedelta(days=1)},
@@ -1893,6 +1906,9 @@ def start_background_scheduler():
 
 
 atexit.register(job_scheduler.stop)
+
+if production and DATABASE_URL.startswith(('postgres://', 'postgresql://')):
+    job_scheduler.start_if_needed()
 
 
 if __name__ == '__main__':

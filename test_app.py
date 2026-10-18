@@ -974,10 +974,12 @@ def test_ai_draft_save_and_approval_flow(client, monkeypatch):
 
     saved_response = client.post('/admin/ai-drafts/11', data={**fields, 'action': 'save'})
     approved_response = client.post('/admin/ai-drafts/11', data={**fields, 'action': 'approve'})
+    revised_response = client.post('/admin/ai-drafts/11', data={**fields, 'summary': 'Revised', 'action': 'save'})
 
-    assert saved_response.status_code == approved_response.status_code == 302
+    assert saved_response.status_code == approved_response.status_code == revised_response.status_code == 302
     assert saved[0][5] == 'pending'
     assert saved[1][5] == 'approved'
+    assert saved[2][5] == 'pending'
 
 
 def test_admin_ai_drafts_page_lists_pending_drafts(client, monkeypatch):
