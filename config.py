@@ -48,6 +48,7 @@ class Config:
     INBOX_PASSWORD = os.environ.get("INBOX_PASSWORD")
     INBOX_BODY_RETENTION_DAYS = os.environ.get("INBOX_BODY_RETENTION_DAYS", "30")
     CALENDAR_TIMEZONE = os.environ.get("CALENDAR_TIMEZONE", "Africa/Lagos")
+    RESULTS_MIN_APPLICATIONS = os.environ.get("RESULTS_MIN_APPLICATIONS", "10")
     SCREENSHOTONE_ACCESS_KEY = os.environ.get("SCREENSHOTONE_ACCESS_KEY")
 
 

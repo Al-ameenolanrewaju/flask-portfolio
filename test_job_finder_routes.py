@@ -65,6 +65,54 @@ def test_interview_calendar_download_is_private_and_returns_ics(job_client, monk
     assert b'UID:interview-7@example.test' in response.data
 
 
+def test_results_dashboard_shows_sample_size_warning(job_client, monkeypatch):
+    _authenticate(job_client, monkeypatch)
+    app.config['RESULTS_MIN_APPLICATIONS'] = '10'
+    monkeypatch.setattr(job_finder_module.results_dashboard_service, 'load', lambda: [{
+        'source_key': 'remotive', 'score_band': '70-79', 'score_floor': 70,
+        'found_count': 15, 'applied_count': 5, 'replies_count': 2, 'responded_jobs': 1,
+        'interviews_count': 0, 'rejections_count': 0, 'response_rate': 20.0,
+        'median_days_to_reply': 3.5, 'reply_sample_count': 1,
+    }])
+
+    response = job_client.get('/admin/job-finder/results')
+    page = response.get_data(as_text=True)
+
+    assert response.status_code == 200
+    assert 'n=5 applications' in page
+    assert 'Too few results for this group: 5 applications; minimum is 10.' in page
+    assert 'Apply suggested score' not in page
+
+
+def test_score_recommendation_changes_preferences_only_after_explicit_post(job_client, monkeypatch):
+    _authenticate(job_client, monkeypatch)
+    app.config['RESULTS_MIN_APPLICATIONS'] = '10'
+    rows = [{
+        'source_key': 'remotive', 'score_band': '80-89', 'score_floor': 80,
+        'found_count': 15, 'applied_count': 10, 'replies_count': 6, 'responded_jobs': 6,
+        'interviews_count': 2, 'rejections_count': 1, 'response_rate': 60.0,
+        'median_days_to_reply': 2.0, 'reply_sample_count': 6,
+    }]
+    monkeypatch.setattr(job_finder_module.results_dashboard_service, 'load', lambda: rows)
+    preferences = {'minimum_match_score': 65}
+    saved = []
+    monkeypatch.setattr(job_finder_service, 'get_preferences', lambda: dict(preferences))
+    monkeypatch.setattr(job_finder_service, 'save_preferences', saved.append)
+
+    page = job_client.get('/admin/job-finder/results').get_data(as_text=True)
+    assert 'Apply suggested score 80' in page
+    assert saved == []
+
+    response = job_client.post('/admin/job-finder/results/apply-suggestion', data={
+        'minimum_match_score': '80',
+    })
+
+    assert response.status_code == 302
+    assert saved[0]['minimum_match_score'] == 80
+
+
+
+
 def test_job_finder_dashboard_renders_private_preferences_and_attributions(job_client, monkeypatch):
     _authenticate(job_client, monkeypatch)
     monkeypatch.setattr(job_finder_service, 'get_preferences', lambda: DEFAULT_PREFERENCES)

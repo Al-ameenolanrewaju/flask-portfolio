@@ -79,6 +79,7 @@ GROQ_MODEL=llama-3.3-70b-versatile
 GROQ_DAILY_REQUEST_CAP=10
 GROQ_REPLY_RESERVED_REQUESTS=2
 CALENDAR_TIMEZONE=Africa/Lagos
+RESULTS_MIN_APPLICATIONS=10
 INBOX_IMAP_HOST=imap.example.com
 INBOX_IMAP_PORT=993
 INBOX_USER=your-dedicated-inbox@example.com
@@ -133,6 +134,7 @@ Set production values in the Render dashboard. Keep secrets out of Git.
 | `INBOX_PASSWORD` | Create an app password in your mailbox provider's security settings | Reply tracking is skipped; a mailbox app password is required. |
 | `INBOX_BODY_RETENTION_DAYS` | Optional integer; defaults to `30` | Message bodies are never stored; short excerpts are deleted after 30 days. |
 | `CALENDAR_TIMEZONE` | IANA timezone name; defaults to `Africa/Lagos` | Interview forms use Africa/Lagos. Each event stores its timezone and is exported as the equivalent UTC instant. |
+| `RESULTS_MIN_APPLICATIONS` | Optional integer; defaults to `10` | Groups with fewer applications show a low-sample warning; no score recommendation is made without this minimum. |
 
 ## Local Checks
 Run `make check`, or run `scripts/check.ps1` from PowerShell on Windows. In Git Bash, enable the optional pre-push hook with `git config core.hooksPath .githooks`.

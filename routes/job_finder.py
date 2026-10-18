@@ -25,10 +25,12 @@ from job_finder_service import (
     parse_preferences,
 )
 from reply_tracking import build_job_reply_to
+from results_dashboard import ResultsDashboardService, recommend_minimum_score
 
 logger = logging.getLogger(__name__)
 job_finder = Blueprint('job_finder', __name__, url_prefix='/admin/job-finder')
 interview_service = InterviewService(job_finder_service.connection_factory)
+results_dashboard_service = ResultsDashboardService(job_finder_service.connection_factory)
 
 
 @job_finder.route('/', methods=['GET'])
@@ -48,6 +50,57 @@ def dashboard():
         'job_finder.html', preferences=preferences, jobs=jobs,
         source_runs=source_runs, source_registry=job_finder_service.sources,
     )
+
+
+@job_finder.route('/results', methods=['GET'])
+@login_required
+def results():
+    try:
+        rows = results_dashboard_service.load()
+        minimum_applications = max(1, int(current_app.config.get('RESULTS_MIN_APPLICATIONS', 10)))
+    except (TypeError, ValueError):
+        minimum_applications = 10
+        rows = results_dashboard_service.load()
+    except Exception:
+        logger.exception('Job Finder results could not be loaded')
+        flash('Results are unavailable. Apply pending database migrations and try again.', 'danger')
+        rows = []
+        minimum_applications = 10
+    suggestion = recommend_minimum_score(rows, minimum_applications)
+    maximum_applications = max((int(row.get('applied_count') or 0) for row in rows), default=0) or 1
+    chart_rows = [
+        {
+            **row,
+            'applications_width': min(100, int((int(row.get('applied_count') or 0) / maximum_applications) * 100)),
+        }
+        for row in rows
+    ]
+    return render_template(
+        'job_finder_results.html', rows=rows, chart_rows=chart_rows,
+        suggestion=suggestion, minimum_applications=minimum_applications,
+        maximum_applications=maximum_applications,
+    )
+
+
+@job_finder.route('/results/apply-suggestion', methods=['POST'])
+@login_required
+def apply_score_suggestion():
+    try:
+        minimum_applications = max(1, int(current_app.config.get('RESULTS_MIN_APPLICATIONS', 10)))
+        suggestion = recommend_minimum_score(results_dashboard_service.load(), minimum_applications)
+        requested_score = int(request.form.get('minimum_match_score', ''))
+        if suggestion['minimum_match_score'] is None or requested_score != suggestion['minimum_match_score']:
+            raise ValueError('The results do not currently support that score recommendation.')
+        preferences = job_finder_service.get_preferences()
+        preferences['minimum_match_score'] = requested_score
+        job_finder_service.save_preferences(preferences)
+        flash(f'Minimum match score updated to {requested_score} by your request.', 'success')
+    except ValueError as error:
+        flash(str(error), 'warning')
+    except Exception:
+        logger.exception('Job Finder score recommendation could not be applied')
+        flash('The recommendation could not be applied. Preferences were not changed.', 'danger')
+    return redirect(url_for('main.job_finder.results'))
 
 
 @job_finder.route('/inbox', methods=['GET'])

@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+
+{% block title %}Job Results | Job Finder{% endblock %}
+
+{% block content %}
+<style>
+    .results-bar-track { height: 10px; background: #e8edf0; min-width: 120px; }
+    .results-bar-fill { height: 10px; background: #177e78; }
+    .results-table td, .results-table th { vertical-align: top; }
+    .sample-note { display: block; color: #66737b; font-size: .8rem; white-space: nowrap; }
+</style>
+<main class="container py-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1>Job results</h1>
+            <p class="text-muted">Outcomes are grouped by source and match-score band. Recommendations never change your preferences automatically.</p>
+        </div>
+        <a href="{{ url_for('main.job_finder.dashboard') }}" class="btn btn-outline-secondary">Job Finder</a>
+    </div>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for category, message in messages %}
+        <div class="alert alert-{{ category }}" role="status">{{ message }}</div>
+        {% endfor %}
+    {% endwith %}
+
+    <section class="mb-5" aria-labelledby="score-recommendation-title">
+        <h2 id="score-recommendation-title">Suggested minimum match score</h2>
+        {% if suggestion.minimum_match_score is not none %}
+        <p>Based on {{ suggestion.sample_size }} applications in score band {{ suggestion.score_band }}, the observed response rate was {{ '%.1f'|format(suggestion.response_rate) }}%.</p>
+        <form action="{{ url_for('main.job_finder.apply_score_suggestion') }}" method="post">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <input type="hidden" name="minimum_match_score" value="{{ suggestion.minimum_match_score }}">
+            <button class="btn btn-outline-primary" type="submit">Apply suggested score {{ suggestion.minimum_match_score }}</button>
+        </form>
+        {% else %}
+        <p class="text-warning">Too few results to recommend a score. At least {{ minimum_applications }} applications in a score band are needed.</p>
+        {% endif %}
+    </section>
+
+    <section class="mb-5" aria-labelledby="application-chart-title">
+        <h2 id="application-chart-title">Applications by source and score band</h2>
+        {% for row in chart_rows %}
+        <div class="d-flex align-items-center gap-3 mb-2">
+            <span style="min-width: 180px">{{ row.source_key|title }} · {{ row.score_band }}</span>
+            <div class="results-bar-track flex-grow-1" role="meter" aria-label="{{ row.source_key }} {{ row.score_band }} applications" aria-valuemin="0" aria-valuemax="{{ maximum_applications }}" aria-valuenow="{{ row.applied_count }}">
+                <div class="results-bar-fill" style="width: {{ row.applications_width }}%"></div>
+            </div>
+            <span>{{ row.applied_count }} <small>(n={{ row.applied_count }})</small></span>
+        </div>
+        {% else %}
+        <p class="text-muted">No job results are available yet.</p>
+        {% endfor %}
+    </section>
+
+    <section aria-labelledby="outcome-table-title">
+        <h2 id="outcome-table-title">Outcome detail</h2>
+        <div class="table-responsive">
+            <table class="table table-striped results-table">
+                <thead>
+                    <tr>
+                        <th>Source</th><th>Score band</th><th>Found</th><th>Applied</th>
+                        <th>Replies</th><th>Interviews</th><th>Rejections</th>
+                        <th>Response rate</th><th>Median days to reply</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in rows %}
+                    <tr>
+                        <td>{{ row.source_key|title }}</td>
+                        <td>{{ row.score_band }}</td>
+                        <td>{{ row.found_count }}<small class="sample-note">n={{ row.found_count }}</small></td>
+                        <td>{{ row.applied_count }}<small class="sample-note">n={{ row.applied_count }}</small></td>
+                        <td>{{ row.replies_count }}<small class="sample-note">n={{ row.replies_count }}</small></td>
+                        <td>{{ row.interviews_count }}<small class="sample-note">n={{ row.applied_count }} applications</small></td>
+                        <td>{{ row.rejections_count }}<small class="sample-note">n={{ row.applied_count }} applications</small></td>
+                        <td>{% if row.response_rate is not none %}{{ '%.1f'|format(row.response_rate) }}%{% else %}N/A{% endif %}<small class="sample-note">n={{ row.applied_count }} applications</small></td>
+                        <td>{% if row.median_days_to_reply is not none %}{{ '%.1f'|format(row.median_days_to_reply) }} days{% else %}N/A{% endif %}<small class="sample-note">n={{ row.reply_sample_count }} replies</small></td>
+                    </tr>
+                    {% if row.applied_count < minimum_applications %}
+                    <tr><td colspan="9" class="text-warning">Too few results for this group: {{ row.applied_count }} applications; minimum is {{ minimum_applications }}.</td></tr>
+                    {% endif %}
+                    {% else %}
+                    <tr><td colspan="9" class="text-muted">No results to display.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+</main>
+{% endblock %}
