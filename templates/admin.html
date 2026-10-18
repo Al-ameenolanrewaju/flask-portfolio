@@ -329,6 +329,7 @@ body {
             <p>Welcome back, Administrator! Manage your portfolio content here.</p>
             <a href="{{ url_for('admin_jobs') }}" class="btn-custom btn-primary-custom">Scheduled jobs</a>
             <a href="{{ url_for('admin_ai_drafts') }}" class="btn-custom btn-primary-custom">AI drafts</a>
+            <a href="{{ url_for('main.job_finder.dashboard') }}" class="btn-custom btn-primary-custom">Job Finder</a>
         </div>
         <form action="{{ url_for('auth.logout') }}" method="POST">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">

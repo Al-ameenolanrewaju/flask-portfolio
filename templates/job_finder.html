@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+
+{% block title %}Job Finder | Admin{% endblock %}
+
+{% block content %}
+<main class="container py-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1>Job Finder</h1>
+            <p class="text-muted">Private to your admin account. Matching is automated; verify each role and its terms on the original posting.</p>
+        </div>
+        <a href="{{ url_for('admin') }}" class="btn btn-outline-secondary">Back to admin</a>
+    </div>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for category, message in messages %}
+        <div class="alert alert-{{ category }}" role="status">{{ message }}</div>
+        {% endfor %}
+    {% endwith %}
+
+    <section class="mb-5" aria-labelledby="job-preferences-title">
+        <h2 id="job-preferences-title">Preferences</h2>
+        <form action="{{ url_for('main.job_finder.save_preferences') }}" method="post">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div class="row">
+                <div class="col-md-6 form-group">
+                    <label for="target-titles">Target titles</label>
+                    <textarea class="form-control" id="target-titles" name="target_titles" rows="4" required>{{ preferences.target_titles|join('\n') }}</textarea>
+                </div>
+                <div class="col-md-6 form-group">
+                    <label for="keywords">Keywords</label>
+                    <textarea class="form-control" id="keywords" name="keywords" rows="4" required>{{ preferences.keywords|join('\n') }}</textarea>
+                </div>
+                <div class="col-md-6 form-group">
+                    <label for="excluded-keywords">Excluded keywords</label>
+                    <textarea class="form-control" id="excluded-keywords" name="excluded_keywords" rows="3">{{ preferences.excluded_keywords|join('\n') }}</textarea>
+                </div>
+                <div class="col-md-6 form-group">
+                    <label for="excluded-companies">Excluded companies</label>
+                    <textarea class="form-control" id="excluded-companies" name="excluded_companies" rows="3">{{ preferences.excluded_companies|join('\n') }}</textarea>
+                </div>
+                <div class="col-md-6 form-group">
+                    <label for="locations">Locations</label>
+                    <textarea class="form-control" id="locations" name="locations" rows="3" required>{{ preferences.locations|join('\n') }}</textarea>
+                </div>
+                <div class="col-md-6 form-group">
+                    <label for="minimum-score">Minimum match score</label>
+                    <input class="form-control" id="minimum-score" name="minimum_match_score" type="number" min="0" max="100" value="{{ preferences.minimum_match_score }}" required>
+                    <label for="daily-send-cap" class="mt-3">Daily email send cap</label>
+                    <input class="form-control" id="daily-send-cap" name="daily_send_cap" type="number" min="0" max="50" value="{{ preferences.daily_send_cap }}" required>
+                </div>
+            </div>
+            <div class="form-group">
+                <label><input type="checkbox" name="remote_only" {% if preferences.remote_only %}checked{% endif %}> Remote only</label>
+            </div>
+            <fieldset class="form-group">
+                <legend>Enabled job sources</legend>
+                {% for source_key, source in source_registry.items() %}
+                <label class="mr-3"><input type="checkbox" name="enabled_sources" value="{{ source_key }}" {% if source_key in preferences.enabled_sources %}checked{% endif %}> {{ source.name }}</label>
+                {% endfor %}
+            </fieldset>
+            <button type="submit" class="btn btn-primary">Save preferences</button>
+        </form>
+    </section>
+
+    <section class="mb-5" aria-labelledby="job-scan-title">
+        <div class="d-flex justify-content-between align-items-center">
+            <h2 id="job-scan-title">Sources</h2>
+            <form action="{{ url_for('main.job_finder.run_now') }}" method="post">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button type="submit" class="btn btn-primary">Run now</button>
+            </form>
+        </div>
+        <p class="text-warning"><strong>Automated matches can be wrong.</strong> Check the original posting, company, location, eligibility, and application instructions yourself. Applications are never submitted automatically.</p>
+        <ul>
+            {% for source in source_runs %}
+            <li>{{ source.source_key|title }}: {{ 'OK' if source.succeeded else 'Error' }}{% if source.fetched_at %}, checked {{ source.fetched_at.strftime('%Y-%m-%d %H:%M UTC') }}{% endif %}{% if source.error_code %} ({{ source.error_code }}){% endif %}</li>
+            {% else %}
+            <li>No source checks recorded yet.</li>
+            {% endfor %}
+        </ul>
+        <p>Listings retain their source attribution and original posting link. Sources enabled: Remotive and RemoteOK.</p>
+    </section>
+
+    <section aria-labelledby="job-queue-title">
+        <h2 id="job-queue-title">Review queue</h2>
+        <div class="table-responsive">
+            <table class="table align-middle">
+                <thead><tr><th>Role</th><th>Company</th><th>Location</th><th>Match</th><th>Source</th><th>Posted</th><th>Status</th></tr></thead>
+                <tbody>
+                    {% for job in jobs %}
+                    <tr>
+                        <th scope="row"><a href="{{ job.posting_url }}" target="_blank" rel="noopener noreferrer">{{ job.title }}</a></th>
+                        <td>{{ job.company or 'Not listed' }}</td>
+                        <td>{{ job.location or 'Not listed' }}</td>
+                        <td>{% if job.score is not none %}{{ job.score }}/100{% if job.match_reason %}<br><small>{{ job.match_reason }}</small>{% endif %}{% else %}Not scored{% endif %}</td>
+                        <td><a href="{{ job.source_url }}" target="_blank" rel="noopener noreferrer">{{ job.source_name }}</a></td>
+                        <td>{{ job.posted_at.strftime('%Y-%m-%d') if job.posted_at else 'Unknown' }}</td>
+                        <td>{{ job.status|title }}</td>
+                    </tr>
+                    {% else %}
+                    <tr><td colspan="7">No jobs found yet. Save your preferences and run a scan.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+</main>
+{% endblock %}

@@ -46,6 +46,7 @@ from screenshot_provider import (
 )
 from og_images import create_og_image
 from groq_client import GroqClient, GroqDailyCapReached, GroqRateLimitExceeded
+from job_finder_service import job_finder_service
 
 app = Flask(__name__)
 production = os.environ.get('RENDER', '').lower() == 'true'
@@ -1896,9 +1897,11 @@ job_scheduler = PostgresJobScheduler(
         'weekly-link-check': {'func': check_project_links, 'interval': timedelta(days=7)},
         'weekly-screenshot-refresh': {'func': refresh_project_screenshots, 'interval': timedelta(days=7)},
         'daily-ai-summaries': {'func': generate_ai_summaries, 'interval': timedelta(days=1)},
+        'job-finder-fetch': {'func': job_finder_service.fetch_new_jobs, 'interval': timedelta(hours=6)},
     },
     on_failure=_scheduler_failure_alert,
 )
+app.extensions['job_scheduler'] = job_scheduler
 
 
 @app.before_request
