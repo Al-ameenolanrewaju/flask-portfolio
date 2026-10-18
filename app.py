@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, url_for, redirect, flash, session, jsonify, abort
+from flask import Flask, render_template, request, url_for, redirect, flash, jsonify, abort
 import psycopg2
 from psycopg2.extras import RealDictCursor
 import os
@@ -6,11 +6,10 @@ import json
 from urllib.request import Request, urlopen
 from urllib.error import HTTPError, URLError
 from werkzeug.utils import secure_filename
-from functools import wraps
 import time
 import re
 from datetime import datetime
-from flask_mail import Mail, Message
+from flask_mail import Mail
 from flask_migrate import Migrate
 from flask_login import LoginManager, login_required, login_user
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -22,11 +21,14 @@ from flask_wtf.csrf import CSRFProtect
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from config import DevelopmentConfig, ProductionConfig
-from models import db, User, Category, Task
+from models import db, User
 from github_client import GitHubAPIError, GitHubClient
+from github_webhooks import verify_github_signature
+from routes.main import main
+from routes.auth import auth
 
 app = Flask(__name__)
-production = bool(os.environ.get('RAILWAY_ENVIRONMENT') or os.environ.get('RAILWAY_PROJECT_ID') or os.environ.get('RENDER'))
+production = os.environ.get('RENDER', '').lower() == 'true'
 app.config.from_object(ProductionConfig if production else DevelopmentConfig)
 if production and not os.environ.get('SECRET_KEY'):
     raise RuntimeError('SECRET_KEY must be configured in production.')
@@ -69,9 +71,7 @@ limiter = Limiter(
 )
 
 # ================== BLUEPRINTS ==================
-from routes.main import main
 app.register_blueprint(main)
-from routes.auth import auth
 app.register_blueprint(auth, url_prefix='/auth')
 app.view_functions['auth.admin_login'] = limiter.limit('5 per minute')(app.view_functions['auth.admin_login'])
 
@@ -788,6 +788,81 @@ def github_sync():
     return redirect(url_for('admin'))
 
 
+def mark_github_repository_missing(repo_id):
+    conn = get_db_connection()
+    if not conn:
+        raise GitHubAPIError('Database connection error. GitHub projects were not changed.')
+    try:
+        cursor = conn.cursor()
+        cursor.execute(
+            'UPDATE projects SET github_missing=TRUE WHERE github_repo_id=%s',
+            (repo_id,)
+        )
+        conn.commit()
+        cache.clear()
+    except Exception:
+        conn.rollback()
+        raise
+    finally:
+        cursor.close()
+        conn.close()
+
+
+@app.route('/webhooks/github', methods=['POST'])
+@limiter.limit('60 per minute')
+@csrf.exempt
+def github_webhook():
+    secret = app.config.get('GITHUB_WEBHOOK_SECRET')
+    if not secret:
+        return jsonify({'error': 'GitHub webhook secret is not configured.'}), 503
+
+    payload_bytes = request.get_data(cache=True)
+    signature = request.headers.get('X-Hub-Signature-256', '')
+    if not verify_github_signature(payload_bytes, signature, secret):
+        return jsonify({'error': 'Invalid GitHub webhook signature.'}), 401
+
+    payload = request.get_json(silent=True) or {}
+    event = request.headers.get('X-GitHub-Event', '')
+    repository = payload.get('repository') or {}
+    repo_id = repository.get('id')
+    full_name = repository.get('full_name')
+    if event not in ('push', 'repository'):
+        return jsonify({'message': 'Event ignored.'}), 202
+    if not repo_id or not full_name:
+        return jsonify({'error': 'Webhook payload has no repository identity.'}), 400
+
+    owner = (repository.get('owner') or {}).get('login')
+    configured_username = app.config.get('GITHUB_USERNAME', '')
+    if owner and configured_username and owner.casefold() != configured_username.casefold():
+        return jsonify({'error': 'Repository owner does not match GITHUB_USERNAME.'}), 403
+
+    action = payload.get('action')
+    if event == 'repository' and action == 'deleted':
+        try:
+            mark_github_repository_missing(repo_id)
+            return jsonify({'message': 'Repository marked missing.'}), 200
+        except (GitHubAPIError, psycopg2.Error) as error:
+            logger.exception('GitHub repository deletion webhook failed')
+            return jsonify({'error': str(error)}), 503
+
+    if event == 'repository' and action not in {
+        'created', 'edited', 'archived', 'unarchived', 'renamed', 'publicized', 'privatized'
+    }:
+        return jsonify({'message': 'Repository event ignored.'}), 202
+
+    try:
+        repository = _github_client().enrich_repositories([repository])[0]
+        imported, updated = sync_github_projects(
+            [repository],
+            mark_missing=False,
+            import_new=(event == 'repository' and action == 'created'),
+        )
+        return jsonify({'message': 'Repository synced.', 'imported': imported, 'updated': updated}), 200
+    except (GitHubAPIError, psycopg2.Error) as error:
+        logger.exception('GitHub webhook sync failed for %s', full_name)
+        return jsonify({'error': 'GitHub sync failed; retry will be safe.', 'detail': str(error)}), 503
+
+
 @app.route('/admin/projects/<int:id>/refresh-description', methods=['POST'])
 @login_required
 def refresh_project_description(id):
@@ -863,7 +938,7 @@ def project_settings(id):
 
 @app.cli.command('sync-github-projects')
 def sync_github_projects_command():
-    """Refresh GitHub-backed projects; suitable for a daily Railway cron job."""
+    """Refresh GitHub-backed projects; suitable for a daily Render Cron Job."""
     try:
         imported, updated = sync_github_projects()
         print(f'GitHub sync complete: {imported} imported, {updated} updated.')

@@ -3,7 +3,7 @@
 A full-stack portfolio website built with Python Flask, MySQL and Bootstrap.
 
 ## 🌍 Live Demo
-[View Live Portfolio](https://web-production-1d98b.up.railway.app)
+[View Live Portfolio](https://your-render-service.onrender.com)
 
 ## 🛠️ Technologies Used
 - **Backend:** Python, Flask, Flask-SQLAlchemy, Flask-Login, Flask-RESTful
@@ -98,7 +98,7 @@ For daily GitHub synchronization, add a Render Cron Job for this project and sch
 ## 📞 Contact
 - **Email:** oadedamola07@gmail.com
 - **Location:** Lagos, Nigeria 🇳🇬
-- **Portfolio:** [Live Site](https://web-production-1d98b.up.railway.app)
+- **Portfolio:** [Live Site](https://your-render-service.onrender.com)
 
 ## 📄 License
 MIT License — feel free to use this as a template!

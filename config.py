@@ -19,6 +19,7 @@ class Config:
     ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD", "")
     GITHUB_USERNAME = os.environ.get("GITHUB_USERNAME", "")
     GITHUB_TOKEN = os.environ.get("GITHUB_TOKEN")
+    GITHUB_WEBHOOK_SECRET = os.environ.get("GITHUB_WEBHOOK_SECRET")
 
     # Email
     MAIL_SERVER = "smtp.gmail.com"
