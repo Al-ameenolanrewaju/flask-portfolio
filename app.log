@@ -626,3 +626,522 @@
  * Running on http://127.0.0.1:5050
 2026-10-17 22:21:05,070 INFO [33mPress CTRL+C to quit[0m
 2026-10-17 22:21:12,368 INFO 127.0.0.1 - - [17/Oct/2026 22:21:12] "GET / HTTP/1.1" 200 -
+2026-10-18 13:17:07,090 INFO [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2026-10-18 13:17:07,091 INFO [33mPress CTRL+C to quit[0m
+2026-10-18 13:17:07,851 INFO 127.0.0.1 - - [18/Oct/2026 13:17:07] "[33mGET /static/service-worker.js HTTP/1.1[0m" 404 -
+2026-10-18 13:17:07,924 INFO 127.0.0.1 - - [18/Oct/2026 13:17:07] "[33mGET /static/images/waj-vtu-logo.jpeg HTTP/1.1[0m" 404 -
+2026-10-18 13:17:45,713 INFO 127.0.0.1 - - [18/Oct/2026 13:17:45] "[33mGET /login HTTP/1.1[0m" 404 -
+2026-10-18 13:17:45,901 INFO 127.0.0.1 - - [18/Oct/2026 13:17:45] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2026-10-18 13:17:51,626 INFO 127.0.0.1 - - [18/Oct/2026 13:17:51] "[33mGET /login HTTP/1.1[0m" 404 -
+2026-10-18 13:17:53,931 INFO 127.0.0.1 - - [18/Oct/2026 13:17:53] "[33mGET /static/service-worker.js HTTP/1.1[0m" 404 -
+2026-10-18 13:17:53,979 INFO 127.0.0.1 - - [18/Oct/2026 13:17:53] "[33mGET /static/manifest.webmanifest HTTP/1.1[0m" 404 -
+2026-10-18 13:18:31,568 INFO 127.0.0.1 - - [18/Oct/2026 13:18:31] "GET / HTTP/1.1" 200 -
+2026-10-18 13:18:31,931 INFO [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5001
+2026-10-18 13:18:31,932 INFO [33mPress CTRL+C to quit[0m
+2026-10-18 13:18:32,441 INFO 127.0.0.1 - - [18/Oct/2026 13:18:32] "GET / HTTP/1.1" 200 -
+2026-10-18 13:18:52,963 INFO 127.0.0.1 - - [18/Oct/2026 13:18:52] "GET / HTTP/1.1" 200 -
+2026-10-18 13:19:17,306 INFO 127.0.0.1 - - [18/Oct/2026 13:19:17] "GET / HTTP/1.1" 200 -
+2026-10-18 13:19:17,754 INFO 127.0.0.1 - - [18/Oct/2026 13:19:17] "GET /static/css/style.css HTTP/1.1" 200 -
+2026-10-18 13:19:18,152 INFO 127.0.0.1 - - [18/Oct/2026 13:19:18] "GET /static/uploads/my_picture.jpeg HTTP/1.1" 200 -
+2026-10-18 13:19:18,673 INFO 127.0.0.1 - - [18/Oct/2026 13:19:18] "GET /static/js/main.js HTTP/1.1" 200 -
+2026-10-18 13:19:20,706 INFO 127.0.0.1 - - [18/Oct/2026 13:19:20] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2026-10-18 13:19:28,771 INFO [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5002
+ * Running on http://10.112.114.253:5002
+2026-10-18 13:19:28,771 INFO [33mPress CTRL+C to quit[0m
+2026-10-18 13:19:55,978 INFO 127.0.0.1 - - [18/Oct/2026 13:19:55] "[33mGET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1[0m" 404 -
+2026-10-18 13:20:06,449 INFO 127.0.0.1 - - [18/Oct/2026 13:20:06] "[33mGET /admin/marketing/reengagement HTTP/1.1[0m" 404 -
+2026-10-18 13:20:15,446 INFO 127.0.0.1 - - [18/Oct/2026 13:20:15] "[33mGET /admin/marketing HTTP/1.1[0m" 404 -
+2026-10-18 13:20:18,581 INFO 127.0.0.1 - - [18/Oct/2026 13:20:18] "GET / HTTP/1.1" 200 -
+2026-10-18 13:20:18,707 INFO 127.0.0.1 - - [18/Oct/2026 13:20:18] "GET /static/css/style.css HTTP/1.1" 200 -
+2026-10-18 13:20:18,997 INFO 127.0.0.1 - - [18/Oct/2026 13:20:18] "[33mGET /admin/dashboard HTTP/1.1[0m" 404 -
+2026-10-18 13:20:19,119 INFO 127.0.0.1 - - [18/Oct/2026 13:20:19] "GET /static/uploads/my_picture.jpeg HTTP/1.1" 200 -
+2026-10-18 13:20:19,346 INFO 127.0.0.1 - - [18/Oct/2026 13:20:19] "GET /static/js/main.js HTTP/1.1" 200 -
+2026-10-18 13:20:20,348 INFO 127.0.0.1 - - [18/Oct/2026 13:20:20] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2026-10-18 13:20:24,361 INFO 127.0.0.1 - - [18/Oct/2026 13:20:24] "[33mGET /admin/dashboard HTTP/1.1[0m" 404 -
+2026-10-18 13:21:02,373 INFO 127.0.0.1 - - [18/Oct/2026 13:21:02] "[32mGET /admin HTTP/1.1[0m" 302 -
+2026-10-18 13:21:04,061 INFO 127.0.0.1 - - [18/Oct/2026 13:21:04] "GET /auth/login?next=/admin HTTP/1.1" 200 -
+2026-10-18 13:21:04,381 INFO 127.0.0.1 - - [18/Oct/2026 13:21:04] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2026-10-18 13:21:05,211 INFO 127.0.0.1 - - [18/Oct/2026 13:21:05] "[36mGET /static/js/main.js HTTP/1.1[0m" 304 -
+2026-10-18 13:21:26,874 INFO 127.0.0.1 - - [18/Oct/2026 13:21:26] "[32mPOST /auth/login?next=/admin HTTP/1.1[0m" 302 -
+2026-10-18 13:21:27,195 INFO 127.0.0.1 - - [18/Oct/2026 13:21:27] "GET /auth/login HTTP/1.1" 200 -
+2026-10-18 13:21:27,458 INFO 127.0.0.1 - - [18/Oct/2026 13:21:27] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2026-10-18 13:21:27,530 INFO 127.0.0.1 - - [18/Oct/2026 13:21:27] "[36mGET /static/js/main.js HTTP/1.1[0m" 304 -
+2026-10-18 13:21:44,097 INFO 127.0.0.1 - - [18/Oct/2026 13:21:44] "[32mPOST /auth/login HTTP/1.1[0m" 302 -
+2026-10-18 13:21:49,067 INFO 127.0.0.1 - - [18/Oct/2026 13:21:49] "GET /admin HTTP/1.1" 200 -
+2026-10-18 13:21:49,106 INFO 127.0.0.1 - - [18/Oct/2026 13:21:49] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2026-10-18 13:21:49,424 INFO 127.0.0.1 - - [18/Oct/2026 13:21:49] "[36mGET /static/uploads/my_picture.jpeg HTTP/1.1[0m" 304 -
+2026-10-18 13:21:49,425 INFO 127.0.0.1 - - [18/Oct/2026 13:21:49] "[36mGET /static/js/main.js HTTP/1.1[0m" 304 -
+2026-10-18 13:22:16,059 ERROR Could not load scheduled job status
+Traceback (most recent call last):
+  File "C:\Users\ADEDAMOLA\Desktop\port\app.py", line 905, in admin_jobs
+    jobs = job_scheduler.statuses()
+  File "C:\Users\ADEDAMOLA\Desktop\port\scheduler.py", line 232, in statuses
+    cursor.execute('SELECT job_name, last_run_at, status, next_run_at, last_error FROM job_runs')
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+psycopg2.errors.UndefinedTable: relation "job_runs" does not exist
+LINE 1: ..., last_run_at, status, next_run_at, last_error FROM job_runs
+                                                               ^
+
+2026-10-18 13:22:16,251 INFO 127.0.0.1 - - [18/Oct/2026 13:22:16] "GET /admin/jobs HTTP/1.1" 200 -
+2026-10-18 13:22:16,604 INFO 127.0.0.1 - - [18/Oct/2026 13:22:16] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2026-10-18 13:22:16,605 INFO 127.0.0.1 - - [18/Oct/2026 13:22:16] "[36mGET /static/js/main.js HTTP/1.1[0m" 304 -
+2026-10-18 13:22:31,628 INFO 127.0.0.1 - - [18/Oct/2026 13:22:31] "GET /admin HTTP/1.1" 200 -
+2026-10-18 13:22:32,019 INFO 127.0.0.1 - - [18/Oct/2026 13:22:32] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2026-10-18 13:22:32,049 INFO 127.0.0.1 - - [18/Oct/2026 13:22:32] "[36mGET /static/uploads/my_picture.jpeg HTTP/1.1[0m" 304 -
+2026-10-18 13:22:32,062 INFO 127.0.0.1 - - [18/Oct/2026 13:22:32] "[36mGET /static/js/main.js HTTP/1.1[0m" 304 -
+2026-10-18 13:22:36,833 ERROR Could not load AI summary drafts
+Traceback (most recent call last):
+  File "C:\Users\ADEDAMOLA\Desktop\port\app.py", line 849, in admin_ai_drafts
+    cursor.execute(
+    ~~~~~~~~~~~~~~^
+        'SELECT d.*, p.title AS project_title, p.github_full_name '
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        'FROM project_ai_drafts d JOIN projects p ON p.id=d.project_id '
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        "ORDER BY CASE WHEN d.status='pending' THEN 0 ELSE 1 END, p.title"
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\ADEDAMOLA\Desktop\port\venv\Lib\site-packages\psycopg2\extras.py", line 236, in execute
+    return super().execute(query, vars)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+psycopg2.errors.UndefinedTable: relation "project_ai_drafts" does not exist
+LINE 1: ...p.title AS project_title, p.github_full_name FROM project_ai...
+                                                             ^
+
+2026-10-18 13:22:37,118 INFO 127.0.0.1 - - [18/Oct/2026 13:22:37] "GET /admin/ai-drafts HTTP/1.1" 200 -
+2026-10-18 13:22:37,496 INFO 127.0.0.1 - - [18/Oct/2026 13:22:37] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2026-10-18 13:22:37,525 INFO 127.0.0.1 - - [18/Oct/2026 13:22:37] "[36mGET /static/js/main.js HTTP/1.1[0m" 304 -
+2026-10-18 13:22:51,482 INFO 127.0.0.1 - - [18/Oct/2026 13:22:51] "GET /admin HTTP/1.1" 200 -
+2026-10-18 13:22:52,126 INFO 127.0.0.1 - - [18/Oct/2026 13:22:52] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2026-10-18 13:22:57,842 ERROR Could not load AI summary drafts
+Traceback (most recent call last):
+  File "C:\Users\ADEDAMOLA\Desktop\port\app.py", line 849, in admin_ai_drafts
+    cursor.execute(
+    ~~~~~~~~~~~~~~^
+        'SELECT d.*, p.title AS project_title, p.github_full_name '
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        'FROM project_ai_drafts d JOIN projects p ON p.id=d.project_id '
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        "ORDER BY CASE WHEN d.status='pending' THEN 0 ELSE 1 END, p.title"
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\ADEDAMOLA\Desktop\port\venv\Lib\site-packages\psycopg2\extras.py", line 236, in execute
+    return super().execute(query, vars)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+psycopg2.errors.UndefinedTable: relation "project_ai_drafts" does not exist
+LINE 1: ...p.title AS project_title, p.github_full_name FROM project_ai...
+                                                             ^
+
+2026-10-18 13:22:58,002 INFO 127.0.0.1 - - [18/Oct/2026 13:22:58] "GET /admin/ai-drafts HTTP/1.1" 200 -
+2026-10-18 13:22:58,360 INFO 127.0.0.1 - - [18/Oct/2026 13:22:58] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2026-10-18 13:22:58,485 INFO 127.0.0.1 - - [18/Oct/2026 13:22:58] "[36mGET /static/js/main.js HTTP/1.1[0m" 304 -
+2026-10-18 13:24:33,213 INFO 127.0.0.1 - - [18/Oct/2026 13:24:33] "GET / HTTP/1.1" 200 -
+2026-10-18 13:24:33,468 INFO 127.0.0.1 - - [18/Oct/2026 13:24:33] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2026-10-18 13:24:33,568 INFO 127.0.0.1 - - [18/Oct/2026 13:24:33] "[36mGET /static/uploads/my_picture.jpeg HTTP/1.1[0m" 304 -
+2026-10-18 13:24:33,583 INFO 127.0.0.1 - - [18/Oct/2026 13:24:33] "[36mGET /static/js/main.js HTTP/1.1[0m" 304 -
+2026-10-18 13:24:34,063 INFO 127.0.0.1 - - [18/Oct/2026 13:24:34] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2026-10-18 13:25:21,867 INFO [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5002
+ * Running on http://10.112.114.253:5002
+2026-10-18 13:25:21,868 INFO [33mPress CTRL+C to quit[0m
+2026-10-18 13:25:21,881 INFO  * Restarting with stat
+2026-10-18 13:25:34,737 WARNING  * Debugger is active!
+2026-10-18 13:25:34,746 INFO  * Debugger PIN: 119-172-588
+2026-10-18 13:25:41,364 INFO 127.0.0.1 - - [18/Oct/2026 13:25:41] "GET / HTTP/1.1" 200 -
+2026-10-18 13:25:41,512 INFO 127.0.0.1 - - [18/Oct/2026 13:25:41] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2026-10-18 13:25:41,711 INFO 127.0.0.1 - - [18/Oct/2026 13:25:41] "[36mGET /static/uploads/my_picture.jpeg HTTP/1.1[0m" 304 -
+2026-10-18 13:25:41,848 INFO 127.0.0.1 - - [18/Oct/2026 13:25:41] "[36mGET /static/js/main.js HTTP/1.1[0m" 304 -
+2026-10-18 13:26:05,408 ERROR Could not load scheduled job status
+Traceback (most recent call last):
+  File "C:\Users\ADEDAMOLA\Desktop\port\app.py", line 905, in admin_jobs
+    jobs = job_scheduler.statuses()
+  File "C:\Users\ADEDAMOLA\Desktop\port\scheduler.py", line 232, in statuses
+    cursor.execute('SELECT job_name, last_run_at, status, next_run_at, last_error FROM job_runs')
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+psycopg2.errors.UndefinedTable: relation "job_runs" does not exist
+LINE 1: ..., last_run_at, status, next_run_at, last_error FROM job_runs
+                                                               ^
+
+2026-10-18 13:26:05,618 INFO 127.0.0.1 - - [18/Oct/2026 13:26:05] "GET /admin/jobs HTTP/1.1" 200 -
+2026-10-18 13:26:05,874 INFO 127.0.0.1 - - [18/Oct/2026 13:26:05] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2026-10-18 13:26:08,255 INFO 127.0.0.1 - - [18/Oct/2026 13:26:08] "[36mGET /static/js/main.js HTTP/1.1[0m" 304 -
+2026-10-18 13:26:09,345 INFO 127.0.0.1 - - [18/Oct/2026 13:26:09] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2026-10-18 13:31:46,536 INFO 127.0.0.1 - - [18/Oct/2026 13:31:46] "GET /admin/jobs HTTP/1.1" 200 -
+2026-10-18 13:31:46,603 INFO 127.0.0.1 - - [18/Oct/2026 13:31:46] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2026-10-18 13:31:46,934 INFO 127.0.0.1 - - [18/Oct/2026 13:31:46] "[36mGET /static/js/main.js HTTP/1.1[0m" 304 -
+2026-10-18 13:35:35,225 INFO 127.0.0.1 - - [18/Oct/2026 13:35:35] "[32mPOST /admin/jobs/daily-github-sync/run HTTP/1.1[0m" 302 -
+2026-10-18 13:35:40,800 INFO 127.0.0.1 - - [18/Oct/2026 13:35:40] "GET /admin/jobs HTTP/1.1" 200 -
+2026-10-18 13:35:41,153 INFO 127.0.0.1 - - [18/Oct/2026 13:35:41] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2026-10-18 13:35:41,153 INFO 127.0.0.1 - - [18/Oct/2026 13:35:41] "[36mGET /static/js/main.js HTTP/1.1[0m" 304 -
+2026-10-18 13:37:01,010 INFO 127.0.0.1 - - [18/Oct/2026 13:37:01] "GET /admin HTTP/1.1" 200 -
+2026-10-18 13:37:01,057 INFO 127.0.0.1 - - [18/Oct/2026 13:37:01] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2026-10-18 13:37:01,637 INFO 127.0.0.1 - - [18/Oct/2026 13:37:01] "[36mGET /static/uploads/my_picture.jpeg HTTP/1.1[0m" 304 -
+2026-10-18 13:37:01,890 INFO 127.0.0.1 - - [18/Oct/2026 13:37:01] "[36mGET /static/js/main.js HTTP/1.1[0m" 304 -
+2026-10-18 13:37:16,339 INFO 127.0.0.1 - - [18/Oct/2026 13:37:16] "GET /admin/ai-drafts HTTP/1.1" 200 -
+2026-10-18 13:37:17,047 INFO 127.0.0.1 - - [18/Oct/2026 13:37:17] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2026-10-18 13:37:17,375 INFO 127.0.0.1 - - [18/Oct/2026 13:37:17] "[36mGET /static/js/main.js HTTP/1.1[0m" 304 -
+2026-10-18 14:07:52,517 INFO  * Detected change in 'C:\\Users\\ADEDAMOLA\\Desktop\\port\\job_finder_sources.py', reloading
+2026-10-18 14:07:53,916 INFO  * Restarting with stat
+2026-10-18 14:08:05,865 WARNING  * Debugger is active!
+2026-10-18 14:08:05,870 INFO  * Debugger PIN: 119-172-588
+2026-10-18 14:11:05,064 INFO  * Detected change in 'C:\\Users\\ADEDAMOLA\\Desktop\\port\\test_job_finder_service.py', reloading
+2026-10-18 14:11:05,931 INFO  * Restarting with stat
+2026-10-18 14:11:26,531 WARNING  * Debugger is active!
+2026-10-18 14:11:26,537 INFO  * Debugger PIN: 119-172-588
+2026-10-18 14:12:50,216 INFO  * Detected change in 'C:\\Users\\ADEDAMOLA\\Desktop\\port\\job_finder_service.py', reloading
+2026-10-18 14:12:50,933 INFO  * Restarting with stat
+2026-10-18 14:13:06,551 WARNING  * Debugger is active!
+2026-10-18 14:13:06,556 INFO  * Debugger PIN: 119-172-588
+2026-10-18 14:13:32,048 INFO  * Detected change in 'C:\\Users\\ADEDAMOLA\\Desktop\\port\\migrations\\versions\\7cda9e41b2f0_add_project_link_health.py', reloading
+2026-10-18 14:13:32,850 INFO  * Restarting with stat
+2026-10-18 14:13:50,938 WARNING  * Debugger is active!
+2026-10-18 14:13:50,943 INFO  * Debugger PIN: 119-172-588
+2026-10-18 14:14:08,183 INFO  * Detected change in 'C:\\Users\\ADEDAMOLA\\Desktop\\port\\routes\\job_finder.py', reloading
+2026-10-18 14:14:11,224 INFO  * Restarting with stat
+2026-10-18 14:14:31,741 WARNING  * Debugger is active!
+2026-10-18 14:14:31,753 INFO  * Debugger PIN: 119-172-588
+2026-10-18 14:15:19,369 INFO  * Detected change in 'C:\\Users\\ADEDAMOLA\\Desktop\\port\\routes\\job_finder.py', reloading
+2026-10-18 14:15:20,096 INFO  * Restarting with stat
+2026-10-18 14:15:30,498 WARNING  * Debugger is active!
+2026-10-18 14:15:30,501 INFO  * Debugger PIN: 119-172-588
+2026-10-18 14:16:42,223 INFO  * Detected change in 'C:\\Users\\ADEDAMOLA\\Desktop\\port\\test_job_finder_routes.py', reloading
+2026-10-18 14:16:43,126 INFO  * Restarting with stat
+2026-10-18 14:17:03,356 WARNING  * Debugger is active!
+2026-10-18 14:17:03,366 INFO  * Debugger PIN: 119-172-588
+2026-10-18 14:17:55,149 INFO  * Detected change in 'C:\\Users\\ADEDAMOLA\\Desktop\\port\\test_job_finder_sources.py', reloading
+2026-10-18 14:17:55,649 INFO  * Restarting with stat
+2026-10-18 14:18:07,582 WARNING  * Debugger is active!
+2026-10-18 14:18:07,591 INFO  * Debugger PIN: 119-172-588
+2026-10-18 14:33:11,518 INFO  * Detected change in 'C:\\Users\\ADEDAMOLA\\Desktop\\port\\groq_client.py', reloading
+2026-10-18 14:33:13,055 INFO  * Restarting with stat
+2026-10-18 14:33:27,347 WARNING  * Debugger is active!
+2026-10-18 14:33:27,352 INFO  * Debugger PIN: 119-172-588
+2026-10-18 14:38:20,539 INFO  * Detected change in 'C:\\Users\\ADEDAMOLA\\Desktop\\port\\job_finder_matcher.py', reloading
+2026-10-18 14:38:21,312 INFO  * Restarting with stat
+2026-10-18 14:39:10,692 WARNING  * Debugger is active!
+2026-10-18 14:39:10,704 INFO  * Debugger PIN: 119-172-588
+2026-10-18 14:44:34,567 INFO  * Detected change in 'C:\\Users\\ADEDAMOLA\\Desktop\\port\\app.py', reloading
+2026-10-18 14:44:35,868 INFO  * Restarting with stat
+2026-10-18 14:44:54,559 WARNING  * Debugger is active!
+2026-10-18 14:44:54,566 INFO  * Debugger PIN: 119-172-588
+2026-10-18 14:45:19,997 INFO  * Detected change in 'C:\\Users\\ADEDAMOLA\\Desktop\\port\\test_job_finder_scoring.py', reloading
+2026-10-18 14:45:20,652 INFO  * Restarting with stat
+2026-10-18 14:45:38,064 WARNING  * Debugger is active!
+2026-10-18 14:45:38,067 INFO  * Debugger PIN: 119-172-588
+2026-10-18 14:48:28,116 INFO  * Detected change in 'C:\\Users\\ADEDAMOLA\\Desktop\\port\\test_job_finder_scoring.py', reloading
+2026-10-18 14:48:29,369 INFO  * Restarting with stat
+2026-10-18 14:48:50,400 WARNING  * Debugger is active!
+2026-10-18 14:48:50,405 INFO  * Debugger PIN: 119-172-588
+2026-10-18 14:49:40,779 INFO  * Detected change in 'C:\\Users\\ADEDAMOLA\\Desktop\\port\\routes\\job_finder.py', reloading
+2026-10-18 14:49:41,516 INFO  * Restarting with stat
+2026-10-18 14:50:00,022 WARNING  * Debugger is active!
+2026-10-18 14:50:00,028 INFO  * Debugger PIN: 119-172-588
+2026-10-18 14:51:14,700 INFO  * Detected change in 'C:\\Users\\ADEDAMOLA\\Desktop\\port\\test_job_finder_service.py', reloading
+2026-10-18 14:51:15,384 INFO  * Restarting with stat
+2026-10-18 14:51:28,298 WARNING  * Debugger is active!
+2026-10-18 14:51:28,309 INFO  * Debugger PIN: 119-172-588
+2026-10-18 14:52:07,496 INFO  * Detected change in 'C:\\Users\\ADEDAMOLA\\Desktop\\port\\test_job_finder_routes.py', reloading
+2026-10-18 14:52:08,081 INFO  * Restarting with stat
+2026-10-18 14:52:21,163 WARNING  * Debugger is active!
+2026-10-18 14:52:21,171 INFO  * Debugger PIN: 119-172-588
+2026-10-18 14:55:20,329 INFO  * Detected change in 'C:\\Users\\ADEDAMOLA\\Desktop\\port\\job_finder_service.py', reloading
+2026-10-18 14:55:23,469 INFO  * Restarting with stat
+2026-10-18 14:55:39,249 WARNING  * Debugger is active!
+2026-10-18 14:55:39,255 INFO  * Debugger PIN: 119-172-588
+2026-10-18 15:14:36,912 INFO  * Detected change in 'C:\\Users\\ADEDAMOLA\\Desktop\\port\\test_job_finder_send.py', reloading
+2026-10-18 15:14:42,427 INFO  * Restarting with stat
+2026-10-18 15:15:25,875 WARNING  * Debugger is active!
+2026-10-18 15:15:25,884 INFO  * Debugger PIN: 119-172-588
+2026-10-18 15:26:57,221 INFO  * Detected change in 'C:\\Users\\ADEDAMOLA\\Desktop\\port\\groq_client.py', reloading
+2026-10-18 15:26:58,547 INFO  * Restarting with stat
+2026-10-18 15:27:15,497 WARNING  * Debugger is active!
+2026-10-18 15:27:15,504 INFO  * Debugger PIN: 119-172-588
+2026-10-18 15:33:15,218 INFO 127.0.0.1 - - [18/Oct/2026 15:33:15] "[32mGET /admin/job-finder/ HTTP/1.1[0m" 302 -
+2026-10-18 15:33:16,448 INFO 127.0.0.1 - - [18/Oct/2026 15:33:16] "GET /auth/login?next=/admin/job-finder/ HTTP/1.1" 200 -
+2026-10-18 15:33:17,380 INFO 127.0.0.1 - - [18/Oct/2026 15:33:17] "[36mGET /static/js/main.js HTTP/1.1[0m" 304 -
+2026-10-18 15:33:17,430 INFO 127.0.0.1 - - [18/Oct/2026 15:33:17] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2026-10-18 15:33:17,865 INFO 127.0.0.1 - - [18/Oct/2026 15:33:17] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2026-10-18 15:46:24,507 INFO 127.0.0.1 - - [18/Oct/2026 15:46:24] "[32mPOST /auth/login?next=/admin/job-finder/ HTTP/1.1[0m" 302 -
+2026-10-18 15:46:25,223 INFO 127.0.0.1 - - [18/Oct/2026 15:46:25] "GET /auth/login HTTP/1.1" 200 -
+2026-10-18 15:46:29,872 INFO 127.0.0.1 - - [18/Oct/2026 15:46:29] "[36mGET /static/js/main.js HTTP/1.1[0m" 304 -
+2026-10-18 15:46:30,478 INFO 127.0.0.1 - - [18/Oct/2026 15:46:30] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2026-10-18 15:49:01,349 INFO 127.0.0.1 - - [18/Oct/2026 15:49:01] "[32mGET /admin/job-finder/ HTTP/1.1[0m" 302 -
+2026-10-18 15:49:01,419 INFO 127.0.0.1 - - [18/Oct/2026 15:49:01] "GET /auth/login?next=/admin/job-finder/ HTTP/1.1" 200 -
+2026-10-18 15:49:01,636 INFO 127.0.0.1 - - [18/Oct/2026 15:49:01] "GET /static/css/style.css HTTP/1.1" 200 -
+2026-10-18 15:49:01,683 INFO 127.0.0.1 - - [18/Oct/2026 15:49:01] "GET /static/js/main.js HTTP/1.1" 200 -
+2026-10-18 15:49:04,182 INFO 127.0.0.1 - - [18/Oct/2026 15:49:04] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2026-10-18 15:49:20,106 INFO 127.0.0.1 - - [18/Oct/2026 15:49:20] "[32mPOST /auth/login?next=/admin/job-finder/ HTTP/1.1[0m" 302 -
+2026-10-18 15:49:27,489 INFO 127.0.0.1 - - [18/Oct/2026 15:49:27] "GET /admin HTTP/1.1" 200 -
+2026-10-18 15:49:27,603 INFO 127.0.0.1 - - [18/Oct/2026 15:49:27] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2026-10-18 15:49:27,606 INFO 127.0.0.1 - - [18/Oct/2026 15:49:27] "GET /static/uploads/my_picture.jpeg HTTP/1.1" 200 -
+2026-10-18 15:49:27,666 INFO 127.0.0.1 - - [18/Oct/2026 15:49:27] "[36mGET /static/js/main.js HTTP/1.1[0m" 304 -
+2026-10-18 15:49:40,321 ERROR Job Finder dashboard could not load
+Traceback (most recent call last):
+  File "C:\Users\ADEDAMOLA\Desktop\port\routes\job_finder.py", line 19, in dashboard
+    preferences = job_finder_service.get_preferences()
+  File "C:\Users\ADEDAMOLA\Desktop\port\job_finder_service.py", line 125, in get_preferences
+    cursor.execute('INSERT INTO job_finder_preferences (id) VALUES (1) ON CONFLICT (id) DO NOTHING')
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ADEDAMOLA\Desktop\port\venv\Lib\site-packages\psycopg2\extras.py", line 236, in execute
+    return super().execute(query, vars)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+psycopg2.errors.UndefinedTable: relation "job_finder_preferences" does not exist
+LINE 1: INSERT INTO job_finder_preferences (id) VALUES (1) ON CONFLI...
+                    ^
+
+2026-10-18 15:49:40,700 INFO 127.0.0.1 - - [18/Oct/2026 15:49:40] "GET /admin/job-finder/ HTTP/1.1" 200 -
+2026-10-18 15:49:40,760 INFO 127.0.0.1 - - [18/Oct/2026 15:49:40] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2026-10-18 15:49:40,769 INFO 127.0.0.1 - - [18/Oct/2026 15:49:40] "[36mGET /static/js/main.js HTTP/1.1[0m" 304 -
+2026-10-18 15:56:39,713 INFO 127.0.0.1 - - [18/Oct/2026 15:56:39] "[32mGET /admin/job-finder/ HTTP/1.1[0m" 302 -
+2026-10-18 15:56:40,505 INFO 127.0.0.1 - - [18/Oct/2026 15:56:40] "GET /auth/login?next=/admin/job-finder/ HTTP/1.1" 200 -
+2026-10-18 15:56:40,967 INFO 127.0.0.1 - - [18/Oct/2026 15:56:40] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2026-10-18 15:56:40,987 INFO 127.0.0.1 - - [18/Oct/2026 15:56:40] "[36mGET /static/js/main.js HTTP/1.1[0m" 304 -
+2026-10-18 15:56:41,477 INFO 127.0.0.1 - - [18/Oct/2026 15:56:41] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2026-10-18 16:00:17,979 INFO 127.0.0.1 - - [18/Oct/2026 16:00:17] "GET /admin/job-finder/ HTTP/1.1" 200 -
+2026-10-18 16:00:18,084 INFO 127.0.0.1 - - [18/Oct/2026 16:00:18] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2026-10-18 16:00:18,101 INFO 127.0.0.1 - - [18/Oct/2026 16:00:18] "[36mGET /static/js/main.js HTTP/1.1[0m" 304 -
+2026-10-18 16:05:42,526 INFO 127.0.0.1 - - [18/Oct/2026 16:05:42] "[32mPOST /admin/job-finder/run-now HTTP/1.1[0m" 302 -
+2026-10-18 16:05:48,849 INFO 127.0.0.1 - - [18/Oct/2026 16:05:48] "GET /admin/job-finder/ HTTP/1.1" 200 -
+2026-10-18 16:05:48,960 INFO 127.0.0.1 - - [18/Oct/2026 16:05:48] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2026-10-18 16:05:48,972 INFO 127.0.0.1 - - [18/Oct/2026 16:05:48] "[36mGET /static/js/main.js HTTP/1.1[0m" 304 -
+2026-10-18 16:10:32,320 INFO 127.0.0.1 - - [18/Oct/2026 16:10:32] "[32mPOST /admin/job-finder/jobs/29/review HTTP/1.1[0m" 302 -
+2026-10-18 16:10:37,772 INFO 127.0.0.1 - - [18/Oct/2026 16:10:37] "GET /admin/job-finder/ HTTP/1.1" 200 -
+2026-10-18 16:10:37,925 INFO 127.0.0.1 - - [18/Oct/2026 16:10:37] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2026-10-18 16:10:37,966 INFO 127.0.0.1 - - [18/Oct/2026 16:10:37] "[36mGET /static/js/main.js HTTP/1.1[0m" 304 -
+2026-10-18 16:38:35,611 INFO 127.0.0.1 - - [18/Oct/2026 16:38:35] "[35m[1mGET /admin/job-finder/ HTTP/1.1[0m" 500 -
+2026-10-18 16:39:00,086 INFO 127.0.0.1 - - [18/Oct/2026 16:39:00] "GET /admin/job-finder/?__debugger__=yes&cmd=resource&f=debugger.js HTTP/1.1" 200 -
+2026-10-18 16:39:00,112 INFO 127.0.0.1 - - [18/Oct/2026 16:39:00] "GET /admin/job-finder/?__debugger__=yes&cmd=resource&f=style.css HTTP/1.1" 200 -
+2026-10-18 16:39:02,319 INFO 127.0.0.1 - - [18/Oct/2026 16:39:02] "GET /admin/job-finder/?__debugger__=yes&cmd=resource&f=console.png&s=zPfjk6ofO3Gs2n2x3QZ2 HTTP/1.1" 200 -
+2026-10-18 16:39:04,703 INFO 127.0.0.1 - - [18/Oct/2026 16:39:04] "GET /admin/job-finder/?__debugger__=yes&cmd=resource&f=console.png HTTP/1.1" 200 -
+2026-10-18 16:44:40,924 INFO 127.0.0.1 - - [18/Oct/2026 16:44:40] "GET /admin/job-finder/ HTTP/1.1" 200 -
+2026-10-18 16:44:41,239 INFO 127.0.0.1 - - [18/Oct/2026 16:44:41] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2026-10-18 16:44:41,340 INFO 127.0.0.1 - - [18/Oct/2026 16:44:41] "[36mGET /static/js/main.js HTTP/1.1[0m" 304 -
+2026-10-18 16:54:10,863 INFO  * Detected change in 'C:\\Users\\ADEDAMOLA\\Desktop\\port\\test_job_finder_service.py', reloading
+2026-10-18 16:54:14,755 INFO  * Restarting with stat
+2026-10-18 16:54:41,305 WARNING  * Debugger is active!
+2026-10-18 16:54:41,326 INFO  * Debugger PIN: 119-172-588
+2026-10-18 16:55:01,108 INFO  * Detected change in 'C:\\Users\\ADEDAMOLA\\Desktop\\port\\job_finder_service.py', reloading
+2026-10-18 16:55:02,086 INFO  * Restarting with stat
+2026-10-18 16:55:16,702 INFO  * Restarting with stat
+2026-10-18 16:57:31,938 INFO  * Restarting with stat
+2026-10-18 16:57:47,683 WARNING  * Debugger is active!
+2026-10-18 16:57:47,693 INFO  * Debugger PIN: 119-172-588
+2026-10-18 16:58:33,297 INFO  * Detected change in 'C:\\Users\\ADEDAMOLA\\Desktop\\port\\job_finder_service.py', reloading
+2026-10-18 16:58:34,081 INFO  * Restarting with stat
+2026-10-18 16:58:45,877 WARNING  * Debugger is active!
+2026-10-18 16:58:45,884 INFO  * Debugger PIN: 119-172-588
+2026-10-18 17:01:33,190 INFO  * Detected change in 'C:\\Users\\ADEDAMOLA\\Desktop\\port\\job_finder_sources.py', reloading
+2026-10-18 17:01:33,463 INFO  * Restarting with stat
+2026-10-18 17:01:56,709 WARNING  * Debugger is active!
+2026-10-18 17:01:56,719 INFO  * Debugger PIN: 119-172-588
+2026-10-18 17:02:01,304 INFO  * Detected change in 'C:\\Users\\ADEDAMOLA\\Desktop\\port\\job_finder_sources.py', reloading
+2026-10-18 17:02:02,663 INFO  * Restarting with stat
+2026-10-18 17:02:17,444 WARNING  * Debugger is active!
+2026-10-18 17:02:17,449 INFO  * Debugger PIN: 119-172-588
+2026-10-18 17:07:08,247 INFO  * Detected change in 'C:\\Users\\ADEDAMOLA\\Desktop\\port\\test_app.py', reloading
+2026-10-18 17:07:08,963 INFO  * Restarting with stat
+2026-10-18 17:07:25,323 WARNING  * Debugger is active!
+2026-10-18 17:07:25,329 INFO  * Debugger PIN: 119-172-588
+2026-10-18 17:12:59,867 INFO  * Detected change in 'C:\\Users\\ADEDAMOLA\\Desktop\\port\\app.py', reloading
+2026-10-18 17:13:00,413 INFO  * Restarting with stat
+2026-10-18 17:13:17,818 WARNING  * Debugger is active!
+2026-10-18 17:13:17,824 INFO  * Debugger PIN: 119-172-588
+2026-10-18 17:13:26,306 INFO  * Detected change in 'C:\\Users\\ADEDAMOLA\\Desktop\\port\\job_finder_service.py', reloading
+2026-10-18 17:13:26,813 INFO  * Restarting with stat
+2026-10-18 17:13:42,398 WARNING  * Debugger is active!
+2026-10-18 17:13:42,415 INFO  * Debugger PIN: 119-172-588
+2026-10-18 17:15:37,568 INFO  * Detected change in 'C:\\Users\\ADEDAMOLA\\Desktop\\port\\app.py', reloading
+2026-10-18 17:15:38,016 INFO  * Restarting with stat
+2026-10-18 17:15:55,246 WARNING  * Debugger is active!
+2026-10-18 17:15:55,254 INFO  * Debugger PIN: 119-172-588
+2026-10-18 17:18:33,493 INFO  * Detected change in 'C:\\Users\\ADEDAMOLA\\Desktop\\port\\job_finder_sources.py', reloading
+2026-10-18 17:18:33,991 INFO  * Restarting with stat
+2026-10-18 17:18:53,618 WARNING  * Debugger is active!
+2026-10-18 17:18:53,628 INFO  * Debugger PIN: 119-172-588
+2026-10-18 17:22:13,677 INFO  * Detected change in 'C:\\Users\\ADEDAMOLA\\Desktop\\port\\job_finder_service.py', reloading
+2026-10-18 17:22:14,337 INFO  * Restarting with stat
+2026-10-18 17:22:34,166 WARNING  * Debugger is active!
+2026-10-18 17:22:34,180 INFO  * Debugger PIN: 119-172-588
+2026-10-18 17:44:28,902 INFO  * Detected change in 'C:\\Users\\ADEDAMOLA\\Desktop\\port\\reply_tracking.py', reloading
+2026-10-18 17:44:30,973 INFO  * Restarting with stat
+2026-10-18 17:44:57,126 WARNING  * Debugger is active!
+2026-10-18 17:44:57,135 INFO  * Debugger PIN: 119-172-588
+2026-10-18 17:45:26,019 INFO  * Detected change in 'C:\\Users\\ADEDAMOLA\\Desktop\\port\\config.py', reloading
+2026-10-18 17:45:26,853 INFO  * Restarting with stat
+2026-10-18 17:45:39,679 WARNING  * Debugger is active!
+2026-10-18 17:45:39,683 INFO  * Debugger PIN: 119-172-588
+2026-10-18 17:45:41,020 INFO  * Detected change in 'C:\\Users\\ADEDAMOLA\\Desktop\\port\\reply_tracking.py', reloading
+2026-10-18 17:45:41,374 INFO  * Restarting with stat
+2026-10-18 17:46:00,128 WARNING  * Debugger is active!
+2026-10-18 17:46:00,132 INFO  * Debugger PIN: 119-172-588
+2026-10-18 17:46:40,008 INFO  * Detected change in 'C:\\Users\\ADEDAMOLA\\Desktop\\port\\migrations\\versions\\9a2ce8b7f061_add_job_finder_replies.py', reloading
+2026-10-18 17:46:40,276 INFO  * Restarting with stat
+2026-10-18 17:46:54,954 WARNING  * Debugger is active!
+2026-10-18 17:46:54,960 INFO  * Debugger PIN: 119-172-588
+2026-10-18 17:47:06,770 INFO  * Detected change in 'C:\\Users\\ADEDAMOLA\\Desktop\\port\\migrations\\versions\\9a2ce8b7f061_add_job_finder_replies.py', reloading
+2026-10-18 17:47:07,134 INFO  * Restarting with stat
+2026-10-18 17:47:21,872 WARNING  * Debugger is active!
+2026-10-18 17:47:21,882 INFO  * Debugger PIN: 119-172-588
+2026-10-18 17:48:00,746 INFO  * Detected change in 'C:\\Users\\ADEDAMOLA\\Desktop\\port\\routes\\job_finder.py', reloading
+2026-10-18 17:48:01,229 INFO  * Restarting with stat
+2026-10-18 17:48:15,317 WARNING  * Debugger is active!
+2026-10-18 17:48:15,324 INFO  * Debugger PIN: 119-172-588
+2026-10-18 17:48:55,908 INFO  * Detected change in 'C:\\Users\\ADEDAMOLA\\Desktop\\port\\test_reply_tracking.py', reloading
+2026-10-18 17:48:56,313 INFO  * Restarting with stat
+2026-10-18 17:49:11,951 WARNING  * Debugger is active!
+2026-10-18 17:49:11,956 INFO  * Debugger PIN: 119-172-588
+2026-10-18 17:49:21,670 INFO  * Detected change in 'C:\\Users\\ADEDAMOLA\\Desktop\\port\\reply_tracking.py', reloading
+2026-10-18 17:49:22,188 INFO  * Restarting with stat
+2026-10-18 17:49:38,228 WARNING  * Debugger is active!
+2026-10-18 17:49:38,243 INFO  * Debugger PIN: 119-172-588
+2026-10-18 17:50:04,514 INFO  * Detected change in 'C:\\Users\\ADEDAMOLA\\Desktop\\port\\app.py', reloading
+2026-10-18 17:50:04,954 INFO  * Restarting with stat
+2026-10-18 17:50:17,838 WARNING  * Debugger is active!
+2026-10-18 17:50:17,847 INFO  * Debugger PIN: 119-172-588
+2026-10-18 17:50:48,704 INFO  * Detected change in 'C:\\Users\\ADEDAMOLA\\Desktop\\port\\reply_tracking.py', reloading
+2026-10-18 17:50:49,182 INFO  * Restarting with stat
+2026-10-18 17:51:06,597 WARNING  * Debugger is active!
+2026-10-18 17:51:06,608 INFO  * Debugger PIN: 119-172-588
+2026-10-18 17:51:52,108 INFO  * Detected change in 'C:\\Users\\ADEDAMOLA\\Desktop\\port\\test_job_finder_routes.py', reloading
+2026-10-18 17:51:53,276 INFO  * Restarting with stat
+2026-10-18 17:52:08,499 WARNING  * Debugger is active!
+2026-10-18 17:52:08,506 INFO  * Debugger PIN: 119-172-588
+2026-10-18 17:57:56,564 INFO  * Detected change in 'C:\\Users\\ADEDAMOLA\\Desktop\\port\\calendar_files.py', reloading
+2026-10-18 17:57:57,256 INFO  * Restarting with stat
+2026-10-18 17:58:12,337 WARNING  * Debugger is active!
+2026-10-18 17:58:12,341 INFO  * Debugger PIN: 119-172-588
+2026-10-18 17:58:48,854 INFO  * Detected change in 'C:\\Users\\ADEDAMOLA\\Desktop\\port\\test_calendar_files.py', reloading
+2026-10-18 17:58:49,508 INFO  * Restarting with stat
+2026-10-18 17:59:10,930 WARNING  * Debugger is active!
+2026-10-18 17:59:10,936 INFO  * Debugger PIN: 119-172-588
+2026-10-18 17:59:27,004 INFO  * Detected change in 'C:\\Users\\ADEDAMOLA\\Desktop\\port\\calendar_files.py', reloading
+2026-10-18 17:59:27,682 INFO  * Restarting with stat
+2026-10-18 17:59:44,368 WARNING  * Debugger is active!
+2026-10-18 17:59:44,379 INFO  * Debugger PIN: 119-172-588
+2026-10-18 18:00:07,005 INFO  * Detected change in 'C:\\Users\\ADEDAMOLA\\Desktop\\port\\config.py', reloading
+2026-10-18 18:00:07,716 INFO  * Restarting with stat
+2026-10-18 18:00:33,784 WARNING  * Debugger is active!
+2026-10-18 18:00:33,791 INFO  * Debugger PIN: 119-172-588
+2026-10-18 18:00:47,087 INFO  * Detected change in 'C:\\Users\\ADEDAMOLA\\Desktop\\port\\routes\\job_finder.py', reloading
+2026-10-18 18:00:48,318 INFO  * Restarting with stat
+2026-10-18 18:01:07,518 WARNING  * Debugger is active!
+2026-10-18 18:01:07,538 INFO  * Debugger PIN: 119-172-588
+2026-10-18 18:02:03,516 INFO  * Detected change in 'C:\\Users\\ADEDAMOLA\\Desktop\\port\\routes\\job_finder.py', reloading
+2026-10-18 18:02:05,250 INFO  * Restarting with stat
+2026-10-18 18:02:45,812 WARNING  * Debugger is active!
+2026-10-18 18:02:45,819 INFO  * Debugger PIN: 119-172-588
+2026-10-18 18:03:04,883 INFO  * Detected change in 'C:\\Users\\ADEDAMOLA\\Desktop\\port\\test_job_finder_routes.py', reloading
+2026-10-18 18:03:05,706 INFO  * Restarting with stat
+2026-10-18 18:03:21,964 WARNING  * Debugger is active!
+2026-10-18 18:03:21,973 INFO  * Debugger PIN: 119-172-588
+2026-10-18 18:06:22,833 INFO  * Detected change in 'C:\\Users\\ADEDAMOLA\\Desktop\\port\\test_job_finder_routes.py', reloading
+2026-10-18 18:06:24,364 INFO  * Restarting with stat
+2026-10-18 18:06:42,031 WARNING  * Debugger is active!
+2026-10-18 18:06:42,043 INFO  * Debugger PIN: 119-172-588
+2026-10-18 18:12:45,105 INFO  * Detected change in 'C:\\Users\\ADEDAMOLA\\Desktop\\port\\contact_triage.py', reloading
+2026-10-18 18:12:45,826 INFO  * Restarting with stat
+2026-10-18 18:13:04,789 WARNING  * Debugger is active!
+2026-10-18 18:13:04,796 INFO  * Debugger PIN: 119-172-588
+2026-10-18 18:13:40,698 INFO  * Detected change in 'C:\\Users\\ADEDAMOLA\\Desktop\\port\\contact_triage.py', reloading
+2026-10-18 18:13:41,104 INFO  * Restarting with stat
+2026-10-18 18:13:54,287 WARNING  * Debugger is active!
+2026-10-18 18:13:54,296 INFO  * Debugger PIN: 119-172-588
+2026-10-18 18:14:49,599 INFO  * Detected change in 'C:\\Users\\ADEDAMOLA\\Desktop\\port\\app.py', reloading
+2026-10-18 18:14:51,050 INFO  * Restarting with stat
+2026-10-18 18:15:14,266 WARNING  * Debugger is active!
+2026-10-18 18:15:14,269 INFO  * Debugger PIN: 119-172-588
+2026-10-18 18:20:45,669 INFO  * Detected change in 'C:\\Users\\ADEDAMOLA\\Desktop\\port\\app.py', reloading
+2026-10-18 18:20:46,578 INFO  * Restarting with stat
+2026-10-18 18:21:00,143 WARNING  * Debugger is active!
+2026-10-18 18:21:00,158 INFO  * Debugger PIN: 119-172-588
+2026-10-18 18:21:58,055 INFO  * Detected change in 'C:\\Users\\ADEDAMOLA\\Desktop\\port\\contact_triage.py', reloading
+2026-10-18 18:21:58,521 INFO  * Restarting with stat
+2026-10-18 18:22:17,735 WARNING  * Debugger is active!
+2026-10-18 18:22:17,771 INFO  * Debugger PIN: 119-172-588
+2026-10-18 18:25:30,474 INFO  * Detected change in 'C:\\Users\\ADEDAMOLA\\Desktop\\port\\test_contact_alerts.py', reloading
+2026-10-18 18:25:31,274 INFO  * Restarting with stat
+2026-10-18 18:25:53,521 WARNING  * Debugger is active!
+2026-10-18 18:25:54,148 INFO  * Debugger PIN: 119-172-588
+2026-10-18 18:26:47,661 INFO  * Detected change in 'C:\\Users\\ADEDAMOLA\\Desktop\\port\\contact_triage.py', reloading
+2026-10-18 18:26:48,331 INFO  * Restarting with stat
+2026-10-18 18:27:07,865 WARNING  * Debugger is active!
+2026-10-18 18:27:07,884 INFO  * Debugger PIN: 119-172-588
+2026-10-18 18:27:53,306 INFO  * Detected change in 'C:\\Users\\ADEDAMOLA\\Desktop\\port\\app.py', reloading
+2026-10-18 18:27:53,579 INFO  * Restarting with stat
+2026-10-18 18:28:09,296 WARNING  * Debugger is active!
+2026-10-18 18:28:09,307 INFO  * Debugger PIN: 119-172-588
+2026-10-18 18:28:13,214 INFO  * Detected change in 'C:\\Users\\ADEDAMOLA\\Desktop\\port\\contact_triage.py', reloading
+2026-10-18 18:28:13,618 INFO  * Restarting with stat
+2026-10-18 18:28:27,280 WARNING  * Debugger is active!
+2026-10-18 18:28:27,286 INFO  * Debugger PIN: 119-172-588
+2026-10-18 18:36:50,750 INFO  * Detected change in 'C:\\Users\\ADEDAMOLA\\Desktop\\port\\test_results_dashboard.py', reloading
+2026-10-18 18:36:52,028 INFO  * Restarting with stat
+2026-10-18 18:37:08,153 WARNING  * Debugger is active!
+2026-10-18 18:37:08,160 INFO  * Debugger PIN: 119-172-588
+2026-10-18 18:37:27,458 INFO  * Detected change in 'C:\\Users\\ADEDAMOLA\\Desktop\\port\\config.py', reloading
+2026-10-18 18:37:29,037 INFO  * Restarting with stat
+2026-10-18 18:37:46,168 WARNING  * Debugger is active!
+2026-10-18 18:37:46,175 INFO  * Debugger PIN: 119-172-588
+2026-10-18 18:38:50,254 INFO  * Detected change in 'C:\\Users\\ADEDAMOLA\\Desktop\\port\\results_dashboard.py', reloading
+2026-10-18 18:38:50,781 INFO  * Restarting with stat
+2026-10-18 18:39:03,230 WARNING  * Debugger is active!
+2026-10-18 18:39:03,235 INFO  * Debugger PIN: 119-172-588
+2026-10-18 18:39:15,077 INFO  * Detected change in 'C:\\Users\\ADEDAMOLA\\Desktop\\port\\test_job_finder_routes.py', reloading
+2026-10-18 18:39:15,665 INFO  * Restarting with stat
+2026-10-18 18:39:36,083 WARNING  * Debugger is active!
+2026-10-18 18:39:36,092 INFO  * Debugger PIN: 119-172-588
+2026-10-18 18:42:39,292 INFO  * Detected change in 'C:\\Users\\ADEDAMOLA\\Desktop\\port\\app.py', reloading
+2026-10-18 18:42:42,087 INFO  * Restarting with stat
+2026-10-18 18:43:20,998 WARNING  * Debugger is active!
+2026-10-18 18:43:21,071 INFO  * Debugger PIN: 119-172-588
+2026-10-18 18:43:59,737 INFO  * Detected change in 'C:\\Users\\ADEDAMOLA\\Desktop\\port\\company_briefing.py', reloading
+2026-10-18 18:44:00,744 INFO  * Restarting with stat
+2026-10-18 18:44:17,411 WARNING  * Debugger is active!
+2026-10-18 18:44:17,417 INFO  * Debugger PIN: 119-172-588
+2026-10-18 18:44:48,477 INFO  * Detected change in 'C:\\Users\\ADEDAMOLA\\Desktop\\port\\test_job_finder_routes.py', reloading
+2026-10-18 18:44:49,529 INFO  * Restarting with stat
+2026-10-18 18:45:03,652 WARNING  * Debugger is active!
+2026-10-18 18:45:03,660 INFO  * Debugger PIN: 119-172-588
+2026-10-18 18:47:21,096 INFO  * Detected change in 'C:\\Users\\ADEDAMOLA\\Desktop\\port\\app.py', reloading
+2026-10-18 18:47:23,175 INFO  * Restarting with stat
+2026-10-18 18:47:52,295 WARNING  * Debugger is active!
+2026-10-18 18:47:52,302 INFO  * Debugger PIN: 119-172-588
+2026-10-18 18:48:16,745 INFO  * Detected change in 'C:\\Users\\ADEDAMOLA\\Desktop\\port\\routes\\job_finder.py', reloading
+2026-10-18 18:48:17,740 INFO  * Restarting with stat
+2026-10-18 18:48:48,545 WARNING  * Debugger is active!
+2026-10-18 18:48:48,552 INFO  * Debugger PIN: 119-172-588
+2026-10-18 18:49:29,156 INFO  * Detected change in 'C:\\Users\\ADEDAMOLA\\Desktop\\port\\test_job_finder_routes.py', reloading
+2026-10-18 18:49:30,001 INFO  * Restarting with stat
+2026-10-18 18:49:52,630 WARNING  * Debugger is active!
+2026-10-18 18:49:52,654 INFO  * Debugger PIN: 119-172-588
+2026-10-18 18:59:29,372 INFO  * Detected change in 'C:\\Users\\ADEDAMOLA\\Desktop\\port\\test_scheduler.py', reloading
+2026-10-18 18:59:32,386 INFO  * Restarting with stat
+2026-10-18 18:59:51,244 WARNING  * Debugger is active!
+2026-10-18 18:59:51,258 INFO  * Debugger PIN: 119-172-588
+2026-10-18 19:00:13,849 INFO  * Detected change in 'C:\\Users\\ADEDAMOLA\\Desktop\\port\\weekly_report.py', reloading
+2026-10-18 19:00:14,447 INFO  * Restarting with stat
+2026-10-18 19:00:34,386 WARNING  * Debugger is active!
+2026-10-18 19:00:34,394 INFO  * Debugger PIN: 119-172-588
+2026-10-18 19:00:41,601 INFO  * Detected change in 'C:\\Users\\ADEDAMOLA\\Desktop\\port\\config.py', reloading
+2026-10-18 19:00:42,609 INFO  * Restarting with stat
+2026-10-18 19:00:57,496 WARNING  * Debugger is active!
+2026-10-18 19:00:57,500 INFO  * Debugger PIN: 119-172-588
+2026-10-18 19:01:55,047 INFO  * Detected change in 'C:\\Users\\ADEDAMOLA\\Desktop\\port\\weekly_report.py', reloading
+2026-10-18 19:01:55,895 INFO  * Restarting with stat
+2026-10-18 19:02:12,495 WARNING  * Debugger is active!
+2026-10-18 19:02:12,503 INFO  * Debugger PIN: 119-172-588
+2026-10-18 19:02:49,716 INFO  * Detected change in 'C:\\Users\\ADEDAMOLA\\Desktop\\port\\app.py', reloading
+2026-10-18 19:02:50,038 INFO  * Restarting with stat
+2026-10-18 19:03:06,992 WARNING  * Debugger is active!
+2026-10-18 19:03:06,999 INFO  * Debugger PIN: 119-172-588
+2026-10-18 19:03:10,646 INFO  * Detected change in 'C:\\Users\\ADEDAMOLA\\Desktop\\port\\test_weekly_report.py', reloading
+2026-10-18 19:03:11,285 INFO  * Restarting with stat
+2026-10-18 19:03:29,962 WARNING  * Debugger is active!
+2026-10-18 19:03:29,970 INFO  * Debugger PIN: 119-172-588
