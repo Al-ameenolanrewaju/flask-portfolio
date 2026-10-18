@@ -5,7 +5,6 @@ import requests
 
 from external_http import request_with_retries
 
-
 MAX_REDIRECTS = 8
 
 

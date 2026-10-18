@@ -1,15 +1,16 @@
-from copy import deepcopy
-from datetime import datetime, timezone
-from html import unescape
 import re
 import time
 import unicodedata
+from copy import deepcopy
+from datetime import datetime, timezone
+from html import unescape
 from urllib.parse import urlsplit, urlunsplit
 
 import requests
 
 from external_http import request_with_retries
 
+UTC = timezone.utc  # noqa: UP017
 
 CACHE_SECONDS = 6 * 60 * 60
 REQUEST_TIMEOUT = (3.05, 15)
@@ -102,11 +103,11 @@ def parse_posted_at(value):
         return None
     try:
         if isinstance(value, (int, float)) or str(value).isdigit():
-            return datetime.fromtimestamp(float(value), timezone.utc)
-        parsed = datetime.fromisoformat(str(value).replace('Z', '+00:00'))
+            return datetime.fromtimestamp(float(value), UTC)
+        parsed = datetime.fromisoformat(str(value))
         if parsed.tzinfo is None:
-            parsed = parsed.replace(tzinfo=timezone.utc)
-        return parsed.astimezone(timezone.utc)
+            parsed = parsed.replace(tzinfo=UTC)
+        return parsed.astimezone(UTC)
     except (TypeError, ValueError):
         return None
 

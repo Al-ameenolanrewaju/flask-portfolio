@@ -1,11 +1,10 @@
-from io import BytesIO
 import unicodedata
+from io import BytesIO
 
 import requests
 from PIL import Image, ImageDraw, ImageFont, ImageOps
 
 from external_http import request_with_retries
-
 
 IMAGE_SIZE = (1280, 720)
 

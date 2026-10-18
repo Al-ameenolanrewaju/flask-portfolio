@@ -256,12 +256,10 @@
                         </div>
                     </div>
 
-                    {% if subject and subject != 'No Subject' %}
                     <div class="info-item">
                         <div class="info-label">📌 Subject</div>
                         <div class="info-value">{{ subject }}</div>
                     </div>
-                    {% endif %}
 
                     <div class="info-item">
                         <div class="info-label">📅 Date & Time</div>
@@ -277,11 +275,8 @@
 
                 <!-- Action Buttons -->
                 <div class="action-buttons">
-                    <a href="mailto:{{ email }}?subject=Re: {{ subject }}" class="btn">
+                    <a href="mailto:{{ email }}?subject=Re%3A%20{{ subject|urlencode }}" class="btn">
                         ✉️ Reply to {{ name }}
-                    </a>
-                    <a href="{{ url_for('admin', _external=True) }}" class="btn btn-secondary">
-                        📊 Go to Admin Panel
                     </a>
                 </div>
 
@@ -315,7 +310,6 @@
                     {% if portfolio_url %}
                     <a href="{{ portfolio_url }}">🌐 Portfolio</a>
                     {% endif %}
-                    <a href="{{ url_for('admin', _external=True) }}">⚙️ Admin</a>
                 </div>
 
                 <p style="margin-top: 20px; font-size: 12px; color: #adb5bd;">

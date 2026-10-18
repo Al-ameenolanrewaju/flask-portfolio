@@ -1,10 +1,12 @@
+from typing import ClassVar
+
 import pytest
 
 import app as app_module
 from app import app
 from config import TestingConfig
-from models import User
 from job_finder_service import DEFAULT_PREFERENCES
+from models import User
 from routes.job_finder import job_finder_service
 
 
@@ -34,12 +36,14 @@ def test_job_finder_dashboard_renders_private_preferences_and_attributions(job_c
     _authenticate(job_client, monkeypatch)
     monkeypatch.setattr(job_finder_service, 'get_preferences', lambda: DEFAULT_PREFERENCES)
     monkeypatch.setattr(job_finder_service, 'list_jobs', lambda **kwargs: [{
-        'title': 'Flask Developer', 'company': 'Example', 'location': 'Worldwide',
+        'id': 1, 'title': 'Flask Developer', 'company': 'Example', 'location': 'Worldwide',
         'score': None, 'match_reason': None, 'source_name': 'Remotive',
         'source_url': 'https://remotive.com/remote-jobs/api', 'posting_url': 'https://remotive.com/jobs/1',
+        'apply_url': 'https://remotive.com/jobs/1', 'cover_letter': None, 'pitch': None,
+        'notes': '', 'follow_up_date': None, 'job_type': 'Full time',
         'posted_at': None, 'status': 'found',
     }])
-    monkeypatch.setattr(job_finder_service, 'recent_source_runs', lambda: [])
+    monkeypatch.setattr(job_finder_service, 'recent_source_runs', list)
 
     response = job_client.get('/admin/job-finder/')
     page = response.get_data(as_text=True)
@@ -79,7 +83,7 @@ def test_job_finder_run_now_checks_rate_limit_and_scheduler(job_client, monkeypa
     monkeypatch.setattr(job_finder_service, 'allow_action', lambda *args: True)
 
     class Scheduler:
-        jobs = {'job-finder-fetch': {}}
+        jobs: ClassVar[dict[str, dict]] = {'job-finder-fetch': {}}
 
         def __init__(self):
             self.runs = []
@@ -107,7 +111,7 @@ def test_job_finder_run_now_rejects_rate_limited_request(job_client, monkeypatch
     monkeypatch.setattr(job_finder_service, 'allow_action', lambda *args: False)
 
     class Scheduler:
-        jobs = {'job-finder-fetch': {}}
+        jobs: ClassVar[dict[str, dict]] = {'job-finder-fetch': {}}
 
         def run_job(self, name):
             pytest.fail('rate-limited request must not run the scheduled job')

@@ -1,8 +1,7 @@
-from io import BytesIO
 import unicodedata
+from io import BytesIO
 
 from PIL import Image, ImageDraw, ImageFont
-
 
 IMAGE_SIZE = (1200, 630)
 

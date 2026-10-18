@@ -2,6 +2,8 @@ from datetime import datetime, timedelta, timezone
 
 from scheduler import PostgresJobScheduler
 
+UTC = timezone.utc  # noqa: UP017
+
 
 class FakeCursor:
     def __init__(self, connection):
@@ -16,7 +18,7 @@ class FakeCursor:
         if 'pg_try_advisory_lock' in self.statement:
             return (True,)
         if 'SELECT last_run_at' in self.statement:
-            return (datetime.now(timezone.utc) - timedelta(days=8),)
+            return (datetime.now(UTC) - timedelta(days=8),)
         return None
 
     def fetchall(self):
@@ -71,7 +73,7 @@ def test_scheduler_runs_overdue_jobs_immediately(monkeypatch):
 
     assert service.start_if_needed()
     scheduled_job = next(job for job in service.scheduler.jobs if job.get('id') == 'weekly-check')
-    assert scheduled_job['next_run_time'] <= datetime.now(timezone.utc)
+    assert scheduled_job['next_run_time'] <= datetime.now(UTC)
     service.stop()
     assert connection.closed
 

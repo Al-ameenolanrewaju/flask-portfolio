@@ -184,24 +184,25 @@ Al-ameen | Python Flask Developer
 
         <form action="/contact" method="POST" class="contact-form" style="max-width:600px;margin:0 auto;">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <input type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-10000px;">
             <div class="form-group">
-                <label>Name</label>
-                <input type="text" name="name" class="form-control" required>
+                <label for="contact-name">Name</label>
+                <input id="contact-name" type="text" name="name" class="form-control" maxlength="255" autocomplete="name" required>
             </div>
 
             <div class="form-group">
-                <label>Email</label>
-                <input type="email" name="email" class="form-control" required>
+                <label for="contact-email">Email</label>
+                <input id="contact-email" type="email" name="email" class="form-control" maxlength="254" autocomplete="email" required>
             </div>
 
             <div class="form-group">
-                <label>Subject</label>
-                <input type="text" name="subject" class="form-control">
+                <label for="contact-subject">Subject</label>
+                <input id="contact-subject" type="text" name="subject" class="form-control" maxlength="255" required>
             </div>
 
             <div class="form-group">
-                <label>Message</label>
-                <textarea name="message" class="form-control" rows="5" required></textarea>
+                <label for="contact-message">Message</label>
+                <textarea id="contact-message" name="message" class="form-control" rows="5" maxlength="10000" required></textarea>
             </div>
 
             <button type="submit" class="btn btn-contact btn-block">Send message <span aria-hidden="true">↗</span></button>
@@ -213,17 +214,33 @@ Al-ameen | Python Flask Developer
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
 window.addEventListener('DOMContentLoaded', () => {
-    const params = new URLSearchParams(window.location.search);
-    if (params.get('success') === '1') {
+    const contactMessages = {{ get_flashed_messages(with_categories=true)|tojson }};
+    if (contactMessages.length) {
+        const [category, message] = contactMessages[contactMessages.length - 1];
+        const isSuccess = category === 'success';
         Swal.fire({
-            icon: 'success',
-            title: 'Message Sent!',
-            text: 'Your message has been sent successfully ✅',
+            icon: isSuccess ? 'success' : 'error',
+            title: isSuccess ? 'Message sent' : 'Message not sent',
+            text: message,
             confirmButtonColor: '#3085d6'
         });
+    }
 
-        // Remove query string so it doesn't trigger again on reload
-        window.history.replaceState({}, document.title, window.location.pathname + '#contact');
+    const form = document.querySelector('.contact-form');
+    if (form) {
+        form.addEventListener('submit', event => {
+            if (form.dataset.submitting === 'true') {
+                event.preventDefault();
+                return;
+            }
+            if (!form.checkValidity()) return;
+            event.preventDefault();
+            form.dataset.submitting = 'true';
+            const button = form.querySelector('button[type="submit"]');
+            button.disabled = true;
+            button.setAttribute('aria-busy', 'true');
+            form.submit();
+        });
     }
 });
 </script>

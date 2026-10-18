@@ -1,4 +1,5 @@
 from flask import Blueprint
+
 from routes.job_finder import job_finder
 
 main = Blueprint('main', __name__)

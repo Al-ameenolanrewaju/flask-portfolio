@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block title %}Send application preview | Job Finder{% endblock %}
+
+{% block content %}
+<main class="container py-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1>Application preview</h1>
+            <p class="text-muted">Review the exact final email before it is sent.</p>
+        </div>
+        <a href="{{ url_for('main.job_finder.dashboard') }}" class="btn btn-outline-secondary">Back to queue</a>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-body">
+            <p><strong>To:</strong> {{ job.application_email }}</p>
+            <p><strong>From:</strong> {{ sender }}</p>
+            <p><strong>Reply-to:</strong> {{ reply_to or 'Not configured' }}</p>
+            <p><strong>Subject:</strong> {{ subject }}</p>
+            <hr>
+            <div>{{ body|safe }}</div>
+        </div>
+    </div>
+
+    {% if can_send %}
+    <form action="{{ url_for('main.job_finder.send_email', job_id=job.id) }}" method="post">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <input type="hidden" name="confirm_send" value="yes">
+        <button type="submit" class="btn btn-danger">Confirm send</button>
+    </form>
+    {% else %}
+    <div class="alert alert-warning">
+        The approved email preview cannot be sent right now because the configured sender or contact reply address is missing.
+    </div>
+    {% endif %}
+</main>
+{% endblock %}

@@ -9,7 +9,6 @@ from app import app
 from config import TestingConfig
 from github_webhooks import verify_github_signature
 
-
 SECRET = 'webhook-test-secret'
 REPOSITORY = {
     'id': 55,

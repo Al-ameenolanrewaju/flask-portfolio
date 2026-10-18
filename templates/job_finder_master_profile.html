@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+
+{% block title %}Master Profile | Job Finder{% endblock %}
+
+{% block content %}
+<main class="container py-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1>Master Profile</h1>
+            <p class="text-muted">This is the source of truth for generated application packs. Only facts here are used.</p>
+        </div>
+        <a href="{{ url_for('main.job_finder.dashboard') }}" class="btn btn-outline-secondary">Back to Job Finder</a>
+    </div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for category, message in messages %}
+        <div class="alert alert-{{ category }}" role="status">{{ message }}</div>
+        {% endfor %}
+    {% endwith %}
+
+    <form method="post" action="{{ url_for('main.job_finder.master_profile') }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <div class="row">
+            <div class="col-md-6 form-group">
+                <label for="full_name">Full name</label>
+                <input class="form-control" id="full_name" name="full_name" value="{{ profile.full_name or '' }}">
+            </div>
+            <div class="col-md-6 form-group">
+                <label for="email">Email</label>
+                <input class="form-control" id="email" name="email" value="{{ profile.email or '' }}">
+            </div>
+            <div class="col-md-6 form-group">
+                <label for="phone">Phone</label>
+                <input class="form-control" id="phone" name="phone" value="{{ profile.phone or '' }}">
+            </div>
+            <div class="col-md-6 form-group">
+                <label for="city_country">City / country</label>
+                <input class="form-control" id="city_country" name="city_country" value="{{ profile.city_country or '' }}">
+            </div>
+            <div class="col-md-4 form-group">
+                <label for="portfolio_url">Portfolio URL</label>
+                <input class="form-control" id="portfolio_url" name="portfolio_url" value="{{ profile.links.portfolio if profile.links else '' }}">
+            </div>
+            <div class="col-md-4 form-group">
+                <label for="github_url">GitHub URL</label>
+                <input class="form-control" id="github_url" name="github_url" value="{{ profile.links.github if profile.links else '' }}">
+            </div>
+            <div class="col-md-4 form-group">
+                <label for="linkedin_url">LinkedIn URL</label>
+                <input class="form-control" id="linkedin_url" name="linkedin_url" value="{{ profile.links.linkedin if profile.links else '' }}">
+            </div>
+            <div class="col-md-12 form-group">
+                <label for="summary">Short summary</label>
+                <textarea class="form-control" id="summary" name="summary" rows="3">{{ profile.summary or '' }}</textarea>
+            </div>
+            <div class="col-md-6 form-group">
+                <label for="education">Education</label>
+                <textarea class="form-control" id="education" name="education" rows="4">{{ profile.education or '' }}</textarea>
+            </div>
+            <div class="col-md-6 form-group">
+                <label for="work_history">Work history</label>
+                <textarea class="form-control" id="work_history" name="work_history" rows="4">{{ profile.work_history|join('\n') if profile.work_history else '' }}</textarea>
+            </div>
+            <div class="col-md-6 form-group">
+                <label for="achievements">Achievements with numbers</label>
+                <textarea class="form-control" id="achievements" name="achievements" rows="4">{{ profile.achievements|join('\n') if profile.achievements else '' }}</textarea>
+            </div>
+            <div class="col-md-6 form-group">
+                <label for="projects">Relevant projects</label>
+                <textarea class="form-control" id="projects" name="projects" rows="4">{{ profile.projects|join('\n') if profile.projects else '' }}</textarea>
+            </div>
+            <div class="col-md-6 form-group">
+                <label for="skills">Skills</label>
+                <textarea class="form-control" id="skills" name="skills" rows="4">{{ profile.skills|join('\n') if profile.skills else '' }}</textarea>
+            </div>
+            <div class="col-md-6 form-group">
+                <label for="languages">Languages</label>
+                <textarea class="form-control" id="languages" name="languages" rows="4">{{ profile.languages|join('\n') if profile.languages else '' }}</textarea>
+            </div>
+            <div class="col-md-6 form-group">
+                <label for="availability">Availability</label>
+                <input class="form-control" id="availability" name="availability" value="{{ profile.availability or '' }}">
+            </div>
+            <div class="col-md-6 form-group">
+                <label for="start_date">Start date</label>
+                <input class="form-control" id="start_date" name="start_date" value="{{ profile.start_date or '' }}">
+            </div>
+            <div class="col-md-6 form-group">
+                <label for="notice_period">Notice period</label>
+                <input class="form-control" id="notice_period" name="notice_period" value="{{ profile.notice_period or '' }}">
+            </div>
+            <div class="col-md-6 form-group">
+                <label for="preferred_work_mode">Preferred work mode</label>
+                <input class="form-control" id="preferred_work_mode" name="preferred_work_mode" value="{{ profile.preferred_work_mode or '' }}">
+            </div>
+            <div class="col-md-6 form-group">
+                <label for="work_authorization">Work authorization</label>
+                <input class="form-control" id="work_authorization" name="work_authorization" value="{{ profile.work_authorization or '' }}">
+            </div>
+            <div class="col-md-6 form-group">
+                <label for="salary_expectation">Salary expectation</label>
+                <input class="form-control" id="salary_expectation" name="salary_expectation" value="{{ profile.salary_expectation or '' }}">
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary mt-3">Save master profile</button>
+    </form>
+</main>
+{% endblock %}

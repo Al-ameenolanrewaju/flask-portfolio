@@ -2,8 +2,8 @@ from io import BytesIO
 from types import SimpleNamespace
 from unittest.mock import Mock
 
-from PIL import Image
 import pytest
+from PIL import Image
 
 import screenshot_provider
 

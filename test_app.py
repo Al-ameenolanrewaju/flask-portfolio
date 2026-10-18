@@ -1,7 +1,10 @@
-import pytest
 import base64
 import json
+from typing import ClassVar
 from unittest.mock import Mock
+
+import pytest
+
 import app as app_module
 from app import app
 from config import TestingConfig
@@ -9,14 +12,12 @@ from github_client import GitHubAPIError, GitHubClient
 from models import User, db
 
 
-
-
-
 @pytest.fixture
-def client():
+def client(request):
     app.config.from_object(TestingConfig)
     app.config['TESTING'] = True
     with app.test_client() as client:
+        client.environ_base['REMOTE_ADDR'] = f"192.0.2.{abs(hash(request.node.nodeid)) % 254 + 1}"
         yield client
 
 def test_home_page(client):
@@ -39,8 +40,8 @@ def test_auto_skills_count_distinct_projects_case_insensitively():
 
 def test_homepage_shows_generated_counts_with_manual_skills(client, monkeypatch):
     app_module.cache.clear()
-    monkeypatch.setattr(app_module, 'get_projects', lambda: [])
-    monkeypatch.setattr(app_module, 'get_content_from_db', lambda: {})
+    monkeypatch.setattr(app_module, 'get_projects', list)
+    monkeypatch.setattr(app_module, 'get_content_from_db', dict)
     monkeypatch.setattr(app_module, 'get_skills_from_table', lambda: {'Hand-edited': ['Custom skill']})
     monkeypatch.setattr(app_module, 'get_auto_skills_from_projects', lambda: {
         'Topics': [{'name': 'Flask', 'project_count': 4}],
@@ -125,12 +126,12 @@ def test_admin_has_direct_services_editor_link(client, monkeypatch):
 
 def test_homepage_renders_services_beyond_four(client, monkeypatch):
     app_module.cache.clear()
-    monkeypatch.setattr(app_module, 'get_projects', lambda: [])
+    monkeypatch.setattr(app_module, 'get_projects', list)
     monkeypatch.setattr(app_module, 'get_content_from_db', lambda: {
         'service_5': {'title': 'Fifth Service', 'content': 'Beyond the old limit.'},
         'service_8': {'title': 'Eighth Service', 'content': 'Still supported.'},
     })
-    monkeypatch.setattr(app_module, 'get_skills_from_table', lambda: {})
+    monkeypatch.setattr(app_module, 'get_skills_from_table', dict)
 
     response = client.get('/')
     page = response.get_data(as_text=True)
@@ -394,8 +395,8 @@ def test_project_card_links_hosted_site_and_github_code_separately(client, monke
         'last_pushed_at': None,
         'created_at': None,
     }])
-    monkeypatch.setattr(app_module, 'get_content_from_db', lambda: {})
-    monkeypatch.setattr(app_module, 'get_skills_from_table', lambda: {})
+    monkeypatch.setattr(app_module, 'get_content_from_db', dict)
+    monkeypatch.setattr(app_module, 'get_skills_from_table', dict)
 
     response = client.get('/')
     page = response.get_data(as_text=True)
@@ -690,9 +691,9 @@ def test_homepage_hides_broken_live_demo_link(client, monkeypatch):
         'edited_fields': [], 'languages': [], 'topics': [], 'stars': 0, 'image': '',
         'demo_link_status': 'broken', 'created_at': None, 'last_pushed_at': None,
     }])
-    monkeypatch.setattr(app_module, 'get_content_from_db', lambda: {})
-    monkeypatch.setattr(app_module, 'get_skills_from_table', lambda: {})
-    monkeypatch.setattr(app_module, 'get_auto_skills_from_projects', lambda: {})
+    monkeypatch.setattr(app_module, 'get_content_from_db', dict)
+    monkeypatch.setattr(app_module, 'get_skills_from_table', dict)
+    monkeypatch.setattr(app_module, 'get_auto_skills_from_projects', dict)
 
     response = client.get('/')
     page = response.get_data(as_text=True)
@@ -731,9 +732,9 @@ def test_homepage_sets_project_open_graph_image(client, monkeypatch):
         'github_full_name': None, 'edited_fields': [], 'languages': [], 'topics': [],
         'stars': 0, 'image': '', 'created_at': None, 'last_pushed_at': None,
     }])
-    monkeypatch.setattr(app_module, 'get_content_from_db', lambda: {})
-    monkeypatch.setattr(app_module, 'get_skills_from_table', lambda: {})
-    monkeypatch.setattr(app_module, 'get_auto_skills_from_projects', lambda: {})
+    monkeypatch.setattr(app_module, 'get_content_from_db', dict)
+    monkeypatch.setattr(app_module, 'get_skills_from_table', dict)
+    monkeypatch.setattr(app_module, 'get_auto_skills_from_projects', dict)
 
     response = client.get('/')
 
@@ -751,7 +752,7 @@ def test_admin_shows_broken_link_warning(client, monkeypatch):
     }
 
     class Cursor:
-        rows = []
+        rows: ClassVar[list] = []
 
         def execute(self, sql, params=None):
             self.rows = [project] if sql.startswith('SELECT * FROM projects') else []
@@ -779,6 +780,7 @@ def test_admin_shows_broken_link_warning(client, monkeypatch):
 
 def test_screenshot_refresh_saves_a_fallback_card_when_api_is_unconfigured(monkeypatch):
     from io import BytesIO
+
     from PIL import Image
 
     project = {
@@ -951,7 +953,7 @@ def test_ai_draft_must_be_approved_before_public_data_loader_exposes_it(monkeypa
     }]
 
     class Cursor:
-        rows = []
+        rows: ClassVar[list] = []
 
         def execute(self, sql, params=None):
             self.rows = projects if sql.startswith('SELECT * FROM projects') else approved
@@ -1270,9 +1272,9 @@ def test_github_failure_is_reported_and_public_page_uses_saved_data(client, monk
     assert response.status_code == 200
     assert b'GitHub could not be reached' in response.data
 
-    monkeypatch.setattr(app_module, 'get_projects', lambda: [])
-    monkeypatch.setattr(app_module, 'get_content_from_db', lambda: {})
-    monkeypatch.setattr(app_module, 'get_skills_from_table', lambda: {})
+    monkeypatch.setattr(app_module, 'get_projects', list)
+    monkeypatch.setattr(app_module, 'get_content_from_db', dict)
+    monkeypatch.setattr(app_module, 'get_skills_from_table', dict)
     assert client.get('/').status_code == 200
 
 

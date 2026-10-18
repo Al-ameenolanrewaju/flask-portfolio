@@ -119,3 +119,54 @@ class GroqClient:
                 raise GroqError('Groq returned invalid JSON') from error
 
         raise GroqError('Groq request could not be completed')
+
+    def generate_json(self, prompt, before_request=None, max_tokens=1600):
+        payload = {
+            'model': self.model,
+            'temperature': 0.2,
+            'max_tokens': max_tokens,
+            'response_format': {'type': 'json_object'},
+            'messages': [
+                {'role': 'system', 'content': 'Return a single valid JSON object and no other text.'},
+                {'role': 'user', 'content': prompt},
+            ],
+        }
+        for attempt in range(self.MAX_ATTEMPTS):
+            if before_request and not before_request():
+                raise GroqDailyCapReached('Groq daily request cap reached')
+            response = None
+            try:
+                response = request_with_retries(
+                    'POST', self.ENDPOINT,
+                    headers={'Authorization': f'Bearer {self.api_key}', 'Content-Type': 'application/json'},
+                    json=payload,
+                    timeout=(3.05, 20),
+                    attempts=1,
+                )
+            except requests.RequestException as error:
+                if attempt + 1 == self.MAX_ATTEMPTS:
+                    raise GroqError('Groq request failed after retries') from error
+                self._backoff(None, attempt)
+                continue
+
+            if response.status_code == 429 or response.status_code >= 500:
+                if attempt + 1 == self.MAX_ATTEMPTS:
+                    if response.status_code == 429:
+                        raise GroqRateLimitExceeded('Groq rate limit remained after retries')
+                    response.raise_for_status()
+                self._backoff(response, attempt)
+                continue
+
+            try:
+                response.raise_for_status()
+                content = response.json()['choices'][0]['message']['content']
+                result = json.loads(content)
+                if not isinstance(result, dict):
+                    raise TypeError('Groq response must be a JSON object')
+                return result
+            except requests.RequestException as error:
+                raise GroqError('Groq rejected the request') from error
+            except (KeyError, IndexError, TypeError, ValueError) as error:
+                raise GroqError('Groq returned invalid structured JSON') from error
+
+        raise GroqError('Groq request could not be completed')

@@ -1,4 +1,5 @@
 import os
+
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -33,8 +34,8 @@ class Config:
 
     # Resend email delivery
     RESEND_API_KEY = os.environ.get("RESEND_API_KEY")
-    RESEND_FROM = os.environ.get("RESEND_FROM", MAIL_DEFAULT_SENDER or MAIL_USERNAME)
-    RESEND_TO = os.environ.get("RESEND_TO", MAIL_USERNAME)
+    RESEND_FROM = os.environ.get("RESEND_FROM", "onboarding@resend.dev")
+    CONTACT_EMAIL = os.environ.get("CONTACT_EMAIL", "")
     CALLMEBOT_PHONE = os.environ.get("CALLMEBOT_PHONE")
     CALLMEBOT_API_KEY = os.environ.get("CALLMEBOT_API_KEY")
     GROQ_API_KEY = os.environ.get("GROQ_API_KEY")

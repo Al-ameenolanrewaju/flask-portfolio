@@ -9,7 +9,7 @@ A full-stack portfolio website built with Python Flask, PostgreSQL and Bootstrap
 - **Backend:** Python, Flask, Flask-SQLAlchemy, Flask-Login, Flask-RESTful
 - **Database:** PostgreSQL, Flask-Migrate
 - **Frontend:** HTML, CSS, Bootstrap 5, Jinja2
-- **Email:** Flask-Mail
+- **Email:** Resend Python SDK for contact notifications; Flask-Mail remains available for legacy SMTP settings
 - **Caching:** Flask-Caching
 - **Security:** Flask-WTF (CSRF), Flask-Limiter
 - **Testing:** pytest
@@ -69,8 +69,8 @@ GITHUB_USERNAME=your-github-username
 GITHUB_TOKEN=github_pat_your-token
 GITHUB_WEBHOOK_SECRET=your-webhook-secret
 RESEND_API_KEY=re_your_api_key
-RESEND_FROM=Portfolio <onboarding@your-verified-domain.com>
-RESEND_TO=your-admin-email@example.com
+RESEND_FROM=onboarding@resend.dev
+CONTACT_EMAIL=your-email@example.com
 CALLMEBOT_PHONE=234XXXXXXXXXX
 CALLMEBOT_API_KEY=your-callmebot-api-key
 SCREENSHOTONE_ACCESS_KEY=your-screenshotone-access-key
@@ -107,12 +107,12 @@ Set production values in the Render dashboard. Keep secrets out of Git.
 | `GITHUB_USERNAME` | Your GitHub account name | Automatic and manual GitHub sync cannot run; saved projects remain available. |
 | `GITHUB_TOKEN` | GitHub personal access token; optional | Unauthenticated GitHub API limit applies (typically 60 requests/hour). |
 | `GITHUB_WEBHOOK_SECRET` | Create a secret and set the same value in the GitHub webhook | Webhook returns `503`; daily sync remains the fallback. |
-| `RESEND_API_KEY` | Resend dashboard | Contact email notification and auto-reply are skipped; message saving still works. |
-| `RESEND_FROM` | A verified sender in Resend; falls back to `MAIL_DEFAULT_SENDER` or `MAIL_USERNAME` | Resend email is skipped. |
-| `RESEND_TO` | Your inbox; defaults to `MAIL_USERNAME` | Admin contact notification has no recipient; sender auto-reply can still work. |
+| `RESEND_API_KEY` | Resend dashboard | Contact email cannot be delivered. |
+| `RESEND_FROM` | Resend-verified sender; defaults to `onboarding@resend.dev` for testing | Uses Resend's testing sender. Replace it with your verified domain sender when ready. |
+| `CONTACT_EMAIL` | Your inbox | Contact email cannot be delivered. |
 | `MAIL_USERNAME` | Optional legacy SMTP account; also a fallback sender/recipient | No email fallback or CV contact address is available. |
 | `MAIL_PASSWORD` | Optional legacy SMTP app password | No effect on the current Resend delivery path. |
-| `MAIL_DEFAULT_SENDER` | Optional legacy sender address | `RESEND_FROM` falls back to `MAIL_USERNAME`. |
+| `MAIL_DEFAULT_SENDER` | Optional legacy SMTP setting | No effect on Resend contact delivery. |
 | `CALLMEBOT_PHONE` | CallMeBot WhatsApp setup; include country code | WhatsApp alerts are skipped. |
 | `CALLMEBOT_API_KEY` | CallMeBot activation message | WhatsApp alerts are skipped. |
 | `SCREENSHOTONE_ACCESS_KEY` | ScreenshotOne dashboard; free tier is 100 screenshots/month | Generated WebP project cards are used. |

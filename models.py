@@ -1,12 +1,15 @@
-from flask_sqlalchemy import SQLAlchemy
-from flask_login import UserMixin
 from datetime import datetime, timezone
+
+from flask_login import UserMixin
+from flask_sqlalchemy import SQLAlchemy
+
+UTC = timezone.utc  # noqa: UP017
 
 db = SQLAlchemy()
 
 
 def utc_now():
-    return datetime.now(timezone.utc).replace(tzinfo=None)
+    return datetime.now(UTC).replace(tzinfo=None)
 
 
 class User(db.Model, UserMixin):

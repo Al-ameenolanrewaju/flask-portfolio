@@ -9,7 +9,10 @@
             <h1>Job Finder</h1>
             <p class="text-muted">Private to your admin account. Matching is automated; verify each role and its terms on the original posting.</p>
         </div>
-        <a href="{{ url_for('admin') }}" class="btn btn-outline-secondary">Back to admin</a>
+        <div class="d-flex gap-2">
+            <a href="{{ url_for('main.job_finder.master_profile') }}" class="btn btn-outline-primary">Master profile</a>
+            <a href="{{ url_for('admin') }}" class="btn btn-outline-secondary">Back to admin</a>
+        </div>
     </div>
     {% with messages = get_flashed_messages(with_categories=true) %}
         {% for category, message in messages %}
@@ -83,26 +86,52 @@
 
     <section aria-labelledby="job-queue-title">
         <h2 id="job-queue-title">Review queue</h2>
-        <div class="table-responsive">
-            <table class="table align-middle">
-                <thead><tr><th>Role</th><th>Company</th><th>Location</th><th>Match</th><th>Source</th><th>Posted</th><th>Status</th></tr></thead>
-                <tbody>
-                    {% for job in jobs %}
-                    <tr>
-                        <th scope="row"><a href="{{ job.posting_url }}" target="_blank" rel="noopener noreferrer">{{ job.title }}</a></th>
-                        <td>{{ job.company or 'Not listed' }}</td>
-                        <td>{{ job.location or 'Not listed' }}</td>
-                        <td>{% if job.score is not none %}{{ job.score }}/100{% if job.match_reason %}<br><small>{{ job.match_reason }}</small>{% endif %}{% else %}Not scored{% endif %}</td>
-                        <td><a href="{{ job.source_url }}" target="_blank" rel="noopener noreferrer">{{ job.source_name }}</a></td>
-                        <td>{{ job.posted_at.strftime('%Y-%m-%d') if job.posted_at else 'Unknown' }}</td>
-                        <td>{{ job.status|title }}</td>
-                    </tr>
-                    {% else %}
-                    <tr><td colspan="7">No jobs found yet. Save your preferences and run a scan.</td></tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
+        {% for job in jobs %}
+        <article class="job-finder-entry mb-4">
+            <div class="d-flex flex-wrap justify-content-between align-items-start">
+                <div>
+                    <h3><a href="{{ job.posting_url }}" target="_blank" rel="noopener noreferrer">{{ job.title }}</a></h3>
+                    <p>{{ job.company or 'Company not listed' }} · {{ job.location or 'Location not listed' }} · {{ job.job_type or 'Type not listed' }}</p>
+                    <p>Status: <strong>{{ job.status|title }}</strong>{% if job.score is not none %} · Match: <strong>{{ job.score }}/100</strong>{% endif %}{% if job.posted_at %} · Posted {{ job.posted_at.strftime('%Y-%m-%d') }}{% endif %}</p>
+                    {% if job.match_reason %}<p>{{ job.match_reason }}</p>{% endif %}
+                </div>
+                <p>Source: <a href="{{ job.source_url }}" target="_blank" rel="noopener noreferrer">{{ job.source_name }}</a></p>
+            </div>
+            <form action="{{ url_for('main.job_finder.review_job', job_id=job.id) }}" method="post">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <div class="row">
+                    <div class="col-md-6 form-group">
+                        <label for="cover-letter-{{ job.id }}">Cover letter draft</label>
+                        <textarea class="form-control" id="cover-letter-{{ job.id }}" name="cover_letter" rows="6">{{ job.cover_letter or '' }}</textarea>
+                    </div>
+                    <div class="col-md-6 form-group">
+                        <label for="pitch-{{ job.id }}">Three-line pitch</label>
+                        <textarea class="form-control" id="pitch-{{ job.id }}" name="pitch" rows="4">{{ job.pitch or '' }}</textarea>
+                    </div>
+                    <div class="col-md-8 form-group">
+                        <label for="notes-{{ job.id }}">Private notes</label>
+                        <textarea class="form-control" id="notes-{{ job.id }}" name="notes" rows="2">{{ job.notes or '' }}</textarea>
+                    </div>
+                    <div class="col-md-4 form-group">
+                        <label for="follow-up-{{ job.id }}">Follow-up date</label>
+                        <input class="form-control" id="follow-up-{{ job.id }}" name="follow_up_date" type="date" value="{{ job.follow_up_date.isoformat() if job.follow_up_date else '' }}">
+                    </div>
+                </div>
+                <button class="btn btn-default" type="submit" name="action" value="save">Save edits</button>
+                {% if job.status in ['found', 'drafted'] %}<button class="btn btn-primary" type="submit" name="action" value="approve">Approve draft</button>{% endif %}
+                <a class="btn btn-outline-primary" href="{{ url_for('main.job_finder.application_pack', job_id=job.id) }}">Application pack</a>
+                {% if job.status == 'approved' %}
+                <a class="btn btn-success" href="{{ job.apply_url or job.posting_url }}" target="_blank" rel="noopener noreferrer">Open application</a>
+                <a class="btn btn-primary" href="{{ url_for('main.job_finder.send_preview', job_id=job.id) }}">Preview email</a>
+                <button class="btn btn-default" type="submit" name="action" value="mark_applied">Mark applied</button>
+                {% endif %}
+                {% if job.status not in ['applied', 'interview', 'rejected', 'ignored'] %}<button class="btn btn-warning" type="submit" name="action" value="ignore">Ignore</button>{% endif %}
+                {% if job.status == 'applied' %}<button class="btn btn-default" type="submit" name="action" value="interview">Mark interview</button><button class="btn btn-default" type="submit" name="action" value="reject">Mark rejected</button>{% endif %}
+            </form>
+        </article>
+        {% else %}
+        <p>No jobs found yet. Save your preferences and run a scan.</p>
+        {% endfor %}
     </section>
 </main>
 {% endblock %}

@@ -5,6 +5,7 @@ from threading import Lock
 
 from apscheduler.schedulers.background import BackgroundScheduler
 
+UTC = timezone.utc  # noqa: UP017
 
 logger = logging.getLogger(__name__)
 
@@ -24,19 +25,19 @@ class PostgresJobScheduler:
 
     @staticmethod
     def _job_lock_key(job_name):
-        digest = hashlib.sha256(f'portfolio-job:{job_name}'.encode('utf-8')).digest()[:8]
+        digest = hashlib.sha256(f'portfolio-job:{job_name}'.encode()).digest()[:8]
         return int.from_bytes(digest, byteorder='big', signed=True)
 
     @staticmethod
     def _utc(value):
         if value is not None and value.tzinfo is None:
-            return value.replace(tzinfo=timezone.utc)
+            return value.replace(tzinfo=UTC)
         return value
 
     def start_if_needed(self):
         if self.scheduler and self.scheduler.running:
             return True
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         if self._last_lock_attempt and (now - self._last_lock_attempt).total_seconds() < self.LOCK_RETRY_SECONDS:
             return False
 
@@ -60,7 +61,7 @@ class PostgresJobScheduler:
                     return False
 
                 self._leader_connection = connection
-                self.scheduler = BackgroundScheduler(timezone=timezone.utc)
+                self.scheduler = BackgroundScheduler(timezone=UTC)
                 for job_name, definition in self.jobs.items():
                     next_run = self._next_run(job_name, definition['interval'])
                     self.scheduler.add_job(
@@ -150,7 +151,7 @@ class PostgresJobScheduler:
         cursor.execute('SELECT last_run_at FROM job_runs WHERE job_name=%s', (job_name,))
         row = cursor.fetchone()
         last_run = self._utc(row[0]) if row else None
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         next_run = now if last_run is None or now >= last_run + interval else last_run + interval
         cursor.execute(
             "INSERT INTO job_runs (job_name, status, next_run_at) VALUES (%s, 'never', %s) "
@@ -169,7 +170,7 @@ class PostgresJobScheduler:
         connection = None
         cursor = None
         locked = False
-        next_run = datetime.now(timezone.utc) + definition['interval']
+        next_run = datetime.now(UTC) + definition['interval']
         try:
             connection = self.connection_factory()
             cursor = connection.cursor()
@@ -188,7 +189,7 @@ class PostgresJobScheduler:
             definition['func']()
             cursor.execute(
                 "UPDATE job_runs SET last_run_at=%s, status='success', next_run_at=%s, last_error=NULL WHERE job_name=%s",
-                (datetime.now(timezone.utc), next_run, job_name),
+                (datetime.now(UTC), next_run, job_name),
             )
             connection.commit()
             return True
@@ -202,7 +203,7 @@ class PostgresJobScheduler:
                             "INSERT INTO job_runs (job_name, last_run_at, status, next_run_at, last_error) "
                             "VALUES (%s, %s, 'failed', %s, %s) ON CONFLICT (job_name) DO UPDATE "
                             "SET last_run_at=EXCLUDED.last_run_at, status='failed', next_run_at=EXCLUDED.next_run_at, last_error=EXCLUDED.last_error",
-                            (job_name, datetime.now(timezone.utc), next_run, str(error)[:2000]),
+                            (job_name, datetime.now(UTC), next_run, str(error)[:2000]),
                         )
                         connection.commit()
                 except Exception:

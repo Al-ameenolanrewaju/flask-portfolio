@@ -1,52 +1,67 @@
-from flask import Flask, render_template, request, url_for, redirect, flash, jsonify, abort, send_file
-import psycopg2
-from psycopg2.extras import RealDictCursor
-import os
-import json
+import atexit
 import hashlib
 import io
-import tempfile
-import atexit
-from xml.sax.saxutils import escape
-from werkzeug.utils import secure_filename
-import time
+import json
+import logging
+import os
 import re
+import tempfile
+import time
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timedelta, timezone
-from flask_mail import Mail
-from flask_migrate import Migrate
-from flask_login import LoginManager, login_required, login_user
-from werkzeug.security import generate_password_hash, check_password_hash
-from flask_restful import Api, Resource
-import logging
-from flask_caching import Cache
+from typing import ClassVar
+from xml.sax.saxutils import escape
+
+import psycopg2
+import resend
 from cachelib import SimpleCache
-from flask_wtf.csrf import CSRFProtect
+from flask import (
+    Flask,
+    abort,
+    flash,
+    jsonify,
+    redirect,
+    render_template,
+    request,
+    send_file,
+    url_for,
+)
+from flask_caching import Cache
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
-from config import DevelopmentConfig, ProductionConfig
-from models import db, User
-from github_client import GitHubAPIError, GitHubClient
-from github_webhooks import verify_github_signature
-from external_http import request_with_retries
-from routes.main import main
-from routes.auth import auth
-from whatsapp import CallMeBotProvider
+from flask_login import LoginManager, login_required, login_user
+from flask_mail import Mail
+from flask_migrate import Migrate
+from flask_restful import Api, Resource
+from flask_wtf.csrf import CSRFProtect
+from psycopg2.extras import RealDictCursor
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.lib.units import mm
 from reportlab.platypus import Paragraph, SimpleDocTemplate, Spacer
-from scheduler import PostgresJobScheduler
+from werkzeug.security import check_password_hash, generate_password_hash
+from werkzeug.utils import secure_filename
+
+from config import DevelopmentConfig, ProductionConfig
+from github_client import GitHubAPIError, GitHubClient
+from github_webhooks import verify_github_signature
+from groq_client import GroqClient, GroqDailyCapReached, GroqRateLimitExceeded
+from job_finder_service import job_finder_service
 from link_checker import check_link, is_public_http_url
+from models import User, db
+from og_images import create_og_image
+from routes.auth import auth
+from routes.main import main
+from scheduler import PostgresJobScheduler
 from screenshot_provider import (
     ScreenshotOneProvider,
     ScreenshotQuotaExceeded,
     create_fallback_card,
     normalize_webp,
 )
-from og_images import create_og_image
-from groq_client import GroqClient, GroqDailyCapReached, GroqRateLimitExceeded
-from job_finder_service import job_finder_service
+from whatsapp import CallMeBotProvider
+
+UTC = timezone.utc  # noqa: UP017
 
 app = Flask(__name__)
 production = os.environ.get('RENDER', '').lower() == 'true'
@@ -148,12 +163,16 @@ def ensure_db_schema():
             cursor.execute("CREATE TABLE IF NOT EXISTS contact_messages (id INTEGER PRIMARY KEY AUTOINCREMENT, name VARCHAR(255) NOT NULL, email VARCHAR(255) NOT NULL, subject VARCHAR(255), message TEXT NOT NULL, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)")
             cursor.execute("CREATE TABLE IF NOT EXISTS projects (id INTEGER PRIMARY KEY AUTOINCREMENT, title VARCHAR(150) NOT NULL, description TEXT NOT NULL, link VARCHAR(255), image VARCHAR(255), created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)")
             cursor.execute("CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY AUTOINCREMENT, username VARCHAR(80) UNIQUE NOT NULL, email VARCHAR(120) UNIQUE NOT NULL, password VARCHAR(200) NOT NULL)")
+            cursor.execute("CREATE TABLE IF NOT EXISTS job_finder_master_profile (id INTEGER PRIMARY KEY AUTOINCREMENT, profile_json TEXT, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)")
+            cursor.execute("CREATE TABLE IF NOT EXISTS job_finder_application_packs (id INTEGER PRIMARY KEY AUTOINCREMENT, job_id INTEGER UNIQUE, posting_hash VARCHAR(128), pack_json TEXT, version INTEGER NOT NULL DEFAULT 1, status VARCHAR(32) DEFAULT 'pending', created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)")
         else:
             cursor.execute("CREATE TABLE IF NOT EXISTS site_content (id SERIAL PRIMARY KEY, section_name VARCHAR(100), title VARCHAR(255), content TEXT, file VARCHAR(255))")
             cursor.execute("CREATE TABLE IF NOT EXISTS skills (id SERIAL PRIMARY KEY, category VARCHAR(100) NOT NULL, name VARCHAR(100) NOT NULL)")
             cursor.execute("CREATE TABLE IF NOT EXISTS contact_messages (id SERIAL PRIMARY KEY, name VARCHAR(255) NOT NULL, email VARCHAR(255) NOT NULL, subject VARCHAR(255), message TEXT NOT NULL, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)")
             cursor.execute("CREATE TABLE IF NOT EXISTS projects (id SERIAL PRIMARY KEY, title VARCHAR(150) NOT NULL, description TEXT NOT NULL, link VARCHAR(255), image VARCHAR(255), created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)")
             cursor.execute("CREATE TABLE IF NOT EXISTS users (id SERIAL PRIMARY KEY, username VARCHAR(80) UNIQUE NOT NULL, email VARCHAR(120) UNIQUE NOT NULL, password VARCHAR(200) NOT NULL)")
+            cursor.execute("CREATE TABLE IF NOT EXISTS job_finder_master_profile (id SERIAL PRIMARY KEY, profile_json TEXT, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)")
+            cursor.execute("CREATE TABLE IF NOT EXISTS job_finder_application_packs (id SERIAL PRIMARY KEY, job_id INTEGER UNIQUE, posting_hash VARCHAR(128), pack_json TEXT, version INTEGER NOT NULL DEFAULT 1, status VARCHAR(32) DEFAULT 'pending', created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)")
 
         conn.commit()
         return True
@@ -188,7 +207,7 @@ def ensure_default_admin_user():
                 user.password = generate_password_hash(password)
                 db.session.commit()
             return True
-    except Exception as exc:
+    except Exception as exc:  # noqa: BLE001
         print(f"Error ensuring default admin user: {exc}")
         return False
 
@@ -253,7 +272,7 @@ def get_projects():
                 ('approved',),
             )
             approved_drafts = {row['project_id']: dict(row) for row in cursor.fetchall()}
-        except Exception:
+        except Exception:  # noqa: BLE001
             conn.rollback()
             approved_drafts = {}
         for project in projects:
@@ -367,7 +386,7 @@ def _cv_data():
             }
             for project in get_projects()
         ],
-        'contact': app.config.get('RESEND_TO') or app.config.get('MAIL_USERNAME') or '',
+        'contact': app.config.get('CONTACT_EMAIL') or '',
     }
 
 
@@ -444,26 +463,18 @@ def ensure_cv_is_current():
 def _send_resend_email(payload):
     api_key = app.config.get('RESEND_API_KEY')
     if not api_key:
-        logger.info('Resend is not configured; skipping email')
-        return False
-    response = request_with_retries(
-        'POST',
-        'https://api.resend.com/emails',
-        json=payload,
-        headers={'Authorization': f'Bearer {api_key}', 'Content-Type': 'application/json'},
-        timeout=(3.05, 10),
-    )
-    response.raise_for_status()
+        raise RuntimeError('Resend API key is not configured')
+    resend.api_key = api_key
+    resend.Emails.send(payload)
     return True
 
 
 def send_resend_contact_notification(name, email, subject, message, portfolio_url):
     """Send a contact notification through Resend when configured."""
-    sender = app.config.get('RESEND_FROM')
-    recipient = app.config.get('RESEND_TO')
+    sender = app.config.get('RESEND_FROM') or 'onboarding@resend.dev'
+    recipient = app.config.get('CONTACT_EMAIL')
     if not sender or not recipient:
-        logger.info('Resend is not configured; skipping contact notification')
-        return False
+        raise RuntimeError('Contact email settings are not configured')
 
     html = render_template(
         'email/contact_notification.html',
@@ -472,11 +483,12 @@ def send_resend_contact_notification(name, email, subject, message, portfolio_ur
         subject=subject,
         message=message,
         portfolio_url=portfolio_url,
+        now=datetime.now(UTC),
     )
     return _send_resend_email({
         'from': sender,
         'to': [recipient],
-        'subject': f'Portfolio contact: {subject or "No Subject"}',
+        'subject': f'Portfolio contact: {subject}',
         'html': html,
         'reply_to': email,
     })
@@ -520,11 +532,6 @@ def send_whatsapp_alert(message):
 def send_contact_alerts(name, email, subject, message, portfolio_url):
     with app.app_context():
         try:
-            send_resend_contact_notification(name, email, subject, message, portfolio_url)
-        except Exception:
-            logger.exception('Contact notification email failed')
-
-        try:
             send_resend_contact_reply(name, email)
         except Exception:
             logger.exception('Contact auto-reply failed')
@@ -542,7 +549,7 @@ def send_contact_alerts(name, email, subject, message, portfolio_url):
 
 # ================== REST API ==================
 class ProjectListResource(Resource):
-    method_decorators = {'post': [login_required]}
+    method_decorators: ClassVar[dict[str, list]] = {'post': [login_required]}
 
     def get(self):
         projects = get_projects()
@@ -578,7 +585,7 @@ api.add_resource(ProjectListResource, '/api/v1/projects')
 
 
 class ProjectResource(Resource):
-    method_decorators = {'delete': [login_required]}
+    method_decorators: ClassVar[dict[str, list]] = {'delete': [login_required]}
 
     def get(self, id):
         conn = get_db_connection()
@@ -589,7 +596,7 @@ class ProjectResource(Resource):
         conn.close()
         if not project:
             return {"error": "Project not found"}, 404
-        if 'created_at' in project and project['created_at']:
+        if project.get('created_at'):
             project['created_at'] = str(project['created_at'])
         return dict(project), 200
 
@@ -635,7 +642,7 @@ def home():
         )
         return render_template("home.html", projects=projects, content=content, skills=skills,
                                auto_skills=auto_skills, services=services, og_image=og_image)
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001
         print(f"Error in home route: {e}")
         return f"An error occurred: {e}", 500
 
@@ -724,11 +731,23 @@ def api_index():
 def contact():
     name = request.form.get('name', '').strip()
     email = request.form.get('email', '').strip()
-    subject = request.form.get('subject', 'No Subject').strip()
+    subject = request.form.get('subject', '').strip()
     message = request.form.get('message', '').strip()
 
-    if not name or not email or not message:
-        flash('Please fill in all required fields', 'danger')
+    if request.form.get('website', '').strip():
+        flash("Thanks for reaching out. Your message has been sent.", 'success')
+        return redirect(url_for('home') + '#contact')
+
+    valid_email = re.fullmatch(
+        r"[A-Z0-9.!#$%&'*+/=?^_`{|}~-]+@(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+[A-Z]{2,63}",
+        email,
+        re.IGNORECASE,
+    )
+    if not name or not valid_email or not subject or not message:
+        flash('Please enter your name, a valid email address, a subject, and a message.', 'danger')
+        return redirect(url_for('home') + '#contact')
+    if len(name) > 255 or len(email) > 254 or len(subject) > 255 or len(message) > 10000:
+        flash('Please shorten your message and keep each field within the allowed length.', 'danger')
         return redirect(url_for('home') + '#contact')
 
     conn = None
@@ -755,12 +774,19 @@ def contact():
         if conn:
             conn.close()
 
+    try:
+        send_resend_contact_notification(name, email, subject, message, request.url_root.rstrip('/'))
+    except Exception as exc:  # noqa: BLE001
+        logger.error('Contact notification email failed (%s)', type(exc).__name__)
+        flash("We couldn't send your message just now. Please try again shortly.", 'danger')
+        return redirect(url_for('home') + '#contact')
+
     contact_alert_executor.submit(
         send_contact_alerts, name, email, subject, message, request.url_root.rstrip('/')
     )
 
-    flash("Message sent successfully! We'll get back to you soon.", "success")
-    return redirect(url_for('home', success=1) + '#contact')
+    flash("Thanks for reaching out. Your message has been sent successfully.", "success")
+    return redirect(url_for('home') + '#contact')
 
 
 # ================== ADMIN ROUTES ==================
@@ -1061,7 +1087,7 @@ def sync_github_projects(repositories=None, mark_missing=True, import_new=False)
             description = (repo.get('description') or '').strip()
             homepage = (repo.get('homepage') or '').strip()
             link = homepage or repo['html_url']
-            pushed_at = datetime.fromisoformat(repo['pushed_at'].replace('Z', '+00:00')) if repo.get('pushed_at') else None
+            pushed_at = datetime.fromisoformat(repo['pushed_at']) if repo.get('pushed_at') else None
             values = {
                 'title': _project_title(repo['name']),
                 'description': description,
@@ -1257,7 +1283,7 @@ def _screenshot_api_provider():
 
 
 def _reserve_screenshot_api_request():
-    month_start = datetime.now(timezone.utc).date().replace(day=1)
+    month_start = datetime.now(UTC).date().replace(day=1)
     conn = get_db_connection()
     cursor = None
     try:
@@ -1300,7 +1326,7 @@ def _reserve_screenshot_api_request():
 
 
 def _mark_screenshot_quota_exhausted():
-    month_start = datetime.now(timezone.utc).date().replace(day=1)
+    month_start = datetime.now(UTC).date().replace(day=1)
     conn = get_db_connection()
     cursor = None
     try:
@@ -1491,7 +1517,7 @@ def _claim_groq_api_request():
         daily_cap = max(1, int(app.config.get('GROQ_DAILY_REQUEST_CAP', 10)))
     except (TypeError, ValueError):
         daily_cap = 10
-    usage_date = datetime.now(timezone.utc).date()
+    usage_date = datetime.now(UTC).date()
     conn = get_db_connection()
     cursor = None
     alert_needed = False
@@ -1505,14 +1531,7 @@ def _claim_groq_api_request():
         )
         row = cursor.fetchone()
         allowed = bool(row)
-        if allowed and row[0] >= daily_cap:
-            cursor.execute(
-                'UPDATE groq_usage SET quota_alerted=TRUE WHERE usage_date=%s AND quota_alerted=FALSE '
-                'RETURNING usage_date',
-                (usage_date,),
-            )
-            alert_needed = bool(cursor.fetchone())
-        elif not allowed:
+        if allowed and row[0] >= daily_cap or not allowed:
             cursor.execute(
                 'UPDATE groq_usage SET quota_alerted=TRUE WHERE usage_date=%s AND quota_alerted=FALSE '
                 'RETURNING usage_date',
@@ -1568,6 +1587,9 @@ def generate_ai_summaries():
     if failures:
         send_whatsapp_alert(f'AI README summaries failed for {failures} project(s); existing drafts and the site are unchanged.')
     return {'generated': generated, 'unchanged': unchanged, 'failures': failures}
+
+
+job_finder_service.groq_request_guard = _claim_groq_api_request
 
 
 @app.route('/webhooks/github', methods=['POST'])
@@ -1897,7 +1919,7 @@ job_scheduler = PostgresJobScheduler(
         'weekly-link-check': {'func': check_project_links, 'interval': timedelta(days=7)},
         'weekly-screenshot-refresh': {'func': refresh_project_screenshots, 'interval': timedelta(days=7)},
         'daily-ai-summaries': {'func': generate_ai_summaries, 'interval': timedelta(days=1)},
-        'job-finder-fetch': {'func': job_finder_service.fetch_new_jobs, 'interval': timedelta(hours=6)},
+        'job-finder-fetch': {'func': job_finder_service.run_scheduled_scan, 'interval': timedelta(hours=6)},
     },
     on_failure=_scheduler_failure_alert,
 )
