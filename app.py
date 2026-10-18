@@ -44,6 +44,7 @@ from screenshot_provider import (
     create_fallback_card,
     normalize_webp,
 )
+from og_images import create_og_image
 
 app = Flask(__name__)
 production = os.environ.get('RENDER', '').lower() == 'true'
@@ -250,6 +251,10 @@ def get_projects():
     finally:
         cursor.close()
         conn.close()
+
+
+def slugify_project(title):
+    return re.sub(r'[^a-z0-9]+', '-', (title or '').casefold()).strip('-')
 
 
 def get_skills_from_table():
@@ -601,8 +606,14 @@ def home():
         skills = get_skills_from_table()
         auto_skills = get_auto_skills_from_projects()
         services = get_service_entries(content)
+        selected_project = projects[0] if projects else None
+        project_slug = slugify_project(selected_project.get('title')) if selected_project else 'portfolio'
+        og_image = url_for(
+            'project_og_image', project_slug=project_slug, _external=True,
+            _scheme='https' if production else request.scheme,
+        )
         return render_template("home.html", projects=projects, content=content, skills=skills,
-                       auto_skills=auto_skills, services=services)
+                               auto_skills=auto_skills, services=services, og_image=og_image)
     except Exception as e:
         print(f"Error in home route: {e}")
         return f"An error occurred: {e}", 500
@@ -633,6 +644,26 @@ def project_screenshot(project_id):
             cursor.close()
         conn.close()
     return send_file(io.BytesIO(image_data), mimetype='image/webp', max_age=3600)
+
+
+@app.route('/og/<project_slug>.png', methods=['GET'])
+@cache.cached(timeout=86400)
+def project_og_image(project_slug):
+    projects = get_projects()
+    project = next(
+        (item for item in projects if slugify_project(item.get('title')) == project_slug),
+        None,
+    )
+    if project_slug == 'portfolio':
+        title = 'Al-ameen Olanrewaju Portfolio'
+        technologies = []
+    elif project:
+        title = project.get('title') or 'Portfolio project'
+        technologies = _skill_values(project.get('languages')) + _skill_values(project.get('topics'))
+    else:
+        abort(404)
+    image = create_og_image(title, technologies)
+    return send_file(io.BytesIO(image), mimetype='image/png', max_age=86400)
 
 
 @app.route("/api/projects", methods=['GET'])

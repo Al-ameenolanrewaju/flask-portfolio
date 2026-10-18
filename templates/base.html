@@ -7,6 +7,12 @@
 
     <meta name="theme-color" content="#101512">
     <meta name="description" content="Al-ameen Olanrewaju — Developer, Builder, and AI Entrepreneur.">
+    <meta property="og:title" content="{% block og_title %}Al-ameen Olanrewaju | Portfolio{% endblock %}">
+    <meta property="og:description" content="Developer, Builder, and AI Entrepreneur.">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="{{ og_image|default(url_for('project_og_image', project_slug='portfolio', _external=True), true) }}">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">

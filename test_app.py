@@ -702,6 +702,45 @@ def test_homepage_hides_broken_live_demo_link(client, monkeypatch):
     assert 'View source code for Broken demo' in page
 
 
+def test_og_route_generates_and_caches_project_preview(client, monkeypatch):
+    app_module.cache.clear()
+    monkeypatch.setattr(app_module, 'get_projects', lambda: [{
+        'title': 'Gaming Hub', 'languages': ['Python'], 'topics': ['Flask'],
+    }])
+    generated = []
+    original_generator = app_module.create_og_image
+
+    def generate(title, technologies):
+        generated.append((title, technologies))
+        return original_generator(title, technologies)
+
+    monkeypatch.setattr(app_module, 'create_og_image', generate)
+    first = client.get('/og/gaming-hub.png')
+    second = client.get('/og/gaming-hub.png')
+
+    assert first.status_code == second.status_code == 200
+    assert first.mimetype == 'image/png'
+    assert len(generated) == 1
+    assert generated[0] == ('Gaming Hub', ['Python', 'Flask'])
+
+
+def test_homepage_sets_project_open_graph_image(client, monkeypatch):
+    app_module.cache.clear()
+    monkeypatch.setattr(app_module, 'get_projects', lambda: [{
+        'title': 'Gaming Hub', 'description': 'Project', 'link': '', 'homepage_url': None,
+        'github_full_name': None, 'edited_fields': [], 'languages': [], 'topics': [],
+        'stars': 0, 'image': '', 'created_at': None, 'last_pushed_at': None,
+    }])
+    monkeypatch.setattr(app_module, 'get_content_from_db', lambda: {})
+    monkeypatch.setattr(app_module, 'get_skills_from_table', lambda: {})
+    monkeypatch.setattr(app_module, 'get_auto_skills_from_projects', lambda: {})
+
+    response = client.get('/')
+
+    assert response.status_code == 200
+    assert '/og/gaming-hub.png' in response.get_data(as_text=True)
+
+
 def test_admin_shows_broken_link_warning(client, monkeypatch):
     authenticate_test_user(client, monkeypatch)
     monkeypatch.setattr(app_module, 'ensure_db_schema', lambda: None)
