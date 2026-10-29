@@ -25,6 +25,29 @@ def test_home_page(client):
     assert response.status_code == 200
 
 
+def test_homepage_shows_one_ai_rewritten_project_description(client, monkeypatch):
+    app_module.cache.clear()
+    monkeypatch.setattr(app_module, 'get_projects', lambda: [{
+        'title': 'Verbose repo', 'description': 'The original repository description is very long.',
+        'ai_summary': 'A concise AI rewrite.', 'ai_description': 'A longer AI description.',
+        'image': None, 'link': 'https://github.com/example/repo', 'homepage_url': None,
+        'github_full_name': 'example/repo', 'edited_fields': [], 'languages': [], 'topics': [],
+        'stars': 3, 'last_pushed_at': None, 'created_at': None, 'demo_link_status': None,
+        'ai_case_study_problem': '', 'ai_case_study_built': '', 'ai_case_study_result': '',
+    }])
+    monkeypatch.setattr(app_module, 'get_content_from_db', dict)
+    monkeypatch.setattr(app_module, 'get_skills_from_table', dict)
+    monkeypatch.setattr(app_module, 'get_auto_skills_from_projects', dict)
+
+    response = client.get('/')
+    page = response.get_data(as_text=True)
+
+    assert response.status_code == 200
+    assert 'A longer AI description.' in page
+    assert 'A concise AI rewrite.' not in page
+    assert 'The original repository description is very long.' not in page
+
+
 def test_groq_budget_reserves_requests_for_configured_reply_inbox(monkeypatch):
     claims = []
 
@@ -992,6 +1015,60 @@ def test_screenshot_api_never_receives_private_project_urls(monkeypatch):
 
     assert result == {'generated': 1, 'api_failures': 0}
     assert saved[0][2] == 'fallback'
+
+
+def test_screenshot_refresh_uses_github_repository_url_without_homepage(monkeypatch):
+    project = {
+        'id': 19, 'title': 'Repository only', 'description': '',
+        'link': 'https://github.com/example/repository', 'homepage_url': None,
+        'github_full_name': 'example/repository', 'languages': '[]', 'topics': '[]',
+        'edited_fields': '[]',
+    }
+    captured = []
+    saved = []
+
+    class Cursor:
+        def execute(self, sql, params=None):
+            if sql.startswith('INSERT INTO project_screenshots'):
+                saved.append(params)
+
+        def fetchall(self):
+            return [project]
+
+        def fetchone(self):
+            return None
+
+        def close(self):
+            pass
+
+    class Connection:
+        def cursor(self, cursor_factory=None):
+            return Cursor()
+
+        def commit(self):
+            pass
+
+        def rollback(self):
+            pass
+
+        def close(self):
+            pass
+
+    class Provider:
+        def capture(self, url):
+            captured.append(url)
+            return b'captured image'
+
+    monkeypatch.setattr(app_module, 'get_db_connection', lambda: Connection())
+    monkeypatch.setattr(app_module, '_screenshot_api_provider', lambda: Provider())
+    monkeypatch.setattr(app_module, '_reserve_screenshot_api_request', lambda: (True, False))
+    monkeypatch.setattr(app_module, 'normalize_webp', lambda image: image)
+
+    result = app_module.refresh_project_screenshots()
+
+    assert result == {'generated': 1, 'api_failures': 0}
+    assert captured == ['https://github.com/example/repository']
+    assert saved[0][2] == 'screenshotone'
 
 
 def test_ai_draft_must_be_approved_before_public_data_loader_exposes_it(monkeypatch):

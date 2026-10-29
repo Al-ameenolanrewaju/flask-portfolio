@@ -35,6 +35,10 @@ def test_groq_uses_configured_model_and_readme_only_factual_prompt(monkeypatch):
     prompt = kwargs['json']['messages'][1]['content']
     assert 'Do not infer, assume, or invent facts' in prompt
     assert 'unknown' in prompt
+    assert 'at most 20 words' in prompt
+    assert 'one paragraph of 3-4 clear sentences' in prompt
+    assert 'at most 80 words' in prompt
+    assert 'without repeating the summary' in prompt
     assert '<README>\nREADME facts only\n</README>' in prompt
 
 

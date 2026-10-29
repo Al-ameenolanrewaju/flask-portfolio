@@ -1428,7 +1428,7 @@ def refresh_project_screenshots():
         if 'image' in edited_fields:
             continue
 
-        live_url = project.get('homepage_url') if project.get('github_full_name') else project.get('link')
+        live_url = (project.get('homepage_url') or project.get('link')) if project.get('github_full_name') else project.get('link')
         if not live_url:
             continue
         technologies = _skill_values(project.get('languages')) + _skill_values(project.get('topics'))
