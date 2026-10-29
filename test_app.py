@@ -25,6 +25,21 @@ def test_home_page(client):
     assert response.status_code == 200
 
 
+def test_homepage_contact_csrf_token_is_not_cached_and_can_be_submitted(client, monkeypatch):
+    app_module.cache.clear()
+    monkeypatch.setitem(app.config, 'WTF_CSRF_ENABLED', True)
+    response = client.get('/')
+    page = response.get_data(as_text=True)
+    token = page.split('name="csrf_token" value="', 1)[1].split('"', 1)[0]
+
+    assert response.status_code == 200
+    assert 'no-store' in response.headers['Cache-Control']
+    submission = client.post('/contact', data={
+        'csrf_token': token, 'website': 'bot',
+    })
+    assert submission.status_code == 302
+
+
 def test_homepage_shows_one_ai_rewritten_project_description(client, monkeypatch):
     app_module.cache.clear()
     monkeypatch.setattr(app_module, 'get_projects', lambda: [{

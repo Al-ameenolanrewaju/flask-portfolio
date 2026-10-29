@@ -21,6 +21,7 @@ from flask import (
     abort,
     flash,
     jsonify,
+    make_response,
     redirect,
     render_template,
     request,
@@ -634,7 +635,6 @@ def register():
 
 # ================== MAIN ROUTES ==================
 @app.route('/')
-@cache.cached(timeout=300)
 def home():
     try:
         projects = get_projects()
@@ -648,8 +648,13 @@ def home():
             'project_og_image', project_slug=project_slug, _external=True,
             _scheme='https' if production else request.scheme,
         )
-        return render_template("home.html", projects=projects, content=content, skills=skills,
-                               auto_skills=auto_skills, services=services, og_image=og_image)
+        response = make_response(render_template(
+            "home.html", projects=projects, content=content, skills=skills,
+            auto_skills=auto_skills, services=services, og_image=og_image,
+        ))
+        response.headers['Cache-Control'] = 'no-store, private'
+        response.headers['Vary'] = 'Cookie'
+        return response
     except Exception as e:  # noqa: BLE001
         print(f"Error in home route: {e}")
         return f"An error occurred: {e}", 500
