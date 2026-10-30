@@ -536,6 +536,7 @@ body {
                         {% if msg.reply_status not in ['sending', 'sent'] %}
                         <button class="btn-custom btn-sm mt-2" type="submit" name="action" value="save">Save pending draft</button>
                         <button class="btn-custom btn-primary btn-sm mt-2" type="submit" name="action" value="approve">Approve draft</button>
+                        {% if msg.reply_draft %}<a href="mailto:{{ msg.email }}?subject=Re:%20{{ (msg.subject or 'Your message')|urlencode }}&body={{ msg.reply_draft|urlencode }}" class="btn-custom btn-sm mt-2" style="background:#10b981;color:#fff;text-decoration:none;display:inline-block;" title="Open native mail client with draft">📱 1-Tap Mobile Reply</a>{% endif %}
                         {% endif %}
                     </form>
                     {% elif msg.triage_status == 'failed' %}

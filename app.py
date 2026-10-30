@@ -59,6 +59,9 @@ from reply_tracking import InboxReplyTracker
 from routes.auth import auth
 from routes.main import main
 from scheduler import PostgresJobScheduler
+from ask_ai_service import AskAIService, build_portfolio_context
+from mobile_alert_service import dispatch_mobile_alerts
+from engineering_specs_service import get_project_specs
 from screenshot_provider import (
     ScreenshotOneProvider,
     ScreenshotQuotaExceeded,
@@ -408,7 +411,7 @@ def external_url(endpoint, **values):
 
 @app.context_processor
 def inject_project_helpers():
-    return dict(external_url=external_url, slugify_project=slugify_project)
+    return dict(external_url=external_url, slugify_project=slugify_project, calendar_url=app.config.get('CALENDAR_URL', 'https://cal.com/oademola/15min'))
 
 
 def get_skills_from_table():
@@ -1878,7 +1881,23 @@ def triage_contact_message(message_id, portfolio_url):
                 logger.exception('Contact triage failure could not be recorded for message %s', message_id)
             logger.error('Contact triage failed for message %s (%s)', message_id, type(error).__name__)
             return None
-        if not result or not result['saved'] or result['priority'] != 'high':
+        if not result or not result.get('saved'):
+            return result
+        message = result.get('message') or {}
+        try:
+            dispatch_mobile_alerts(
+                app.config,
+                message.get('name', ''),
+                message.get('email', ''),
+                message.get('subject', ''),
+                message.get('message', ''),
+                priority=result.get('priority', 'normal'),
+                triage_label=result.get('label', 'other'),
+                reply_draft=result.get('reply_draft'),
+            )
+        except Exception:
+            logger.exception('Mobile webhook alert dispatch failed')
+        if result.get('priority') != 'high':
             return result
         message = result['message']
         send_contact_alerts(
@@ -2340,6 +2359,111 @@ atexit.register(job_scheduler.stop)
 
 if production and DATABASE_URL.startswith(('postgres://', 'postgresql://')):
     job_scheduler.start_if_needed()
+
+
+ask_ai_service = AskAIService(
+    api_key=app.config.get('GROQ_API_KEY'),
+    model=app.config.get('GROQ_MODEL', 'llama-3.3-70b-versatile'),
+    calendar_url=app.config.get('CALENDAR_URL', 'https://cal.com/oademola/15min'),
+)
+app.extensions['ask_ai_service'] = ask_ai_service
+
+
+@app.route('/api/ask-ai', methods=['POST'])
+@limiter.limit('30 per 10 minutes')
+@csrf.exempt
+def api_ask_ai():
+    data = request.get_json(silent=True) or {}
+    question = str(data.get('question') or '').strip()
+    if not question:
+        return jsonify({'error': 'Please provide a question.'}), 400
+
+    try:
+        content = get_content_from_db()
+        projects = get_projects()
+        skills = get_skills_from_table()
+        cal_url = app.config.get('CALENDAR_URL', 'https://cal.com/oademola/15min')
+
+        context_str = build_portfolio_context(
+            profile_content=content,
+            projects=projects,
+            skills=skills,
+            calendar_url=cal_url,
+        )
+
+        service = app.extensions.get('ask_ai_service') or ask_ai_service
+        service.api_key = app.config.get('GROQ_API_KEY')
+        service.model = app.config.get('GROQ_MODEL', 'llama-3.3-70b-versatile')
+        service.calendar_url = cal_url
+
+        result = service.ask(question, context=context_str)
+        return jsonify({
+            'status': 'ok',
+            'answer': result['answer'],
+            'source': result.get('source', 'groq'),
+            'calendar_url': cal_url,
+        }), 200
+    except Exception as e:
+        logger.exception('Ask AI endpoint failed: %s', e)
+        return jsonify({
+            'status': 'error',
+            'answer': "Al-ameen is a senior backend software engineer specializing in Python, scalable databases, and APIs. You can book a 15-minute chat directly at https://cal.com/oademola/15min.",
+            'calendar_url': app.config.get('CALENDAR_URL', 'https://cal.com/oademola/15min'),
+        }), 200
+
+
+@app.route('/api/project-specs/<int:project_id>', methods=['GET'])
+def api_project_specs(project_id):
+    conn = get_db_connection()
+    if not conn:
+        return jsonify({'error': 'Database connection error'}), 503
+    try:
+        cursor = conn.cursor(cursor_factory=RealDictCursor)
+        cursor.execute("SELECT * FROM projects WHERE id = %s", (project_id,))
+        project = cursor.fetchone()
+        if not project:
+            return jsonify({'error': 'Project not found'}), 404
+
+        try:
+            cursor.execute(
+                "SELECT summary, description, case_study_problem, case_study_built, case_study_result "
+                "FROM project_ai_drafts WHERE project_id=%s AND status=%s",
+                (project_id, 'approved'),
+            )
+            draft = cursor.fetchone() or {}
+        except Exception:
+            draft = {}
+
+        try:
+            languages = json.loads(project.get('languages') or '[]')
+        except Exception:
+            languages = []
+        try:
+            topics = json.loads(project.get('topics') or '[]')
+        except Exception:
+            topics = []
+
+        case_study = {
+            'problem': draft.get('case_study_problem'),
+            'built': draft.get('case_study_built'),
+            'result': draft.get('case_study_result'),
+        }
+
+        specs = get_project_specs(
+            project_id=project['id'],
+            project_title=project.get('title'),
+            github_full_name=project.get('github_full_name'),
+            languages=languages,
+            topics=topics,
+            case_study=case_study,
+        )
+        return jsonify({'status': 'ok', 'specs': specs}), 200
+    except Exception as e:
+        logger.exception('Failed to load project specs: %s', e)
+        return jsonify({'error': 'Could not load project specs'}), 500
+    finally:
+        cursor.close()
+        conn.close()
 
 
 if __name__ == '__main__':

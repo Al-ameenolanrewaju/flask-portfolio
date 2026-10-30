@@ -23,6 +23,10 @@ def client(request):
 def test_home_page(client):
     response = client.get('/')
     assert response.status_code == 200
+    assert b'/static/images/favicon.svg' in response.data
+    favicon = client.get('/static/images/favicon.svg')
+    assert favicon.status_code == 200
+    assert favicon.mimetype == 'image/svg+xml'
 
 
 def test_homepage_contact_csrf_token_is_not_cached_and_can_be_submitted(client, monkeypatch):

@@ -53,6 +53,10 @@ class Config:
     WEEKLY_REPORT_HOUR = os.environ.get("WEEKLY_REPORT_HOUR", "8")
     WEEKLY_REPORT_MINUTE = os.environ.get("WEEKLY_REPORT_MINUTE", "0")
     SCREENSHOTONE_ACCESS_KEY = os.environ.get("SCREENSHOTONE_ACCESS_KEY")
+    CALENDAR_URL = os.environ.get("CALENDAR_URL", "https://cal.com/oademola/15min")
+    TELEGRAM_BOT_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN")
+    TELEGRAM_CHAT_ID = os.environ.get("TELEGRAM_CHAT_ID")
+    DISCORD_WEBHOOK_URL = os.environ.get("DISCORD_WEBHOOK_URL")
 
 
 class DevelopmentConfig(Config):

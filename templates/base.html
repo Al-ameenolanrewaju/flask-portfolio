@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Portfolio{% endblock %}</title>
+    <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='images/favicon.svg') }}">
 
     <meta name="theme-color" content="#101512">
     <meta name="description" content="{% block meta_description %}Al-ameen Olanrewaju — Developer, Builder, and AI Entrepreneur.{% endblock %}">
@@ -55,8 +56,9 @@
                 <li class="nav-item"><a href="{{ url_for('home') }}#services">Services</a></li>
                 <li class="nav-item"><a href="{{ url_for('home') }}#about">About</a></li>
                 <li class="nav-item"><a href="{{ url_for('home') }}#projects">Portfolio</a></li>
+                <li class="nav-item"><a href="#" id="navAskAiPill" class="nav-ai-pill"><span class="ai-sparkle">✦</span> Ask AI</a></li>
                 <li class="nav-item"><a href="{{ url_for('home') }}#contact">Contact</a></li>
-                <li class="nav-item nav-cta"><a href="{{ url_for('home') }}#contact">Hire me <span aria-hidden="true">↗</span></a></li>
+                <li class="nav-item nav-cta"><a href="{{ calendar_url }}" target="_blank" rel="noopener noreferrer">Book Call <span aria-hidden="true">↗</span></a></li>
             </ul>
         </div>
     </div>
@@ -85,15 +87,168 @@
 
 </div>
 
+<!-- FLOATING "ASK MY AI" TRIGGER -->
+<button type="button" class="ask-ai-floating-btn" id="askAiOpenBtn" aria-label="Open AI Portfolio Concierge">
+    <span class="ai-sparkle">✦</span>
+    <span class="ai-btn-text">Ask My AI</span>
+    <span class="ai-live-pulse" aria-hidden="true"></span>
+</button>
+
+<!-- "ASK MY AI" CONCIERGE DRAWER -->
+<div class="ask-ai-backdrop" id="askAiBackdrop" style="display:none;" aria-hidden="true"></div>
+<aside class="ask-ai-drawer" id="askAiDrawer" aria-hidden="true" style="display:none;">
+    <div class="ask-ai-header">
+        <div class="ask-ai-header-info">
+            <div class="ai-avatar-badge">AO</div>
+            <div>
+                <h4 class="ai-title">Portfolio Concierge</h4>
+                <p class="ai-status"><span class="status-dot-mini live"></span> Grounded on verified skills &amp; projects</p>
+            </div>
+        </div>
+        <button type="button" class="ask-ai-close-btn" id="askAiCloseBtn" aria-label="Close concierge">&times;</button>
+    </div>
+
+    <!-- Quick Question Chips -->
+    <div class="ask-ai-suggestions" id="askAiSuggestions">
+        <span class="suggestions-caption">Suggested questions:</span>
+        <button type="button" class="suggestion-chip" data-q="What is Al-ameen's backend tech stack and database expertise?">💼 Core Backend Stack &amp; DB</button>
+        <button type="button" class="suggestion-chip" data-q="Tell me about his most complex project and engineering decisions.">⚡ Most Complex Project</button>
+        <button type="button" class="suggestion-chip" data-q="Is Al-ameen open for senior backend or freelance contracts?">📅 Availability &amp; Roles</button>
+        <button type="button" class="suggestion-chip" data-q="How does he ensure testing rigor and reliability?">🛡️ Testing Rigor &amp; Pytest</button>
+    </div>
+
+    <!-- Messages Container -->
+    <div class="ask-ai-messages" id="askAiMessages" role="log" aria-live="polite">
+        <div class="ai-msg ai-msg-bot">
+            <div class="msg-bubble">
+                Hi! I'm Al-ameen's AI concierge. Ask me anything about his backend skills, database architecture, testing rigor, or how to schedule an intro chat!
+            </div>
+        </div>
+    </div>
+
+    <!-- Input Form -->
+    <form class="ask-ai-input-form" id="askAiForm">
+        <input type="text" id="askAiInput" class="ask-ai-input" placeholder="Ask about skills, projects, stack..." maxlength="500" autocomplete="off" required>
+        <button type="submit" class="ask-ai-send-btn" id="askAiSendBtn" aria-label="Send question">
+            <i class="fa-solid fa-paper-plane"></i>
+        </button>
+    </form>
+</aside>
+
 <!-- JS -->
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
 <script src="{{ url_for('static',filename='js/main.js')}}"></script>
 <script>
-    document.addEventListener('DOMContentLoaded', () => {
-        const yearSpan = document.getElementById('currentYear');
-        yearSpan.textContent = new Date().getFullYear();
+document.addEventListener('DOMContentLoaded', () => {
+    const yearSpan = document.getElementById('currentYear');
+    if (yearSpan) yearSpan.textContent = new Date().getFullYear();
+
+    // Ask My AI Drawer Controller
+    const openBtn = document.getElementById('askAiOpenBtn');
+    const navPill = document.getElementById('navAskAiPill');
+    const closeBtn = document.getElementById('askAiCloseBtn');
+    const drawer = document.getElementById('askAiDrawer');
+    const backdrop = document.getElementById('askAiBackdrop');
+    const form = document.getElementById('askAiForm');
+    const input = document.getElementById('askAiInput');
+    const messages = document.getElementById('askAiMessages');
+    const sendBtn = document.getElementById('askAiSendBtn');
+
+    function openDrawer() {
+        if (!drawer) return;
+        drawer.style.display = 'flex';
+        if (backdrop) backdrop.style.display = 'block';
+        drawer.setAttribute('aria-hidden', 'false');
+        setTimeout(() => input?.focus(), 150);
+    }
+
+    function closeDrawer() {
+        if (!drawer) return;
+        drawer.style.display = 'none';
+        if (backdrop) backdrop.style.display = 'none';
+        drawer.setAttribute('aria-hidden', 'true');
+    }
+
+    if (openBtn) openBtn.addEventListener('click', openDrawer);
+    if (navPill) navPill.addEventListener('click', (e) => { e.preventDefault(); openDrawer(); });
+    if (closeBtn) closeBtn.addEventListener('click', closeDrawer);
+    if (backdrop) backdrop.addEventListener('click', closeDrawer);
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && drawer && drawer.style.display === 'flex') {
+            closeDrawer();
+        }
     });
+
+    // Handle Quick Suggestion Chips
+    document.querySelectorAll('.suggestion-chip').forEach(chip => {
+        chip.addEventListener('click', () => {
+            const query = chip.getAttribute('data-q');
+            if (query && input) {
+                input.value = query;
+                form?.dispatchEvent(new Event('submit'));
+            }
+        });
+    });
+
+    // Format Markdown links safely
+    function formatMessageText(text) {
+        let clean = text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        clean = clean.replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer" style="color:#10b981;text-decoration:underline;">$1</a>');
+        return clean.replace(/\n/g, '<br>');
+    }
+
+    function appendMessage(sender, text) {
+        if (!messages) return;
+        const msgDiv = document.createElement('div');
+        msgDiv.className = `ai-msg ai-msg-${sender}`;
+        const bubble = document.createElement('div');
+        bubble.className = 'msg-bubble';
+        bubble.innerHTML = formatMessageText(text);
+        msgDiv.appendChild(bubble);
+        messages.appendChild(msgDiv);
+        messages.scrollTop = messages.scrollHeight;
+    }
+
+    if (form) {
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const question = input?.value.trim();
+            if (!question) return;
+
+            appendMessage('user', question);
+            if (input) input.value = '';
+            if (sendBtn) sendBtn.disabled = true;
+
+            // Loading indicator bubble
+            const loadingDiv = document.createElement('div');
+            loadingDiv.className = 'ai-msg ai-msg-bot ai-msg-loading';
+            loadingDiv.innerHTML = '<div class="msg-bubble"><span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-dot"></span></div>';
+            messages.appendChild(loadingDiv);
+            messages.scrollTop = messages.scrollHeight;
+
+            try {
+                const res = await fetch('/api/ask-ai', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ question })
+                });
+                const data = await res.json();
+                loadingDiv.remove();
+
+                const answer = data.answer || "Al-ameen is available for backend development and systems design. Reach out via the contact form!";
+                appendMessage('bot', answer);
+            } catch (err) {
+                loadingDiv.remove();
+                appendMessage('bot', "Could not reach the assistant right now. You can reach out directly via the contact form or schedule a call at {{ calendar_url }}!");
+            } finally {
+                if (sendBtn) sendBtn.disabled = false;
+                input?.focus();
+            }
+        });
+    }
+});
 </script>
 </body>
 </html>

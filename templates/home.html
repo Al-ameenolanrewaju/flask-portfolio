@@ -10,7 +10,6 @@ Al-ameen | Python Flask Developer
 
 {% block content %}
 
-
 <section class="hero" aria-labelledby="hero-title">
     <div class="container hero-grid">
         <div class="hero-copy">
@@ -26,7 +25,7 @@ Al-ameen | Python Flask Developer
             </div>
             <div class="hero-actions">
                 <a href="#projects" class="btn btn-primary btn-lg">View my work <span aria-hidden="true">↗</span></a>
-                <a href="#contact" class="btn btn-quiet btn-lg">Let's connect</a>
+                <a href="{{ calendar_url }}" target="_blank" rel="noopener noreferrer" class="btn btn-quiet btn-lg"><i class="fa-solid fa-calendar-check" aria-hidden="true"></i> Book 15-min call <span aria-hidden="true">↗</span></a>
             </div>
 
             <a href="{{ url_for('download_cv') }}" class="cv-link">
@@ -61,7 +60,7 @@ Al-ameen | Python Flask Developer
     </div>
 </section>
 
-<!-- ABOUT - Replace lines 48-49 -->
+<!-- ABOUT -->
 <section id="about" class="section section-about">
     <div class="container split-section">
         <div class="section-intro"><p class="eyebrow">01 / About</p><h2 class="section-title">{{ content.get('about', {}).get('title', 'About Me') }}</h2></div>
@@ -69,7 +68,7 @@ Al-ameen | Python Flask Developer
     </div>
 </section>
 
-<!-- SKILLS - Replace lines 57-72 -->
+<!-- SKILLS -->
 <section id="skills" class="section section-skills">
     <div class="container">
         <div class="section-heading"><div><p class="eyebrow">02 / Toolkit</p><h2 class="section-title">{{ content.get('skills', {}).get('title', 'My Skills') }}</h2></div><p class="section-caption">The tools behind the work.</p></div>
@@ -108,6 +107,7 @@ Al-ameen | Python Flask Developer
     </div>
 </section>
 
+<!-- SERVICES -->
 <section id="services" class="section section-services">
     <div class="container">
         <div class="section-heading"><div><p class="eyebrow">03 / Services</p><h2 class="section-title">How I can help</h2></div><p class="section-caption">Focused, practical product work.</p></div>
@@ -122,10 +122,37 @@ Al-ameen | Python Flask Developer
     </div>
 </section>
 
-<!-- PROJECTS - Replace lines 74-89 -->
+<!-- PROJECTS -->
 <section id="projects" class="section section-projects">
     <div class="container">
-        <div class="section-heading"><div><p class="eyebrow">04 / Selected work</p><h2 class="section-title">Projects</h2></div><p class="section-caption">A few things I have built.</p></div>
+        <div class="section-heading">
+            <div>
+                <p class="eyebrow">04 / Selected work</p>
+                <h2 class="section-title">Projects &amp; Engineering Rigor</h2>
+            </div>
+            <p class="section-caption">Built for production reliability, whether hosted live or containerized.</p>
+        </div>
+
+        <!-- Proof of Engineering Rigor Strip -->
+        <div class="rigor-strip" aria-label="Engineering Rigor & Quality Standards">
+            <div class="rigor-pill">
+                <i class="fa-solid fa-shield-halved" style="color:#10b981;"></i>
+                <div><strong>149+ Tests Passing</strong><span>Automated Pytest coverage</span></div>
+            </div>
+            <div class="rigor-pill">
+                <i class="fa-solid fa-database" style="color:#60a5fa;"></i>
+                <div><strong>PostgreSQL ACID</strong><span>Schema self-healing & migrations</span></div>
+            </div>
+            <div class="rigor-pill">
+                <i class="fa-solid fa-cube" style="color:#f59e0b;"></i>
+                <div><strong>Docker Reproducible</strong><span>1-command local setup</span></div>
+            </div>
+            <div class="rigor-pill">
+                <i class="fa-solid fa-gauge-high" style="color:#a855f7;"></i>
+                <div><strong>Sub-Second APIs</strong><span>Connection pooling & query indexing</span></div>
+            </div>
+        </div>
+
         <div class="row project-row">
             {% if projects %}
                 {% for project in projects %}
@@ -134,6 +161,7 @@ Al-ameen | Python Flask Developer
                     {% set project_description = project.description %}
                     {% set live_link = project.link if 'link' in project.edited_fields else (project.homepage_url or (project.link if not project.github_full_name else '')) %}
                     {% set code_link = 'https://github.com/' ~ project.github_full_name if project.github_full_name else project.link %}
+                    {% set is_live = live_link and project.demo_link_status != 'broken' and not live_link.endswith(project.github_full_name or 'none') %}
                     <div class="project-card{% if 'afrigen' in project_title|lower %} project-card-featured{% endif %}">
                         {% if project.image %}
                         <div class="project-image"><img src="{{ project.image if project.image.startswith('http') or project.image.startswith('/') else url_for('static', filename='uploads/' ~ project.image) }}" alt="Preview of {{ project_title }}" width="1280" height="720" loading="lazy"></div>
@@ -141,7 +169,14 @@ Al-ameen | Python Flask Developer
                         <div class="project-image project-image-placeholder" aria-hidden="true"><span>{{ project_title }}</span></div>
                         {% endif %}
                         <div class="project-card-body">
-                            <p class="card-index">PROJECT {{ '%02d'|format(loop.index) }}</p>
+                            <div class="project-card-header-row">
+                                <p class="card-index">PROJECT {{ '%02d'|format(loop.index) }}</p>
+                                {% if is_live %}
+                                <span class="badge-status badge-live" title="Live service deployed and active"><span class="status-dot-mini live"></span> Live Demo</span>
+                                {% else %}
+                                <span class="badge-status badge-docker" title="Backend service with 1-command Docker/Local run"><i class="fa-solid fa-cube"></i> Local / Docker Run</span>
+                                {% endif %}
+                            </div>
                             <h4>{{ project_title }}</h4>
                             <p class="project-description">{{ project.ai_description or project_description }}</p>
                             {% if project.ai_case_study_problem or project.ai_case_study_built or project.ai_case_study_result %}
@@ -163,8 +198,9 @@ Al-ameen | Python Flask Developer
                                 {% if updated %}<time datetime="{{ updated.isoformat() }}">Updated {{ updated.strftime('%b %Y') }}</time>{% endif %}
                             </div>
                             <div class="project-links">
-                                {% if live_link and project.demo_link_status != 'broken' %}<a href="{{ live_link }}" class="project-link" target="_blank" rel="noopener noreferrer" aria-label="Open live site for {{ project_title }}">Live site <span aria-hidden="true">↗</span></a>{% endif %}
+                                {% if is_live %}<a href="{{ live_link }}" class="project-link" target="_blank" rel="noopener noreferrer" aria-label="Open live site for {{ project_title }}">Live site <span aria-hidden="true">↗</span></a>{% endif %}
                                 {% if code_link %}<a href="{{ code_link }}" class="project-link" target="_blank" rel="noopener noreferrer" aria-label="View source code for {{ project_title }}">Code <span aria-hidden="true">↗</span></a>{% endif %}
+                                <button type="button" class="project-link btn-specs-trigger" data-project-id="{{ project.id }}" aria-label="View Engineering Specs for {{ project_title }}"><i class="fa-solid fa-microchip"></i> Specs &amp; Architecture</button>
                             </div>
                         </div>
                     </div>
@@ -182,11 +218,40 @@ Al-ameen | Python Flask Developer
 <!-- CONTACT -->
 <section id="contact" class="section section-contact">
     <div class="container">
-        <div class="contact-heading"><p class="eyebrow">05 / Contact</p><h2 class="section-title">Have a good idea?</h2><p>Tell me what you are building. I am always interested in ambitious, useful work.</p></div>
+        <div class="contact-heading">
+            <p class="eyebrow">05 / Contact</p>
+            <h2 class="section-title">Let's Build Something High-Impact</h2>
+            <p>Tell me what you are building. I am always open to senior backend engineering roles, ambitious products, and contracts.</p>
+        </div>
 
-        <form action="/contact" method="POST" class="contact-form" style="max-width:600px;margin:0 auto;">
+        <!-- 1-Click Meeting Booking Conversion Callout -->
+        <div class="cal-conversion-banner">
+            <div class="cal-banner-content">
+                <i class="fa-solid fa-bolt" style="color:#10b981;font-size:1.3rem;"></i>
+                <div>
+                    <strong>Need to talk right away? Skip the email queue.</strong>
+                    <span>Book a 15-minute intro chat directly on my calendar.</span>
+                </div>
+            </div>
+            <a href="{{ calendar_url }}" target="_blank" rel="noopener noreferrer" class="btn btn-outline-custom btn-sm">
+                <i class="fa-regular fa-calendar-check"></i> Book 15-Min Intro ↗
+            </a>
+        </div>
+
+        <form action="/contact" method="POST" class="contact-form" style="max-width:620px;margin:24px auto 0;">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             <input type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-10000px;">
+            
+            <!-- Quick Inquiry Topic Selectors -->
+            <div class="quick-inquiry-box">
+                <span class="quick-inquiry-label">⚡ 1-Click Inquiry Topic:</span>
+                <div class="quick-inquiry-pills">
+                    <button type="button" class="inquiry-pill" data-subject="[Hiring] Senior Backend / Python Engineer Role" data-body="Hi Al-ameen,&#10;&#10;We came across your portfolio and are impressed by your backend systems work. We have an opportunity involving [company/tech stack] and would like to discuss having you join our team.&#10;&#10;Best regards,&#10;[Your Name]">💼 Recruiter / Full-time</button>
+                    <button type="button" class="inquiry-pill" data-subject="[Project] Backend API &amp; Database Engineering" data-body="Hi Al-ameen,&#10;&#10;I have a project requiring a resilient backend, database architecture, and API integration. We need assistance with [describe requirements].&#10;&#10;Best regards,&#10;[Your Name]">🚀 Freelance / API Build</button>
+                    <button type="button" class="inquiry-pill" data-subject="[Intro] Quick 15-Min Tech / Architecture Chat" data-body="Hi Al-ameen,&#10;&#10;I'd love to connect for a brief 15-minute technical chat to discuss your projects and potential collaboration.&#10;&#10;Best regards,&#10;[Your Name]">☕ 15-Min Quick Intro</button>
+                </div>
+            </div>
+
             <div class="form-group">
                 <label for="contact-name">Name</label>
                 <input id="contact-name" type="text" name="name" class="form-control" maxlength="255" autocomplete="name" required>
@@ -212,22 +277,76 @@ Al-ameen | Python Flask Developer
     </div>
 </section>
 
-<!-- SweetAlert -->
+<!-- Engineering Specs & Architecture Modal -->
+<div id="specsModal" class="specs-modal-backdrop" aria-hidden="true" style="display:none;">
+    <div class="specs-modal-card" role="dialog" aria-labelledby="specsModalTitle">
+        <div class="specs-modal-header">
+            <div>
+                <span class="specs-modal-eyebrow">ENGINEERING SPECIFICATION</span>
+                <h3 id="specsModalTitle">Project Architecture &amp; Rigor</h3>
+            </div>
+            <button type="button" class="specs-modal-close" id="specsModalClose" aria-label="Close modal">&times;</button>
+        </div>
+        <div class="specs-modal-body" id="specsModalBody">
+            <div class="specs-loading"><i class="fa-solid fa-spinner fa-spin"></i> Loading engineering specifications...</div>
+        </div>
+    </div>
+</div>
+
+<!-- SweetAlert & Page Interaction Scripts -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
 window.addEventListener('DOMContentLoaded', () => {
     const contactMessages = {{ get_flashed_messages(with_categories=true)|tojson }};
+    const calendarUrl = {{ calendar_url|tojson }};
+
     if (contactMessages.length) {
         const [category, message] = contactMessages[contactMessages.length - 1];
         const isSuccess = category === 'success';
-        Swal.fire({
-            icon: isSuccess ? 'success' : 'error',
-            title: isSuccess ? 'Message sent' : 'Message not sent',
-            text: message,
-            confirmButtonColor: '#3085d6'
-        });
+
+        if (isSuccess) {
+            Swal.fire({
+                icon: 'success',
+                title: 'Inquiry Received!',
+                html: `<p style="margin-bottom:12px;">${message}</p><p style="color:#94a3b8;font-size:0.95em;">Want an instant slot on my calendar?</p>`,
+                showCancelButton: true,
+                confirmButtonText: '<i class="fa-regular fa-calendar-check"></i> Book 15-Min Intro Call Now',
+                cancelButtonText: 'Done',
+                confirmButtonColor: '#10b981',
+                cancelButtonColor: '#334155',
+                background: '#161d19',
+                color: '#f1f5f9'
+            }).then((res) => {
+                if (res.isConfirmed && calendarUrl) {
+                    window.open(calendarUrl, '_blank');
+                }
+            });
+        } else {
+            Swal.fire({
+                icon: 'error',
+                title: 'Message Not Sent',
+                text: message,
+                confirmButtonColor: '#ef4444',
+                background: '#161d19',
+                color: '#f1f5f9'
+            });
+        }
     }
 
+    // Quick Inquiry Pill Click Handlers
+    const subjectInput = document.getElementById('contact-subject');
+    const messageInput = document.getElementById('contact-message');
+    document.querySelectorAll('.inquiry-pill').forEach(pill => {
+        pill.addEventListener('click', () => {
+            if (subjectInput) subjectInput.value = pill.getAttribute('data-subject') || '';
+            if (messageInput) messageInput.value = pill.getAttribute('data-body') || '';
+            pill.classList.add('active');
+            setTimeout(() => pill.classList.remove('active'), 500);
+            messageInput?.focus();
+        });
+    });
+
+    // Form submission guard
     const form = document.querySelector('.contact-form');
     if (form) {
         form.addEventListener('submit', event => {
@@ -244,6 +363,100 @@ window.addEventListener('DOMContentLoaded', () => {
             form.submit();
         });
     }
+
+    // Engineering Specs Modal Controller
+    const specsModal = document.getElementById('specsModal');
+    const specsModalClose = document.getElementById('specsModalClose');
+    const specsModalTitle = document.getElementById('specsModalTitle');
+    const specsModalBody = document.getElementById('specsModalBody');
+
+    function closeSpecs() {
+        if (!specsModal) return;
+        specsModal.style.display = 'none';
+        specsModal.setAttribute('aria-hidden', 'true');
+    }
+
+    if (specsModalClose) specsModalClose.addEventListener('click', closeSpecs);
+    if (specsModal) {
+        specsModal.addEventListener('click', (e) => {
+            if (e.target === specsModal) closeSpecs();
+        });
+    }
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && specsModal && specsModal.style.display === 'flex') {
+            closeSpecs();
+        }
+    });
+
+    document.querySelectorAll('.btn-specs-trigger').forEach(btn => {
+        btn.addEventListener('click', async () => {
+            const projectId = btn.getAttribute('data-project-id');
+            if (!projectId || !specsModal) return;
+
+            specsModal.style.display = 'flex';
+            specsModal.setAttribute('aria-hidden', 'false');
+            specsModalBody.innerHTML = '<div class="specs-loading"><i class="fa-solid fa-spinner fa-spin"></i> Loading engineering specifications...</div>';
+
+            try {
+                const res = await fetch(`/api/project-specs/${projectId}`);
+                const data = await res.json();
+                if (!res.ok || data.error) {
+                    specsModalBody.innerHTML = '<div class="specs-error">Could not load specifications for this project.</div>';
+                    return;
+                }
+
+                const s = data.specs;
+                specsModalTitle.textContent = s.project_title + ' — Engineering Rigor';
+                
+                const challengesList = (s.key_challenges || []).map(c => `<li><i class="fa-solid fa-check-circle" style="color:#10b981;margin-right:8px;"></i>${c}</li>`).join('');
+                const rigorBadges = (s.rigor_highlights || []).map(r => `<span class="rigor-badge-chip">${r}</span>`).join('');
+
+                specsModalBody.innerHTML = `
+                    <div class="specs-meta-top">
+                        <div class="specs-meta-item">
+                            <span class="specs-label">Architecture Pattern</span>
+                            <strong>${s.architecture_type}</strong>
+                        </div>
+                        <div class="specs-meta-item">
+                            <span class="specs-label">Data Storage &amp; Integrity</span>
+                            <strong>${s.database_model}</strong>
+                        </div>
+                        <div class="specs-meta-item">
+                            <span class="specs-label">Verification &amp; Test Suite</span>
+                            <strong>${s.test_count}</strong>
+                        </div>
+                    </div>
+
+                    <div class="specs-section">
+                        <h4>Defensive Engineering &amp; Key Challenges Solved</h4>
+                        <ul class="specs-challenges-list">${challengesList}</ul>
+                    </div>
+
+                    <div class="specs-section">
+                        <h4>1-Command Local Reproducibility (Docker / CLI)</h4>
+                        <p class="specs-hint">All projects are reproducible locally even when free-tier cloud dynos sleep:</p>
+                        <div class="specs-code-block">
+                            <code>${s.local_run_cmd}</code>
+                            <button type="button" class="btn-copy-code" onclick="navigator.clipboard.writeText('${s.local_run_cmd}').then(() => alert('Copied run command!'))">Copy</button>
+                        </div>
+                    </div>
+
+                    <div class="specs-section">
+                        <h4>Rigor Guarantees</h4>
+                        <div class="specs-rigor-chips">${rigorBadges}</div>
+                    </div>
+
+                    <div class="specs-actions">
+                        <a href="${s.repo_url}" target="_blank" rel="noopener noreferrer" class="btn btn-outline-custom btn-sm">
+                            <i class="fa-brands fa-github"></i> Inspect GitHub Source &amp; Commits ↗
+                        </a>
+                    </div>
+                `;
+            } catch (err) {
+                specsModalBody.innerHTML = '<div class="specs-error">Failed to load specifications. Please try again.</div>';
+            }
+        });
+    });
 });
 </script>
 {% endblock %}
