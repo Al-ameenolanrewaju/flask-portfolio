@@ -63,6 +63,114 @@ def test_homepage_shows_one_ai_rewritten_project_description(client, monkeypatch
     assert 'The original repository description is very long.' not in page
 
 
+def test_social_links_from_site_content_render_in_hero_and_footer(client, monkeypatch):
+    app_module.cache.clear()
+    custom_links = {
+        'github': 'https://github.com/custom-profile',
+        'linkedin': '', 'x': '', 'facebook': '', 'whatsapp': '',
+    }
+    monkeypatch.setattr(app_module, 'get_content_from_db', lambda: {
+        'social_links': {'content': json.dumps(custom_links)},
+    })
+    monkeypatch.setattr(app_module, 'get_projects', list)
+    monkeypatch.setattr(app_module, 'get_skills_from_table', dict)
+    monkeypatch.setattr(app_module, 'get_auto_skills_from_projects', dict)
+
+    response = client.get('/')
+    page = response.get_data(as_text=True)
+
+    assert response.status_code == 200
+    assert page.count('href="https://github.com/custom-profile"') == 2
+    assert 'github.com/Al-ameenolanrewaju' not in page
+    assert 'linkedin.com/in/al-ameen-olanrewaju-760618404' not in page
+
+
+def test_social_links_save_in_site_content(client, monkeypatch):
+    authenticate_test_user(client, monkeypatch)
+    monkeypatch.setattr(app_module, 'ensure_db_schema', lambda: None)
+    statements = []
+
+    class FakeCursor:
+        def execute(self, sql, params=None):
+            statements.append((sql, params))
+
+        def fetchone(self):
+            return None
+
+        def close(self):
+            pass
+
+    class FakeConnection:
+        def cursor(self, cursor_factory=None):
+            return FakeCursor()
+
+        def commit(self):
+            pass
+
+        def rollback(self):
+            pass
+
+        def close(self):
+            pass
+
+    monkeypatch.setattr(app_module, 'get_db_connection', lambda: FakeConnection())
+    response = client.post('/admin/edit_content', data={
+        'social_github': 'https://github.com/custom-profile',
+        'social_linkedin': '', 'social_x': '', 'social_facebook': '', 'social_whatsapp': '',
+    })
+
+    social_insert = next(
+        params for sql, params in statements
+        if sql.startswith('INSERT INTO site_content') and params[0] == 'social_links'
+    )
+    assert response.status_code == 302
+    assert json.loads(social_insert[2]) == {
+        'facebook': '', 'github': 'https://github.com/custom-profile', 'linkedin': '',
+        'whatsapp': '', 'x': '',
+    }
+
+
+def test_social_links_reject_non_https_urls(client, monkeypatch):
+    authenticate_test_user(client, monkeypatch)
+    monkeypatch.setattr(app_module, 'ensure_db_schema', lambda: None)
+    statements = []
+
+    class FakeCursor:
+        def execute(self, sql, params=None):
+            statements.append((sql, params))
+
+        def fetchone(self):
+            return None
+
+        def close(self):
+            pass
+
+    class FakeConnection:
+        def cursor(self, cursor_factory=None):
+            return FakeCursor()
+
+        def commit(self):
+            pass
+
+        def rollback(self):
+            pass
+
+        def close(self):
+            pass
+
+    monkeypatch.setattr(app_module, 'get_db_connection', lambda: FakeConnection())
+    response = client.post('/admin/edit_content', data={
+        'social_github': 'javascript:alert(1)',
+    })
+
+    assert response.status_code == 302
+    with client.session_transaction() as session:
+        category, message = session['_flashes'][-1]
+    assert category == 'danger'
+    assert 'Enter a valid HTTPS URL for GitHub' in message
+    assert not any(params and params[0] == 'social_links' for _, params in statements)
+
+
 def test_groq_budget_reserves_requests_for_configured_reply_inbox(monkeypatch):
     claims = []
 
@@ -555,6 +663,48 @@ def test_ensure_db_schema_creates_missing_tables(monkeypatch):
 
     assert any('CREATE TABLE IF NOT EXISTS SITE_CONTENT' in sql.upper() for sql, _ in executed)
     assert any('CREATE TABLE IF NOT EXISTS SKILLS' in sql.upper() for sql, _ in executed)
+
+
+def test_ensure_db_schema_repairs_contact_created_at_default(monkeypatch):
+    executed = []
+
+    class FakeCursor:
+        def execute(self, sql, params=None):
+            executed.append(sql)
+
+        def close(self):
+            pass
+
+    class FakeConnection:
+        def cursor(self):
+            return FakeCursor()
+
+        def commit(self):
+            pass
+
+        def close(self):
+            pass
+
+    monkeypatch.setattr(app_module, 'DATABASE_URL', 'postgresql://test')
+    monkeypatch.setattr(app_module, 'get_db_connection', lambda: FakeConnection())
+
+    assert app_module.ensure_db_schema() is True
+    assert any(
+        sql == 'ALTER TABLE contact_messages ALTER COLUMN created_at SET DEFAULT CURRENT_TIMESTAMP'
+        for sql in executed
+    )
+    assert any(
+        sql == 'ALTER TABLE contact_messages ALTER COLUMN is_read SET DEFAULT FALSE'
+        for sql in executed
+    )
+    assert any(
+        sql == 'ALTER TABLE contact_messages ALTER COLUMN is_replied SET DEFAULT FALSE'
+        for sql in executed
+    )
+    assert any(
+        sql == 'ALTER TABLE contact_messages ALTER COLUMN updated_at SET DEFAULT CURRENT_TIMESTAMP'
+        for sql in executed
+    )
 
 
 class FakeGitHubCache:

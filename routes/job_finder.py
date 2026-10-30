@@ -36,9 +36,24 @@ results_dashboard_service = ResultsDashboardService(job_finder_service.connectio
 @job_finder.route('/', methods=['GET'])
 @login_required
 def dashboard():
+    statuses = ('found', 'drafted', 'approved', 'applied', 'interview', 'rejected', 'ignored')
+    selected_status = request.args.get('status', '').strip().lower()
+    if selected_status not in statuses:
+        selected_status = ''
+    try:
+        page = max(1, int(request.args.get('page', '1')))
+    except (TypeError, ValueError):
+        page = 1
+    page_size = 25
     try:
         preferences = job_finder_service.get_preferences()
-        jobs = job_finder_service.list_jobs(limit=100)
+        counts = job_finder_service.job_status_counts()
+        job_count = counts[selected_status] if selected_status else counts['total']
+        total_pages = max(1, (job_count + page_size - 1) // page_size)
+        page = min(page, total_pages)
+        jobs = job_finder_service.list_jobs(
+            status=selected_status or None, limit=page_size, offset=(page - 1) * page_size,
+        )
         source_runs = job_finder_service.recent_source_runs()
     except Exception:
         logger.exception('Job Finder dashboard could not load')
@@ -46,9 +61,16 @@ def dashboard():
         preferences = dict(DEFAULT_PREFERENCES)
         jobs = []
         source_runs = []
+        counts = {status: 0 for status in (*statuses, 'total')}
+        job_count = 0
+        total_pages = 1
+    first_job = (page - 1) * page_size + 1 if job_count else 0
+    last_job = min(page * page_size, job_count)
     return render_template(
         'job_finder.html', preferences=preferences, jobs=jobs,
         source_runs=source_runs, source_registry=job_finder_service.sources,
+        job_counts=counts, job_count=job_count, selected_status=selected_status,
+        page=page, total_pages=total_pages, first_job=first_job, last_job=last_job,
     )
 
 

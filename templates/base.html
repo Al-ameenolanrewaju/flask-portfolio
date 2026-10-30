@@ -6,13 +6,16 @@
     <title>{% block title %}Portfolio{% endblock %}</title>
 
     <meta name="theme-color" content="#101512">
-    <meta name="description" content="Al-ameen Olanrewaju — Developer, Builder, and AI Entrepreneur.">
+    <meta name="description" content="{% block meta_description %}Al-ameen Olanrewaju — Developer, Builder, and AI Entrepreneur.{% endblock %}">
     <meta property="og:title" content="{% block og_title %}Al-ameen Olanrewaju | Portfolio{% endblock %}">
-    <meta property="og:description" content="Developer, Builder, and AI Entrepreneur.">
-    <meta property="og:type" content="website">
-    <meta property="og:image" content="{{ og_image|default(url_for('project_og_image', project_slug='portfolio', _external=True), true) }}">
+    <meta property="og:description" content="{% block og_description %}Developer, Builder, and AI Entrepreneur.{% endblock %}">
+    <meta property="og:type" content="{% block og_type %}website{% endblock %}">
+    <meta property="og:url" content="{% block og_url %}{{ request.base_url }}{% endblock %}">
+    <meta property="og:image" content="{% block meta_og_image %}{{ og_image|default(url_for('project_og_image', project_slug='portfolio', _external=True), true) }}{% endblock %}">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
+    <meta name="twitter:card" content="summary_large_image">
+    <link rel="canonical" href="{% block canonical_url %}{{ request.base_url }}{% endblock %}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -48,12 +51,12 @@
 
         <div class="collapse navbar-collapse" id="mainNavbar">
             <ul class="nav navbar-nav navbar-right">
-                <li class="nav-item active"><a href="#home">Home</a></li>
-                <li class="nav-item"><a href="#services">Services</a></li>
-                <li class="nav-item"><a href="#about">About</a></li>
-                <li class="nav-item"><a href="#projects">Portfolio</a></li>
-                <li class="nav-item"><a href="#contact">Contact</a></li>
-                <li class="nav-item nav-cta"><a href="#contact">Hire me <span aria-hidden="true">↗</span></a></li>
+                <li class="nav-item active"><a href="{{ url_for('home') }}#home">Home</a></li>
+                <li class="nav-item"><a href="{{ url_for('home') }}#services">Services</a></li>
+                <li class="nav-item"><a href="{{ url_for('home') }}#about">About</a></li>
+                <li class="nav-item"><a href="{{ url_for('home') }}#projects">Portfolio</a></li>
+                <li class="nav-item"><a href="{{ url_for('home') }}#contact">Contact</a></li>
+                <li class="nav-item nav-cta"><a href="{{ url_for('home') }}#contact">Hire me <span aria-hidden="true">↗</span></a></li>
             </ul>
         </div>
     </div>
@@ -70,11 +73,10 @@
         </div>
         <div class="footer-meta">
             <div class="footer-social" aria-label="Social links">
-                <a href="https://x.com/Alameenwaju" target="_blank" rel="noopener noreferrer" aria-label="X / Twitter"><i class="fab fa-twitter"></i></a>
-                <a href="https://www.linkedin.com/in/al-ameen-olanrewaju-760618404" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn"><i class="fab fa-linkedin"></i></a>
-                <a href="https://github.com/Al-ameenolanrewaju" target="_blank" rel="noopener noreferrer" aria-label="GitHub"><i class="fab fa-github"></i></a>
-                <a href="https://www.facebook.com/share/1EEgncNbMh/" target="_blank" rel="noopener noreferrer" aria-label="Facebook"><i class="fab fa-facebook"></i></a>
-                <a href="https://wa.me/+2349038014978" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp"><i class="fab fa-whatsapp"></i></a>
+                {% for profile in social_profiles %}
+                {% set social_url = social_links.get(profile.key) %}
+                {% if social_url %}<a href="{{ social_url }}" target="_blank" rel="noopener noreferrer" aria-label="{{ profile.label }}"><i class="{{ profile.icon }}"></i></a>{% endif %}
+                {% endfor %}
             </div>
             <p class="footer-copy">&copy; <span id="currentYear"></span> · Lagos, Nigeria</p>
         </div>

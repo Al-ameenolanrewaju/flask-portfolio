@@ -10,6 +10,7 @@ import time
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timedelta, timezone
 from typing import ClassVar
+from urllib.parse import urlsplit
 from xml.sax.saxutils import escape
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
@@ -68,6 +69,20 @@ from weekly_report import WeeklyReportService
 from whatsapp import CallMeBotProvider
 
 UTC = timezone.utc  # noqa: UP017
+DEFAULT_SOCIAL_LINKS = {
+    'github': 'https://github.com/Al-ameenolanrewaju',
+    'linkedin': 'https://www.linkedin.com/in/al-ameen-olanrewaju-760618404',
+    'x': 'https://x.com/Alameenwaju',
+    'facebook': 'https://www.facebook.com/share/1EEgncNbMh/',
+    'whatsapp': 'https://wa.me/+2349038014978',
+}
+SOCIAL_PROFILES = (
+    {'key': 'github', 'label': 'GitHub', 'icon': 'fab fa-github'},
+    {'key': 'linkedin', 'label': 'LinkedIn', 'icon': 'fab fa-linkedin'},
+    {'key': 'x', 'label': 'X / Twitter', 'icon': 'fab fa-twitter'},
+    {'key': 'facebook', 'label': 'Facebook', 'icon': 'fab fa-facebook'},
+    {'key': 'whatsapp', 'label': 'WhatsApp', 'icon': 'fab fa-whatsapp'},
+)
 
 app = Flask(__name__)
 production = os.environ.get('RENDER', '').lower() == 'true'
@@ -97,7 +112,7 @@ login_manager.login_view = "auth.admin_login"
 
 api = Api(app)
 logging.basicConfig(
-    filename='app.log',
+    handlers=[logging.StreamHandler(), logging.FileHandler('app.log')],
     level=logging.INFO,
     format='%(asctime)s %(levelname)s %(message)s'
 )
@@ -158,7 +173,11 @@ def get_db_connection():
 
 
 def ensure_db_schema():
-    conn = get_db_connection()
+    try:
+        conn = get_db_connection()
+    except Exception as exc:
+        print(f"Database connection failed during ensure_db_schema: {exc}")
+        return False
     if not conn:
         return False
 
@@ -167,7 +186,16 @@ def ensure_db_schema():
         if DATABASE_URL.startswith('sqlite'):
             cursor.execute("CREATE TABLE IF NOT EXISTS site_content (id INTEGER PRIMARY KEY AUTOINCREMENT, section_name VARCHAR(100), title VARCHAR(255), content TEXT, file VARCHAR(255))")
             cursor.execute("CREATE TABLE IF NOT EXISTS skills (id INTEGER PRIMARY KEY AUTOINCREMENT, category VARCHAR(100) NOT NULL, name VARCHAR(100) NOT NULL)")
-            cursor.execute("CREATE TABLE IF NOT EXISTS contact_messages (id INTEGER PRIMARY KEY AUTOINCREMENT, name VARCHAR(255) NOT NULL, email VARCHAR(255) NOT NULL, subject VARCHAR(255), message TEXT NOT NULL, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)")
+            cursor.execute("CREATE TABLE IF NOT EXISTS contact_messages (id INTEGER PRIMARY KEY AUTOINCREMENT, name VARCHAR(255) NOT NULL, email VARCHAR(255) NOT NULL, subject VARCHAR(255), message TEXT NOT NULL, is_read BOOLEAN NOT NULL DEFAULT 0, is_replied BOOLEAN NOT NULL DEFAULT 0, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)")
+            if hasattr(cursor, 'fetchall'):
+                cursor.execute("PRAGMA table_info(contact_messages)")
+                sqlite_columns = {row[1] for row in cursor.fetchall()}
+                if 'is_read' not in sqlite_columns:
+                    cursor.execute("ALTER TABLE contact_messages ADD COLUMN is_read BOOLEAN NOT NULL DEFAULT 0")
+                if 'is_replied' not in sqlite_columns:
+                    cursor.execute("ALTER TABLE contact_messages ADD COLUMN is_replied BOOLEAN NOT NULL DEFAULT 0")
+                if 'updated_at' not in sqlite_columns:
+                    cursor.execute("ALTER TABLE contact_messages ADD COLUMN updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
             cursor.execute("CREATE TABLE IF NOT EXISTS projects (id INTEGER PRIMARY KEY AUTOINCREMENT, title VARCHAR(150) NOT NULL, description TEXT NOT NULL, link VARCHAR(255), image VARCHAR(255), created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)")
             cursor.execute("CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY AUTOINCREMENT, username VARCHAR(80) UNIQUE NOT NULL, email VARCHAR(120) UNIQUE NOT NULL, password VARCHAR(200) NOT NULL)")
             cursor.execute("CREATE TABLE IF NOT EXISTS job_finder_master_profile (id INTEGER PRIMARY KEY AUTOINCREMENT, profile_json TEXT, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)")
@@ -175,7 +203,22 @@ def ensure_db_schema():
         else:
             cursor.execute("CREATE TABLE IF NOT EXISTS site_content (id SERIAL PRIMARY KEY, section_name VARCHAR(100), title VARCHAR(255), content TEXT, file VARCHAR(255))")
             cursor.execute("CREATE TABLE IF NOT EXISTS skills (id SERIAL PRIMARY KEY, category VARCHAR(100) NOT NULL, name VARCHAR(100) NOT NULL)")
-            cursor.execute("CREATE TABLE IF NOT EXISTS contact_messages (id SERIAL PRIMARY KEY, name VARCHAR(255) NOT NULL, email VARCHAR(255) NOT NULL, subject VARCHAR(255), message TEXT NOT NULL, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)")
+            cursor.execute("CREATE TABLE IF NOT EXISTS contact_messages (id SERIAL PRIMARY KEY, name VARCHAR(255) NOT NULL, email VARCHAR(255) NOT NULL, subject VARCHAR(255), message TEXT NOT NULL, is_read BOOLEAN NOT NULL DEFAULT FALSE, is_replied BOOLEAN NOT NULL DEFAULT FALSE, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)")
+            cursor.execute('ALTER TABLE contact_messages ALTER COLUMN created_at SET DEFAULT CURRENT_TIMESTAMP')
+            cursor.execute('ALTER TABLE contact_messages ADD COLUMN IF NOT EXISTS is_read BOOLEAN NOT NULL DEFAULT FALSE')
+            cursor.execute('ALTER TABLE contact_messages ALTER COLUMN is_read SET DEFAULT FALSE')
+            cursor.execute('ALTER TABLE contact_messages ADD COLUMN IF NOT EXISTS is_replied BOOLEAN NOT NULL DEFAULT FALSE')
+            cursor.execute('ALTER TABLE contact_messages ALTER COLUMN is_replied SET DEFAULT FALSE')
+            cursor.execute('ALTER TABLE contact_messages ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP')
+            cursor.execute('ALTER TABLE contact_messages ALTER COLUMN updated_at SET DEFAULT CURRENT_TIMESTAMP')
+            cursor.execute("ALTER TABLE contact_messages ADD COLUMN IF NOT EXISTS triage_label VARCHAR(20) NOT NULL DEFAULT 'other'")
+            cursor.execute("ALTER TABLE contact_messages ADD COLUMN IF NOT EXISTS priority VARCHAR(10) NOT NULL DEFAULT 'normal'")
+            cursor.execute("ALTER TABLE contact_messages ADD COLUMN IF NOT EXISTS triage_status VARCHAR(20) NOT NULL DEFAULT 'pending'")
+            cursor.execute("ALTER TABLE contact_messages ADD COLUMN IF NOT EXISTS reply_draft TEXT NOT NULL DEFAULT ''")
+            cursor.execute("ALTER TABLE contact_messages ADD COLUMN IF NOT EXISTS reply_status VARCHAR(20) NOT NULL DEFAULT 'pending'")
+            cursor.execute("ALTER TABLE contact_messages ADD COLUMN IF NOT EXISTS triaged_at TIMESTAMP WITH TIME ZONE")
+            cursor.execute("ALTER TABLE contact_messages ADD COLUMN IF NOT EXISTS reply_sent_at TIMESTAMP WITH TIME ZONE")
+            cursor.execute("ALTER TABLE contact_messages ADD COLUMN IF NOT EXISTS reply_provider_ref VARCHAR(255)")
             cursor.execute("CREATE TABLE IF NOT EXISTS projects (id SERIAL PRIMARY KEY, title VARCHAR(150) NOT NULL, description TEXT NOT NULL, link VARCHAR(255), image VARCHAR(255), created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)")
             cursor.execute("CREATE TABLE IF NOT EXISTS users (id SERIAL PRIMARY KEY, username VARCHAR(80) UNIQUE NOT NULL, email VARCHAR(120) UNIQUE NOT NULL, password VARCHAR(200) NOT NULL)")
             cursor.execute("CREATE TABLE IF NOT EXISTS job_finder_master_profile (id SERIAL PRIMARY KEY, profile_json TEXT, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)")
@@ -234,7 +277,7 @@ def get_content_from_db():
         content = {}
         for row in rows:
             content[row['section_name']] = {
-                "id": row['id'],
+                "id": row.get('id') if isinstance(row, dict) else None,
                 "section_name": row['section_name'],
                 "title": row['title'] or '',
                 "content": row['content'] or '',
@@ -247,6 +290,59 @@ def get_content_from_db():
     finally:
         cursor.close()
         conn.close()
+
+
+def _social_links_from_content(content):
+    section = content.get('social_links') or {}
+    if not section:
+        return dict(DEFAULT_SOCIAL_LINKS)
+    try:
+        stored = json.loads(section.get('content') or '{}')
+    except (TypeError, ValueError):
+        return dict(DEFAULT_SOCIAL_LINKS)
+    if not isinstance(stored, dict):
+        return dict(DEFAULT_SOCIAL_LINKS)
+    return {
+        profile['key']: str(stored.get(profile['key'], '') or '').strip()[:500]
+        for profile in SOCIAL_PROFILES
+    }
+
+
+def _validate_social_link(value, label):
+    value = str(value or '').strip()
+    if not value:
+        return ''
+    if len(value) > 500 or any(character.isspace() for character in value):
+        raise ValueError(f'Enter a valid HTTPS URL for {label}.')
+    if '://' not in value:
+        value = f'https://{value}'
+    try:
+        parsed = urlsplit(value)
+        hostname = parsed.hostname
+        parsed.port
+    except ValueError as error:
+        raise ValueError(f'Enter a valid HTTPS URL for {label}.') from error
+    if parsed.scheme.casefold() != 'https' or not hostname or parsed.username or parsed.password:
+        raise ValueError(f'Enter a valid HTTPS URL for {label}.')
+    return value
+
+
+def _cached_social_links():
+    links = cache.get('site-social-links')
+    if links is None:
+        links = _social_links_from_content(get_content_from_db())
+        cache.set('site-social-links', links, timeout=300)
+    return links
+
+
+@app.context_processor
+def inject_social_profiles():
+    try:
+        links = _cached_social_links()
+    except Exception:
+        logger.exception('Could not load editable social links; using defaults')
+        links = dict(DEFAULT_SOCIAL_LINKS)
+    return {'social_links': links, 'social_profiles': SOCIAL_PROFILES}
 
 
 def get_service_entries(content):
@@ -300,6 +396,19 @@ def get_projects():
 
 def slugify_project(title):
     return re.sub(r'[^a-z0-9]+', '-', (title or '').casefold()).strip('-')
+
+
+def external_url(endpoint, **values):
+    base = app.config.get('PUBLIC_BASE_URL') or request.url_root.rstrip('/')
+    path = url_for(endpoint, **values)
+    if path.startswith('http://') or path.startswith('https://'):
+        return path
+    return f"{base.rstrip('/')}{path}"
+
+
+@app.context_processor
+def inject_project_helpers():
+    return dict(external_url=external_url, slugify_project=slugify_project)
 
 
 def get_skills_from_table():
@@ -712,6 +821,68 @@ def project_og_image(project_slug):
     return send_file(io.BytesIO(image), mimetype='image/png', max_age=86400)
 
 
+@app.route('/projects/<int:project_id>-<string:project_slug>')
+@app.route('/projects/<int:project_id>')
+def project_detail(project_id, project_slug=None):
+    projects = get_projects()
+    project = next((p for p in projects if p.get('id') == project_id), None)
+    if not project:
+        abort(404)
+    expected_slug = slugify_project(project.get('title')) or f"project-{project_id}"
+    if project_slug != expected_slug:
+        return redirect(url_for('project_detail', project_id=project_id, project_slug=expected_slug), code=301)
+
+    live_link = project.get('homepage_url') or project.get('link')
+    code_link = project.get('link') if project.get('homepage_url') and project.get('homepage_url') != project.get('link') else (f"https://github.com/{project['github_full_name']}" if project.get('github_full_name') else None)
+    description = project.get('ai_description') or project.get('description') or ''
+    seo_description = project.get('ai_summary') or description
+    canonical_url = external_url('project_detail', project_id=project_id, project_slug=expected_slug)
+    image_url = project.get('image') or external_url('project_og_image', project_slug=expected_slug)
+    technologies = sorted(set(
+        (project.get('languages') or []) + (project.get('topics') or [])
+    ))
+    project_json_ld = {
+        '@context': 'https://schema.org',
+        '@type': 'SoftwareSourceCode',
+        'name': project.get('title') or 'Portfolio project',
+        'description': seo_description,
+        'url': canonical_url,
+        'image': image_url,
+        'creator': {'@type': 'Person', 'name': 'Al-ameen Olanrewaju'},
+        'programmingLanguage': project.get('languages') or [],
+    }
+    if code_link:
+        project_json_ld['codeRepository'] = code_link
+    related_links = [link for link in (live_link, code_link) if link]
+    if related_links:
+        project_json_ld['sameAs'] = related_links
+
+    return render_template(
+        'project_detail.html', project=project, live_link=live_link, code_link=code_link,
+        technologies=technologies, description=description, seo_description=seo_description,
+        canonical_url=canonical_url, image_url=image_url, project_json_ld=project_json_ld,
+    )
+
+
+@app.route('/sitemap.xml')
+def sitemap():
+    locations = [external_url('home')]
+    for project in get_projects():
+        if project.get('id'):
+            locations.append(external_url('project_detail', project_id=project['id'], project_slug=slugify_project(project.get('title')) or f"project-{project['id']}"))
+    xml = ['<?xml version="1.0" encoding="UTF-8"?>', '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">']
+    for loc in locations:
+        xml.append(f'  <url><loc>{escape(loc)}</loc></url>')
+    xml.append('</urlset>')
+    return make_response('\n'.join(xml), 200, {'Content-Type': 'application/xml'})
+
+
+@app.route('/robots.txt')
+def robots():
+    content = f"User-agent: *\nAllow: /\n\nSitemap: {external_url('sitemap')}\n"
+    return make_response(content, 200, {'Content-Type': 'text/plain'})
+
+
 @app.route("/api/projects", methods=['GET'])
 def api_projects():
     return jsonify(get_projects()), 200
@@ -777,7 +948,8 @@ def contact():
             raise psycopg2.OperationalError('Database connection unavailable')
         cursor = conn.cursor()
         cursor.execute(
-            "INSERT INTO contact_messages (name, email, subject, message) VALUES (%s, %s, %s, %s) RETURNING id",
+            "INSERT INTO contact_messages (name, email, subject, message, created_at, updated_at, is_read, is_replied) "
+            "VALUES (%s, %s, %s, %s, NOW(), NOW(), FALSE, FALSE) RETURNING id",
             (name, email, subject, message)
         )
         saved_message = cursor.fetchone()
@@ -869,7 +1041,7 @@ def admin():
         content = {}
         for row in content_data:
             content[row['section_name']] = {
-                "id": row['id'],
+                "id": row.get('id') if isinstance(row, dict) else None,
                 "section_name": row['section_name'],
                 "title": row['title'] or '',
                 "content": row['content'] or '',
@@ -1887,6 +2059,27 @@ def edit_content():
             else:
                 cursor.execute("INSERT INTO site_content (section_name, title, content) VALUES ('about', %s, %s)", (about_title, about_content))
 
+            if any(f"social_{profile['key']}" in request.form for profile in SOCIAL_PROFILES):
+                social_links = {
+                    profile['key']: _validate_social_link(
+                        request.form.get(f"social_{profile['key']}", ''), profile['label'],
+                    )
+                    for profile in SOCIAL_PROFILES
+                }
+                social_content = json.dumps(social_links, ensure_ascii=True, sort_keys=True)
+                cursor.execute("SELECT id FROM site_content WHERE section_name='social_links'")
+                social_row = cursor.fetchone()
+                if social_row:
+                    cursor.execute(
+                        "UPDATE site_content SET title=%s, content=%s WHERE section_name='social_links'",
+                        ('Social Links', social_content),
+                    )
+                else:
+                    cursor.execute(
+                        'INSERT INTO site_content (section_name, title, content) VALUES (%s, %s, %s)',
+                        ('social_links', 'Social Links', social_content),
+                    )
+
             service_indexes = set()
             for field_name in request.form:
                 match = re.fullmatch(r'service_(\d+)_title', field_name)
@@ -1961,6 +2154,9 @@ def edit_content():
             cache.clear()
             flash('Content updated successfully!', 'success')
 
+        except ValueError as error:
+            conn.rollback()
+            flash(str(error), 'danger')
         except psycopg2.Error as e:
             flash(f'Error: {e}', 'danger')
         finally:
@@ -1995,7 +2191,8 @@ def edit_content():
         next_service_index = max((service['index'] for service in services), default=0) + 1
         return render_template(
             'edit_content.html', content=content or {}, skills=skills or {},
-            services=services, next_service_index=next_service_index
+            services=services, next_service_index=next_service_index,
+            social_links=_social_links_from_content(content),
         )
     except psycopg2.Error as e:
         flash(f'Error: {e}', 'danger')

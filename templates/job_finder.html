@@ -22,6 +22,28 @@
         {% endfor %}
     {% endwith %}
 
+    <section class="job-finder-overview mb-5" aria-labelledby="job-overview-title">
+        <div class="d-flex flex-wrap justify-content-between align-items-end mb-3">
+            <div>
+                <p class="eyebrow">Overview</p>
+                <h2 id="job-overview-title">All saved jobs</h2>
+            </div>
+            <p class="job-finder-range">Showing {{ first_job }}–{{ last_job }} of {{ job_count }}</p>
+        </div>
+        <nav class="job-finder-status-grid" aria-label="Filter jobs by status">
+            <a class="job-finder-status-tile{% if not selected_status %} is-active{% endif %}"
+               href="{{ url_for('main.job_finder.dashboard') }}" {% if not selected_status %}aria-current="page"{% endif %}>
+                <span>All jobs</span><strong>{{ job_counts.total }}</strong>
+            </a>
+            {% for status in ['found', 'drafted', 'approved', 'applied', 'interview', 'rejected', 'ignored'] %}
+            <a class="job-finder-status-tile{% if selected_status == status %} is-active{% endif %}"
+               href="{{ url_for('main.job_finder.dashboard', status=status) }}" {% if selected_status == status %}aria-current="page"{% endif %}>
+                <span>{{ status|title }}</span><strong>{{ job_counts[status] }}</strong>
+            </a>
+            {% endfor %}
+        </nav>
+    </section>
+
     <section class="mb-5" aria-labelledby="job-preferences-title">
         <h2 id="job-preferences-title">Preferences</h2>
         <form action="{{ url_for('main.job_finder.save_preferences') }}" method="post">
@@ -87,7 +109,7 @@
     </section>
 
     <section aria-labelledby="job-queue-title">
-        <h2 id="job-queue-title">Review queue</h2>
+        <h2 id="job-queue-title">{{ selected_status|title if selected_status else 'All jobs' }}</h2>
         {% for job in jobs %}
         <article class="job-finder-entry mb-4">
             <div class="d-flex flex-wrap justify-content-between align-items-start">
@@ -134,8 +156,15 @@
                 <a class="btn btn-outline-primary mt-2" href="{{ url_for('main.company_briefing.view', job_id=job.id) }}">Company briefing</a>
         </article>
         {% else %}
-        <p>No jobs found yet. Save your preferences and run a scan.</p>
+        <p>No jobs in this view yet. Save your preferences and run a scan.</p>
         {% endfor %}
+        {% if total_pages > 1 %}
+        <nav class="job-finder-pagination" aria-label="Job list pages">
+            {% if page > 1 %}<a class="btn btn-outline-primary" href="{{ url_for('main.job_finder.dashboard', status=selected_status or None, page=page - 1) }}">Previous</a>{% endif %}
+            <span>Page {{ page }} of {{ total_pages }}</span>
+            {% if page < total_pages %}<a class="btn btn-outline-primary" href="{{ url_for('main.job_finder.dashboard', status=selected_status or None, page=page + 1) }}">Next</a>{% endif %}
+        </nav>
+        {% endif %}
     </section>
 </main>
 {% endblock %}

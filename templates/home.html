@@ -3,6 +3,10 @@
 {% block title %}
 Al-ameen | Python Flask Developer
 {% endblock %}
+{% block meta_description %}Portfolio of Al-ameen Olanrewaju, a developer building useful web products and AI-powered tools.{% endblock %}
+{% block og_description %}Selected software projects by Al-ameen Olanrewaju, with project details, live demos, and source code.{% endblock %}
+{% block canonical_url %}{{ url_for('home', _external=True) }}{% endblock %}
+{% block og_url %}{{ url_for('home', _external=True) }}{% endblock %}
 
 {% block content %}
 
@@ -15,10 +19,10 @@ Al-ameen | Python Flask Developer
             <p class="hero-role">Developer <span>•</span> Builder <span>•</span> AI Entrepreneur</p>
             <p class="hero-description">{{ content.get('hero', {}).get('content', 'Subtitle goes here') }}</p>
             <div class="hero-socials" aria-label="Social links">
-                <a href="https://github.com/Al-ameenolanrewaju" target="_blank" rel="noopener noreferrer" aria-label="GitHub"><i class="fab fa-github"></i></a>
-                <a href="https://www.linkedin.com/in/al-ameen-olanrewaju-760618404" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn"><i class="fab fa-linkedin"></i></a>
-                <a href="https://x.com/Alameenwaju" target="_blank" rel="noopener noreferrer" aria-label="X / Twitter"><i class="fab fa-twitter"></i></a>
-                <a href="https://www.facebook.com/share/1EEgncNbMh/" target="_blank" rel="noopener noreferrer" aria-label="Facebook"><i class="fab fa-facebook"></i></a>
+                {% for profile in social_profiles %}
+                {% set social_url = social_links.get(profile.key) %}
+                {% if social_url %}<a href="{{ social_url }}" target="_blank" rel="noopener noreferrer" aria-label="{{ profile.label }}"><i class="{{ profile.icon }}"></i></a>{% endif %}
+                {% endfor %}
             </div>
             <div class="hero-actions">
                 <a href="#projects" class="btn btn-primary btn-lg">View my work <span aria-hidden="true">↗</span></a>

@@ -121,6 +121,15 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
 .project-admin-settings { display: grid; gap: 5px; min-width: 145px; }
 .project-admin-settings label { margin: 0; font-weight: 400; white-space: nowrap; }
 .project-admin-settings input[type='number'] { width: 64px; min-height: 30px; }
+.job-finder-overview { padding: 26px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+.job-finder-overview h2 { margin: 0; font-size: 2rem; }
+.job-finder-range { margin: 0; color: var(--muted); font: 12px var(--mono); }
+.job-finder-status-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 8px; }
+.job-finder-status-tile { display: flex; min-height: 76px; flex-direction: column; justify-content: space-between; padding: 11px 13px; border: 1px solid var(--line); color: var(--paper-muted); font: 11px var(--mono); }
+.job-finder-status-tile strong { color: var(--paper); font: 600 21px var(--display); }
+.job-finder-status-tile:hover, .job-finder-status-tile.is-active { border-color: var(--coral); color: var(--paper); }
+.job-finder-pagination { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 18px; margin: 28px 0; }
+.job-finder-pagination span { color: var(--muted); font: 12px var(--mono); }
 .github-import-section { min-height: 70vh; }
 .github-import-title { margin: 0; font-size: 2.5rem; }
 .github-import-summary { margin: 12px 0 28px; }

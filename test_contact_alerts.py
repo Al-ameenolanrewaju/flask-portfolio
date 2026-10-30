@@ -41,9 +41,11 @@ def test_callmebot_provider_uses_configured_recipient_and_retries(monkeypatch):
 
 
 def test_contact_is_saved_before_notification_and_triage_are_queued(client, monkeypatch):
+    statements = []
+
     class FakeCursor:
-        def execute(self, *args, **kwargs):
-            pass
+        def execute(self, sql, params=None):
+            statements.append(sql)
 
         def fetchone(self):
             return (42,)
@@ -89,6 +91,7 @@ def test_contact_is_saved_before_notification_and_triage_are_queued(client, monk
 
     assert response.status_code == 302
     assert connection.committed
+    assert any('message, created_at' in sql and 'NOW()' in sql for sql in statements)
     assert len(queued) == 2
     assert queued[0][0] is app_module.send_contact_alerts
     assert queued[1][0] is app_module.triage_contact_message

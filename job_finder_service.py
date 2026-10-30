@@ -236,7 +236,24 @@ class JobFinderService:
                 cursor.close()
             connection.close()
 
-    def list_jobs(self, status=None, limit=100):
+    def job_status_counts(self):
+        connection = self.connection_factory()
+        cursor = None
+        try:
+            cursor = connection.cursor()
+            cursor.execute('SELECT status, COUNT(*) FROM job_finder_jobs GROUP BY status')
+            counts = {status: 0 for status in (
+                'found', 'drafted', 'approved', 'applied', 'interview', 'rejected', 'ignored',
+            )}
+            counts.update({status: count for status, count in cursor.fetchall() if status in counts})
+            counts['total'] = sum(counts.values())
+            return counts
+        finally:
+            if cursor:
+                cursor.close()
+            connection.close()
+
+    def list_jobs(self, status=None, limit=25, offset=0):
         connection = self.connection_factory()
         cursor = None
         try:
@@ -244,14 +261,14 @@ class JobFinderService:
             if status:
                 cursor.execute(
                     'SELECT * FROM job_finder_jobs WHERE status=%s '
-                    'ORDER BY score DESC NULLS LAST, posted_at DESC NULLS LAST, created_at DESC LIMIT %s',
-                    (status, limit),
+                    'ORDER BY score DESC NULLS LAST, posted_at DESC NULLS LAST, created_at DESC LIMIT %s OFFSET %s',
+                    (status, limit, offset),
                 )
             else:
                 cursor.execute(
                     'SELECT * FROM job_finder_jobs '
-                    'ORDER BY score DESC NULLS LAST, posted_at DESC NULLS LAST, created_at DESC LIMIT %s',
-                    (limit,),
+                    'ORDER BY score DESC NULLS LAST, posted_at DESC NULLS LAST, created_at DESC LIMIT %s OFFSET %s',
+                    (limit, offset),
                 )
             return [dict(row) for row in cursor.fetchall()]
         finally:

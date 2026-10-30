@@ -56,6 +56,17 @@
         </div>
         <hr>
 
+        <!-- Social Links -->
+        <h4>Social Links</h4>
+        <p class="text-muted">Leave a URL blank to hide its icon. Use HTTPS links.</p>
+        {% for profile in social_profiles %}
+        <div class="form-group">
+            <label for="social-{{ profile.key }}">{{ profile.label }}</label>
+            <input id="social-{{ profile.key }}" type="url" name="social_{{ profile.key }}" class="form-control" value="{{ social_links.get(profile.key, '') }}" placeholder="https://">
+        </div>
+        {% endfor %}
+        <hr>
+
         <!-- Services Section -->
         <h4 id="services-section">Services Section</h4>
         <p class="text-muted">Add as many services as you need. Empty services stay hidden on the homepage.</p>
