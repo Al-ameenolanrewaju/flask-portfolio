@@ -1088,16 +1088,19 @@ def test_screenshot_refresh_uses_github_repository_url_without_homepage(monkeypa
 
 def test_admin_can_refresh_one_project_screenshot(client, monkeypatch):
     authenticate_test_user(client, monkeypatch)
-    refreshed = []
-    monkeypatch.setattr(app_module, 'refresh_project_screenshots', lambda project_id=None: refreshed.append(project_id) or {
-        'generated': 1, 'api_failures': 0,
-    })
+    queued = []
+
+    class FakeExecutor:
+        def submit(self, function, *args):
+            queued.append((function, args))
+
+    monkeypatch.setattr(app_module, 'screenshot_executor', FakeExecutor())
 
     response = client.post('/admin/projects/19/refresh-screenshot')
 
     assert response.status_code == 302
     assert response.location.endswith('/admin')
-    assert refreshed == [19]
+    assert queued == [(app_module._refresh_project_screenshot_in_background, (19,))]
 
 
 def test_ai_draft_must_be_approved_before_public_data_loader_exposes_it(monkeypatch):

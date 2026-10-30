@@ -108,6 +108,7 @@ github_api_cache = SimpleCache(default_timeout=600)
 CV_PDF_PATH = os.path.join(app.root_path, 'static', 'files', 'Al-ameen_cv.pdf')
 _cv_cache_hash = None
 contact_alert_executor = ThreadPoolExecutor(max_workers=2, thread_name_prefix='contact-alerts')
+screenshot_executor = ThreadPoolExecutor(max_workers=1, thread_name_prefix='project-screenshots')
 csrf = CSRFProtect(app)
 limiter = Limiter(
     app=app,
@@ -984,14 +985,11 @@ def run_scheduled_job(job_name):
 @login_required
 def refresh_project_screenshot(id):
     try:
-        result = refresh_project_screenshots(project_id=id)
-        if result['generated']:
-            flash('Project screenshot refreshed.', 'success')
-        else:
-            flash('No screenshot was generated. Check that the project has a URL and no manually selected image.', 'warning')
+        screenshot_executor.submit(_refresh_project_screenshot_in_background, id)
+        flash('Screenshot refresh queued. Check the portfolio again in a minute.', 'success')
     except Exception:
-        logger.exception('Could not refresh screenshot for project %s', id)
-        flash('Could not refresh the project screenshot. Check the application logs.', 'danger')
+        logger.exception('Could not queue screenshot refresh for project %s', id)
+        flash('Could not queue the project screenshot refresh.', 'danger')
     return redirect(url_for('admin'))
 
 
@@ -1503,6 +1501,18 @@ def refresh_project_screenshots(project_id=None):
     if api_failures:
         send_whatsapp_alert(f'ScreenshotOne failed for {api_failures} project(s); generated cards were saved instead.')
     return {'generated': generated, 'api_failures': api_failures}
+
+
+def _refresh_project_screenshot_in_background(project_id):
+    with app.app_context():
+        try:
+            result = refresh_project_screenshots(project_id=project_id)
+            if result['generated']:
+                logger.info('Screenshot refresh completed for project %s', project_id)
+            else:
+                logger.warning('No screenshot generated for project %s', project_id)
+        except Exception:
+            logger.exception('Background screenshot refresh failed for project %s', project_id)
 
 
 def _readme_hash(readme):
