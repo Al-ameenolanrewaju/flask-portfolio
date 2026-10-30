@@ -1086,6 +1086,20 @@ def test_screenshot_refresh_uses_github_repository_url_without_homepage(monkeypa
     assert saved[0][2] == 'screenshotone'
 
 
+def test_admin_can_refresh_one_project_screenshot(client, monkeypatch):
+    authenticate_test_user(client, monkeypatch)
+    refreshed = []
+    monkeypatch.setattr(app_module, 'refresh_project_screenshots', lambda project_id=None: refreshed.append(project_id) or {
+        'generated': 1, 'api_failures': 0,
+    })
+
+    response = client.post('/admin/projects/19/refresh-screenshot')
+
+    assert response.status_code == 302
+    assert response.location.endswith('/admin')
+    assert refreshed == [19]
+
+
 def test_ai_draft_must_be_approved_before_public_data_loader_exposes_it(monkeypatch):
     projects = [
         {'id': 11, 'title': 'Approved', 'languages': '[]', 'topics': '[]', 'edited_fields': '[]'},
@@ -1318,19 +1332,17 @@ def test_regular_sync_does_not_import_unselected_repository(monkeypatch):
     assert not any(sql.startswith('INSERT INTO projects') for sql, _ in connection.statements)
 
 
-def test_refresh_description_updates_only_when_github_has_text(client, monkeypatch):
+def test_refresh_description_generates_readme_ai_draft(client, monkeypatch):
     authenticate_test_user(client, monkeypatch)
-    statements = []
+    monkeypatch.setitem(app.config, 'GROQ_API_KEY', 'groq-test-key')
+    saved = []
 
     class FakeCursor:
         def execute(self, sql, params=None):
-            statements.append((sql, params))
+            pass
 
         def fetchone(self):
-            return {
-                'github_full_name': 'example/project',
-                'edited_fields': '["description", "link", "title"]',
-            }
+            return {'github_full_name': 'example/project'}
 
         def close(self):
             pass
@@ -1349,23 +1361,36 @@ def test_refresh_description_updates_only_when_github_has_text(client, monkeypat
             pass
 
     class FakeClient:
-        def get_repository_description(self, full_name):
+        def get_repository_readme(self, full_name):
             assert full_name == 'example/project'
-            return 'Updated from README.'
+            return '# Project\nA factual README.'
+
+    class FakeGroqClient:
+        def __init__(self, api_key, model):
+            assert api_key == 'groq-test-key'
+
+        def generate(self, readme, before_request=None):
+            assert readme == '# Project\nA factual README.'
+            assert before_request is app_module._claim_groq_api_request
+            return {'summary': 'Short summary.', 'description': 'AI rewrite.', 'case_study': {}}
 
     monkeypatch.setattr(app_module, 'get_db_connection', lambda: FakeConnection())
     monkeypatch.setattr(app_module, '_github_client', lambda: FakeClient())
+    monkeypatch.setattr(app_module, 'GroqClient', FakeGroqClient)
+    monkeypatch.setattr(app_module, '_claim_groq_api_request', lambda: True)
+    monkeypatch.setattr(app_module, '_save_ai_draft', lambda project_id, readme_hash, draft: saved.append((project_id, readme_hash, draft)))
 
     response = client.post('/admin/projects/42/refresh-description')
 
-    update = next(params for sql, params in statements if sql.startswith('UPDATE projects'))
     assert response.status_code == 302
-    assert update[0] == 'Updated from README.'
-    assert json.loads(update[1]) == ['link', 'title']
+    assert response.location.endswith('/admin/ai-drafts')
+    assert saved[0][0] == 42
+    assert saved[0][2]['description'] == 'AI rewrite.'
 
 
-def test_refresh_description_preserves_saved_text_when_github_has_none(client, monkeypatch):
+def test_refresh_description_warns_when_github_has_no_readme(client, monkeypatch):
     authenticate_test_user(client, monkeypatch)
+    monkeypatch.setitem(app.config, 'GROQ_API_KEY', 'groq-test-key')
     statements = []
 
     class FakeCursor:
@@ -1373,7 +1398,7 @@ def test_refresh_description_preserves_saved_text_when_github_has_none(client, m
             statements.append((sql, params))
 
         def fetchone(self):
-            return {'github_full_name': 'example/project', 'edited_fields': '["description"]'}
+            return {'github_full_name': 'example/project'}
 
         def close(self):
             pass
@@ -1392,7 +1417,7 @@ def test_refresh_description_preserves_saved_text_when_github_has_none(client, m
             pass
 
     class FakeClient:
-        def get_repository_description(self, full_name):
+        def get_repository_readme(self, full_name):
             return ''
 
     monkeypatch.setattr(app_module, 'get_db_connection', lambda: FakeConnection())

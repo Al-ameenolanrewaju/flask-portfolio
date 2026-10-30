@@ -49,7 +49,7 @@ from config import DevelopmentConfig, ProductionConfig
 from contact_triage import ContactTriageService
 from github_client import GitHubAPIError, GitHubClient
 from github_webhooks import verify_github_signature
-from groq_client import GroqClient, GroqDailyCapReached, GroqRateLimitExceeded
+from groq_client import GroqClient, GroqDailyCapReached, GroqError, GroqRateLimitExceeded
 from job_finder_service import job_finder_service
 from link_checker import check_link, is_public_http_url
 from models import User, db
@@ -535,25 +535,29 @@ def send_whatsapp_alert(message):
         return False
 
 
-def send_contact_alerts(name, email, subject, message, portfolio_url, priority='normal'):
-    if priority != 'high':
-        return False
+def send_contact_alerts(name, email, subject, message, portfolio_url, priority='normal', send_email=True):
     with app.app_context():
-        try:
-            send_resend_contact_notification(name, email, subject, message, portfolio_url)
-        except Exception as error:  # noqa: BLE001
-            logger.error('High-priority contact email alert failed (%s)', type(error).__name__)
+        email_sent = False
+        if send_email:
+            try:
+                send_resend_contact_notification(name, email, subject, message, portfolio_url)
+                email_sent = True
+            except Exception:
+                logger.exception('Contact email notification failed')
 
+        if priority != 'high':
+            return email_sent
         provider = _whatsapp_provider()
         if not provider:
             logger.info('CallMeBot is not configured; skipping WhatsApp alert')
-            return True
+            return email_sent
         alert = f'High-priority portfolio contact from {name} <{email}>: {subject}'
         try:
             provider.send_message(alert)
-        except Exception as error:  # noqa: BLE001
-            logger.error('High-priority contact WhatsApp alert failed (%s)', type(error).__name__)
-        return True
+            return True
+        except Exception:
+            logger.exception('High-priority contact WhatsApp alert failed')
+            return email_sent
 
 
 # ================== REST API ==================
@@ -793,6 +797,13 @@ def contact():
     if message_id:
         try:
             contact_alert_executor.submit(
+                send_contact_alerts, name, email, subject, message,
+                request.url_root.rstrip('/'),
+            )
+        except Exception:
+            logger.exception('Contact email notification could not be queued for message %s', message_id)
+        try:
+            contact_alert_executor.submit(
                 triage_contact_message, message_id, request.url_root.rstrip('/'),
             )
         except Exception:
@@ -967,6 +978,21 @@ def run_scheduled_job(job_name):
         'success' if succeeded else 'danger',
     )
     return redirect(url_for('admin_jobs'))
+
+
+@app.route('/admin/projects/<int:id>/refresh-screenshot', methods=['POST'])
+@login_required
+def refresh_project_screenshot(id):
+    try:
+        result = refresh_project_screenshots(project_id=id)
+        if result['generated']:
+            flash('Project screenshot refreshed.', 'success')
+        else:
+            flash('No screenshot was generated. Check that the project has a URL and no manually selected image.', 'warning')
+    except Exception:
+        logger.exception('Could not refresh screenshot for project %s', id)
+        flash('Could not refresh the project screenshot. Check the application logs.', 'danger')
+    return redirect(url_for('admin'))
 
 
 @app.route('/add_project', methods=['GET', 'POST'])
@@ -1401,17 +1427,20 @@ def _store_project_screenshot(project_id, image_data, source):
         conn.close()
 
 
-def refresh_project_screenshots():
+def refresh_project_screenshots(project_id=None):
     conn = get_db_connection()
     if not conn:
         raise psycopg2.OperationalError('Database connection unavailable')
     cursor = None
     try:
         cursor = conn.cursor(cursor_factory=RealDictCursor)
-        cursor.execute(
+        query = (
             'SELECT id, title, description, link, homepage_url, github_full_name, '
             'languages, topics, edited_fields FROM projects'
         )
+        if project_id is not None:
+            query += ' WHERE id=%s'
+        cursor.execute(query, (project_id,) if project_id is not None else None)
         projects = [dict(project) for project in cursor.fetchall()]
     finally:
         if cursor:
@@ -1672,7 +1701,7 @@ def triage_contact_message(message_id, portfolio_url):
         message = result['message']
         send_contact_alerts(
             message['name'], message['email'], message['subject'], message['message'],
-            portfolio_url, priority=result['priority'],
+            portfolio_url, priority=result['priority'], send_email=False,
         )
         return result
 
@@ -1735,6 +1764,11 @@ def github_webhook():
 @app.route('/admin/projects/<int:id>/refresh-description', methods=['POST'])
 @login_required
 def refresh_project_description(id):
+    api_key = app.config.get('GROQ_API_KEY')
+    if not api_key:
+        flash('GROQ_API_KEY is not configured; AI rewrites are unavailable.', 'danger')
+        return redirect(url_for('admin'))
+
     conn = get_db_connection()
     if not conn:
         flash('Database connection error', 'danger')
@@ -1743,7 +1777,7 @@ def refresh_project_description(id):
     try:
         cursor = conn.cursor(cursor_factory=RealDictCursor)
         cursor.execute(
-            'SELECT github_full_name, edited_fields FROM projects WHERE id=%s AND github_repo_id IS NOT NULL',
+            'SELECT github_full_name FROM projects WHERE id=%s AND github_repo_id IS NOT NULL',
             (id,)
         )
         project = cursor.fetchone()
@@ -1751,28 +1785,25 @@ def refresh_project_description(id):
             flash('This project is not linked to a GitHub repository.', 'warning')
             return redirect(url_for('admin'))
 
-        description = _github_client().get_repository_description(project['github_full_name'])
-        if not description:
-            flash('GitHub has no description or README text for this repository. The saved description was left unchanged.', 'warning')
+        readme = _github_client().get_repository_readme(project['github_full_name'])
+        if not readme:
+            flash('GitHub has no README text for this repository. No AI draft was created.', 'warning')
             return redirect(url_for('admin'))
 
-        edited_fields = project.get('edited_fields') or '[]'
-        if isinstance(edited_fields, str):
-            try:
-                edited_fields = json.loads(edited_fields)
-            except ValueError:
-                edited_fields = []
-        edited_fields = sorted(set(edited_fields) - {'description'})
-        cursor.execute(
-            'UPDATE projects SET description=%s, edited_fields=%s WHERE id=%s',
-            (description, json.dumps(edited_fields), id)
+        draft = GroqClient(api_key, app.config.get('GROQ_MODEL')).generate(
+            readme, before_request=_claim_groq_api_request,
         )
-        conn.commit()
-        cache.clear()
-        flash('Description refreshed from GitHub.', 'success')
-    except (GitHubAPIError, psycopg2.Error) as error:
+        _save_ai_draft(id, _readme_hash(readme), draft)
+        flash('AI rewrite generated as a draft. Review and approve it to publish.', 'success')
+        return redirect(url_for('admin_ai_drafts'))
+    except GroqDailyCapReached:
+        flash('The daily Groq request limit has been reached. Try again tomorrow.', 'warning')
+    except GroqRateLimitExceeded:
+        flash('Groq is rate-limiting requests. Try again later.', 'warning')
+    except (GitHubAPIError, GroqError, psycopg2.Error) as error:
         conn.rollback()
-        flash(f'Could not refresh the GitHub description: {error}', 'danger')
+        logger.exception('Could not generate an AI draft for project %s', id)
+        flash(f'Could not generate an AI rewrite: {error}', 'danger')
     finally:
         if cursor:
             cursor.close()

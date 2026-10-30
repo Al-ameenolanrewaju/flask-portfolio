@@ -40,7 +40,7 @@ def test_callmebot_provider_uses_configured_recipient_and_retries(monkeypatch):
     )]
 
 
-def test_contact_is_saved_before_triage_and_sends_no_automatic_reply(client, monkeypatch):
+def test_contact_is_saved_before_notification_and_triage_are_queued(client, monkeypatch):
     class FakeCursor:
         def execute(self, *args, **kwargs):
             pass
@@ -75,10 +75,7 @@ def test_contact_is_saved_before_triage_and_sends_no_automatic_reply(client, mon
             queued.append((function, args))
 
     monkeypatch.setattr(app_module, 'get_db_connection', lambda: connection)
-    monkeypatch.setattr(
-        app_module, 'send_resend_contact_notification',
-        lambda *args: pytest.fail('contact submission must not immediately send an alert'),
-    )
+    monkeypatch.setattr(app_module, 'send_resend_contact_notification', lambda *args: True)
     monkeypatch.setattr(app_module, 'contact_alert_executor', FakeExecutor())
     monkeypatch.setitem(app.config, 'CALLMEBOT_PHONE', 'phone')
     monkeypatch.setitem(app.config, 'CALLMEBOT_API_KEY', 'key')
@@ -92,8 +89,9 @@ def test_contact_is_saved_before_triage_and_sends_no_automatic_reply(client, mon
 
     assert response.status_code == 302
     assert connection.committed
-    assert len(queued) == 1
-    assert queued[0][0] is app_module.triage_contact_message
+    assert len(queued) == 2
+    assert queued[0][0] is app_module.send_contact_alerts
+    assert queued[1][0] is app_module.triage_contact_message
 
 
 def test_explicit_contact_draft_send_uses_resend_and_escapes_html(monkeypatch):
@@ -158,7 +156,7 @@ def test_contact_rejects_invalid_email_and_missing_subject(client, monkeypatch):
     assert 'valid email address' in message
 
 
-def test_contact_alerts_are_sent_only_for_high_priority(monkeypatch):
+def test_contact_email_alerts_are_sent_for_all_priorities_and_whatsapp_only_for_high(monkeypatch):
     alerts = []
     monkeypatch.setattr(app_module, 'send_resend_contact_notification', lambda *args: alerts.append('email'))
 
@@ -170,15 +168,15 @@ def test_contact_alerts_are_sent_only_for_high_priority(monkeypatch):
 
     assert app_module.send_contact_alerts(
         'Visitor', 'visitor@example.com', 'Question', 'Message', 'https://site.test',
-    ) is False
-    assert alerts == []
+    ) is True
+    assert alerts == ['email']
     assert app_module.send_contact_alerts(
         'Visitor', 'visitor@example.com', 'Question', 'Message', 'https://site.test', priority='high',
     ) is True
-    assert alerts == ['email', 'whatsapp']
+    assert alerts == ['email', 'email', 'whatsapp']
 
 
-def test_triage_worker_never_sends_the_generated_reply(monkeypatch):
+def test_triage_worker_sends_high_priority_alert_without_duplicate_email_or_reply(monkeypatch):
     alerts = []
     monkeypatch.setattr(app_module.contact_triage_service, 'triage', lambda message_id: {
         'saved': True,
@@ -188,7 +186,7 @@ def test_triage_worker_never_sends_the_generated_reply(monkeypatch):
             'name': 'Visitor', 'email': 'visitor@example.com', 'subject': 'Question', 'message': 'Hello',
         },
     })
-    monkeypatch.setattr(app_module, 'send_contact_alerts', lambda *args, **kwargs: alerts.append(args))
+    monkeypatch.setattr(app_module, 'send_contact_alerts', lambda *args, **kwargs: alerts.append(kwargs))
     monkeypatch.setattr(
         app_module, 'send_resend_contact_draft',
         lambda *args: pytest.fail('triage must never send the generated reply'),
@@ -197,7 +195,7 @@ def test_triage_worker_never_sends_the_generated_reply(monkeypatch):
     result = app_module.triage_contact_message(42, 'https://portfolio.example')
 
     assert result['saved'] is True
-    assert len(alerts) == 1
+    assert alerts == [{'priority': 'high', 'send_email': False}]
 
 
 def test_contact_reply_requires_a_separate_send_confirmation(client, monkeypatch):
