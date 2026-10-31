@@ -25,7 +25,11 @@ Al-ameen | Python Flask Developer
             </div>
             <div class="hero-actions">
                 <a href="#projects" class="btn btn-primary btn-lg">View my work <span aria-hidden="true">↗</span></a>
+                {% if calendar_url and calendar_url.startswith('http') %}
                 <a href="{{ calendar_url }}" target="_blank" rel="noopener noreferrer" class="btn btn-quiet btn-lg"><i class="fa-solid fa-calendar-check" aria-hidden="true"></i> Book 15-min call <span aria-hidden="true">↗</span></a>
+                {% else %}
+                <a href="#contact" class="btn btn-quiet btn-lg"><i class="fa-solid fa-paper-plane" aria-hidden="true"></i> Let's connect</a>
+                {% endif %}
             </div>
 
             <a href="{{ url_for('download_cv') }}" class="cv-link">
@@ -225,6 +229,7 @@ Al-ameen | Python Flask Developer
         </div>
 
         <!-- 1-Click Meeting Booking Conversion Callout -->
+        {% if calendar_url and calendar_url.startswith('http') %}
         <div class="cal-conversion-banner">
             <div class="cal-banner-content">
                 <i class="fa-solid fa-bolt" style="color:#10b981;font-size:1.3rem;"></i>
@@ -237,6 +242,7 @@ Al-ameen | Python Flask Developer
                 <i class="fa-regular fa-calendar-check"></i> Book 15-Min Intro ↗
             </a>
         </div>
+        {% endif %}
 
         <form action="/contact" method="POST" class="contact-form" style="max-width:620px;margin:24px auto 0;">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
@@ -305,22 +311,35 @@ window.addEventListener('DOMContentLoaded', () => {
         const isSuccess = category === 'success';
 
         if (isSuccess) {
-            Swal.fire({
-                icon: 'success',
-                title: 'Inquiry Received!',
-                html: `<p style="margin-bottom:12px;">${message}</p><p style="color:#94a3b8;font-size:0.95em;">Want an instant slot on my calendar?</p>`,
-                showCancelButton: true,
-                confirmButtonText: '<i class="fa-regular fa-calendar-check"></i> Book 15-Min Intro Call Now',
-                cancelButtonText: 'Done',
-                confirmButtonColor: '#10b981',
-                cancelButtonColor: '#334155',
-                background: '#161d19',
-                color: '#f1f5f9'
-            }).then((res) => {
-                if (res.isConfirmed && calendarUrl) {
-                    window.open(calendarUrl, '_blank');
-                }
-            });
+            const hasExternalCal = calendarUrl && calendarUrl.startsWith('http');
+            if (hasExternalCal) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Inquiry Received!',
+                    html: `<p style="margin-bottom:12px;">${message}</p><p style="color:#94a3b8;font-size:0.95em;">Want an instant slot on my calendar?</p>`,
+                    showCancelButton: true,
+                    confirmButtonText: '<i class="fa-regular fa-calendar-check"></i> Book 15-Min Intro Call Now',
+                    cancelButtonText: 'Done',
+                    confirmButtonColor: '#10b981',
+                    cancelButtonColor: '#334155',
+                    background: '#161d19',
+                    color: '#f1f5f9'
+                }).then((res) => {
+                    if (res.isConfirmed) {
+                        window.open(calendarUrl, '_blank');
+                    }
+                });
+            } else {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Inquiry Received!',
+                    text: message,
+                    confirmButtonText: 'Done',
+                    confirmButtonColor: '#10b981',
+                    background: '#161d19',
+                    color: '#f1f5f9'
+                });
+            }
         } else {
             Swal.fire({
                 icon: 'error',

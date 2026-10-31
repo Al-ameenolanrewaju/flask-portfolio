@@ -411,7 +411,7 @@ def external_url(endpoint, **values):
 
 @app.context_processor
 def inject_project_helpers():
-    return dict(external_url=external_url, slugify_project=slugify_project, calendar_url=app.config.get('CALENDAR_URL', 'https://cal.com/oademola/15min'))
+    return dict(external_url=external_url, slugify_project=slugify_project, calendar_url=app.config.get('CALENDAR_URL') or '#contact')
 
 
 def get_skills_from_table():
@@ -2364,7 +2364,7 @@ if production and DATABASE_URL.startswith(('postgres://', 'postgresql://')):
 ask_ai_service = AskAIService(
     api_key=app.config.get('GROQ_API_KEY'),
     model=app.config.get('GROQ_MODEL', 'llama-3.3-70b-versatile'),
-    calendar_url=app.config.get('CALENDAR_URL', 'https://cal.com/oademola/15min'),
+    calendar_url=app.config.get('CALENDAR_URL') or '#contact',
 )
 app.extensions['ask_ai_service'] = ask_ai_service
 
@@ -2382,7 +2382,7 @@ def api_ask_ai():
         content = get_content_from_db()
         projects = get_projects()
         skills = get_skills_from_table()
-        cal_url = app.config.get('CALENDAR_URL', 'https://cal.com/oademola/15min')
+        cal_url = app.config.get('CALENDAR_URL') or '#contact'
 
         context_str = build_portfolio_context(
             profile_content=content,
@@ -2407,8 +2407,8 @@ def api_ask_ai():
         logger.exception('Ask AI endpoint failed: %s', e)
         return jsonify({
             'status': 'error',
-            'answer': "Al-ameen is a senior backend software engineer specializing in Python, scalable databases, and APIs. You can book a 15-minute chat directly at https://cal.com/oademola/15min.",
-            'calendar_url': app.config.get('CALENDAR_URL', 'https://cal.com/oademola/15min'),
+            'answer': "Al-ameen is a senior backend software engineer specializing in Python, scalable databases, and APIs. You can reach out directly via the contact form below!",
+            'calendar_url': cal_url,
         }), 200
 
 

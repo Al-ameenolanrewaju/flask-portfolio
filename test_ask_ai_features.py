@@ -33,8 +33,11 @@ def test_fallback_answers():
     ans_skills = fallback_answer_question('What are your backend tech skills?')
     assert 'Python' in ans_skills or 'PostgreSQL' in ans_skills
 
-    ans_booking = fallback_answer_question('How can I book a meeting or call?')
-    assert 'calendar' in ans_booking.lower() or 'cal.com' in ans_booking.lower()
+    ans_booking_no_cal = fallback_answer_question('How can I book a meeting or call?')
+    assert 'contact form' in ans_booking_no_cal.lower()
+
+    ans_booking_cal = fallback_answer_question('How can I book a meeting or call?', calendar_url='https://cal.com/test')
+    assert 'https://cal.com/test' in ans_booking_cal
 
     ans_hiring = fallback_answer_question('Are you open to hire for full-time or contract?')
     assert 'open' in ans_hiring.lower()

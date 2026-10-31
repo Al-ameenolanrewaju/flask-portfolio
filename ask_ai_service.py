@@ -28,7 +28,7 @@ def build_portfolio_context(profile_content=None, projects=None, skills=None, ca
     profile_content = profile_content or {}
     projects = projects or []
     skills = skills or {}
-    calendar_url = calendar_url or "https://cal.com/oademola/15min"
+    calendar_link_text = f"Direct Meeting Booking Link: {calendar_url}\n" if (calendar_url and str(calendar_url).startswith('http')) else ""
 
     about_text = (
         profile_content.get('about', {}).get('description')
@@ -67,7 +67,7 @@ def build_portfolio_context(profile_content=None, projects=None, skills=None, ca
         f"Role: Backend Software Engineer & AI Entrepreneur\n"
         f"Location: Lagos, Nigeria (Available for Remote worldwide)\n"
         f"Availability: Open for Senior Backend Roles, Full-time positions, and High-impact Contract/Freelance projects\n"
-        f"Direct Meeting Booking Link: {calendar_url}\n"
+        f"{calendar_link_text}"
         f"About / Bio: {about_text}\n"
         f"Core Technical Skills & Stack: {skills_summary}\n"
         f"Engineering Rigor: 140+ automated Pytest tests, defensive PostgreSQL transactional schemas, Alembic migrations, Docker reproducible setups\n"
@@ -75,22 +75,28 @@ def build_portfolio_context(profile_content=None, projects=None, skills=None, ca
     )
 
 
-def fallback_answer_question(question, context_summary=None, calendar_url="https://cal.com/oademola/15min"):
+def fallback_answer_question(question, context_summary=None, calendar_url=None):
     """Intelligent heuristic answer generator when Groq is unavailable or rate-limited."""
     q = question.lower().strip()
+    has_cal = bool(calendar_url and str(calendar_url).startswith('http'))
 
     # Booking & Contact
     if any(k in q for k in ['book', 'schedule', 'call', 'meeting', 'calendar', 'cal.com', 'calendly', 'talk', 'chat']):
+        if has_cal:
+            return (
+                f"You can schedule a 15-minute intro call directly with Al-ameen on his calendar at {calendar_url}, "
+                "or send a message using the contact form at the bottom of the page!"
+            )
         return (
-            f"You can schedule a 15-minute intro call directly with Al-ameen on his calendar at {calendar_url}, "
-            "or send a message using the contact form at the bottom of the page!"
+            "You can reach out directly to Al-ameen using the contact form at the bottom of the page to discuss an opportunity or schedule a chat!"
         )
 
     # Availability & Hiring
     if any(k in q for k in ['available', 'hire', 'contract', 'full-time', 'fulltime', 'freelance', 'rate', 'remote', 'open for', 'job']):
+        cal_suffix = f" or book a quick chat at {calendar_url}" if has_cal else ""
         return (
             "Al-ameen is actively open for Senior Backend Engineer roles, remote full-time positions, and contract engineering projects. "
-            f"Feel free to reach out via the contact form below or book a quick chat at {calendar_url}."
+            f"Feel free to reach out via the contact form below{cal_suffix}."
         )
 
     # Technical Skills & Stack
@@ -115,9 +121,10 @@ def fallback_answer_question(question, context_summary=None, calendar_url="https
         )
 
     # General / Default
+    cta = f" or book a 15-minute intro chat directly at {calendar_url}." if has_cal else " or reach out using the contact form below!"
     return (
         "Al-ameen Olanrewaju is a backend software engineer specializing in Python, scalable databases, and resilient APIs. "
-        f"You can explore his featured projects above, review his technical case studies, or book a 15-minute intro chat directly at {calendar_url}."
+        f"You can explore his featured projects above, review his technical case studies,{cta}"
     )
 
 
@@ -127,7 +134,7 @@ class AskAIService:
     def __init__(self, api_key=None, model='llama-3.3-70b-versatile', calendar_url=None):
         self.api_key = api_key
         self.model = model or 'llama-3.3-70b-versatile'
-        self.calendar_url = calendar_url or 'https://cal.com/oademola/15min'
+        self.calendar_url = calendar_url if (calendar_url and str(calendar_url).startswith('http')) else None
 
     def ask(self, question, context=None, before_request=None):
         """Ask a question about Al-ameen's portfolio and receive a grounded, safe response."""
