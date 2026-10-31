@@ -120,6 +120,7 @@ def test_job_finder_dashboard_renders_private_preferences_and_attributions(job_c
         'found': 1, 'drafted': 0, 'approved': 0, 'applied': 0,
         'interview': 0, 'rejected': 0, 'ignored': 0, 'total': 1,
     })
+    monkeypatch.setattr(job_finder_service, 'review_queue_count', lambda minimum_score: 1)
     monkeypatch.setattr(job_finder_service, 'list_jobs', lambda **kwargs: [{
         'id': 1, 'title': 'Flask Developer', 'company': 'Example', 'location': 'Worldwide',
         'score': None, 'match_reason': None, 'source_name': 'Remotive',
@@ -149,6 +150,7 @@ def test_job_finder_dashboard_filters_and_paginates_all_saved_jobs(job_client, m
     calls = []
     monkeypatch.setattr(job_finder_service, 'get_preferences', lambda: DEFAULT_PREFERENCES)
     monkeypatch.setattr(job_finder_service, 'job_status_counts', lambda: counts)
+    monkeypatch.setattr(job_finder_service, 'review_queue_count', lambda minimum_score: 7)
     monkeypatch.setattr(job_finder_service, 'list_jobs', lambda **kwargs: calls.append(kwargs) or [])
     monkeypatch.setattr(job_finder_service, 'recent_source_runs', list)
 
@@ -160,6 +162,29 @@ def test_job_finder_dashboard_filters_and_paginates_all_saved_jobs(job_client, m
     assert 'Showing 26–50 of 55' in page
     assert 'Approved</h2>' in page
     assert 'Page 2 of 3' in page
+
+
+def test_job_finder_dashboard_defaults_to_minimum_score_review_queue(job_client, monkeypatch):
+    _authenticate(job_client, monkeypatch)
+    counts = {
+        'found': 30, 'drafted': 3, 'approved': 5, 'applied': 2,
+        'interview': 1, 'rejected': 0, 'ignored': 4, 'total': 45,
+    }
+    calls = []
+    monkeypatch.setattr(job_finder_service, 'get_preferences', lambda: DEFAULT_PREFERENCES)
+    monkeypatch.setattr(job_finder_service, 'job_status_counts', lambda: counts)
+    monkeypatch.setattr(job_finder_service, 'review_queue_count', lambda minimum_score: 2)
+    monkeypatch.setattr(job_finder_service, 'list_jobs', lambda **kwargs: calls.append(kwargs) or [])
+    monkeypatch.setattr(job_finder_service, 'recent_source_runs', list)
+
+    response = job_client.get('/admin/job-finder/')
+    page = response.get_data(as_text=True)
+
+    assert response.status_code == 200
+    assert calls == [{'limit': 25, 'offset': 0, 'review_min_score': DEFAULT_PREFERENCES['minimum_match_score']}]
+    assert 'Review queue' in page
+    assert 'Showing 1–2 of 2' in page
+    assert 'All jobs' in page
 
 
 def test_job_finder_preferences_post_saves_valid_values(job_client, monkeypatch):

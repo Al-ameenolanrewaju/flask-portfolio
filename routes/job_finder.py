@@ -48,17 +48,34 @@ def dashboard():
     try:
         preferences = job_finder_service.get_preferences()
         counts = job_finder_service.job_status_counts()
-        job_count = counts[selected_status] if selected_status else counts['total']
+        view = 'all' if request.args.get('view') == 'all' else 'review'
+        is_review_queue = not selected_status and view == 'review'
+        review_queue_total = job_finder_service.review_queue_count(preferences['minimum_match_score'])
+        if selected_status:
+            job_count = counts[selected_status]
+        elif is_review_queue:
+            job_count = review_queue_total
+        else:
+            job_count = counts['total']
         total_pages = max(1, (job_count + page_size - 1) // page_size)
         page = min(page, total_pages)
-        jobs = job_finder_service.list_jobs(
-            status=selected_status or None, limit=page_size, offset=(page - 1) * page_size,
-        )
+        if is_review_queue:
+            jobs = job_finder_service.list_jobs(
+                limit=page_size, offset=(page - 1) * page_size,
+                review_min_score=preferences['minimum_match_score'],
+            )
+        else:
+            jobs = job_finder_service.list_jobs(
+                status=selected_status or None, limit=page_size, offset=(page - 1) * page_size,
+            )
         source_runs = job_finder_service.recent_source_runs()
     except Exception:
         logger.exception('Job Finder dashboard could not load')
         flash('Job Finder data is unavailable. Apply pending database migrations and try again.', 'danger')
         preferences = dict(DEFAULT_PREFERENCES)
+        view = 'review'
+        is_review_queue = True
+        review_queue_total = 0
         jobs = []
         source_runs = []
         counts = {status: 0 for status in (*statuses, 'total')}
@@ -70,6 +87,7 @@ def dashboard():
         'job_finder.html', preferences=preferences, jobs=jobs,
         source_runs=source_runs, source_registry=job_finder_service.sources,
         job_counts=counts, job_count=job_count, selected_status=selected_status,
+        view=view, is_review_queue=is_review_queue, review_queue_total=review_queue_total,
         page=page, total_pages=total_pages, first_job=first_job, last_job=last_job,
     )
 

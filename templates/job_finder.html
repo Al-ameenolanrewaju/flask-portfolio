@@ -9,12 +9,15 @@
             <h1>Job Finder</h1>
             <p class="text-muted">Private to your admin account. Matching is automated; verify each role and its terms on the original posting.</p>
         </div>
-        <div class="d-flex gap-2">
-            <a href="{{ url_for('main.job_finder.results') }}" class="btn btn-outline-primary">Results</a>
-            <a href="{{ url_for('main.job_finder.inbox') }}" class="btn btn-outline-primary">Reply inbox</a>
-            <a href="{{ url_for('main.job_finder.master_profile') }}" class="btn btn-outline-primary">Master profile</a>
-            <a href="{{ url_for('admin') }}" class="btn btn-outline-secondary">Back to admin</a>
-        </div>
+        <details class="job-finder-tools">
+            <summary>Tools</summary>
+            <nav aria-label="Job Finder tools">
+                <a href="{{ url_for('main.job_finder.results') }}">Results</a>
+                <a href="{{ url_for('main.job_finder.inbox') }}">Reply inbox</a>
+                <a href="{{ url_for('main.job_finder.master_profile') }}">Master profile</a>
+                <a href="{{ url_for('admin') }}">Back to admin</a>
+            </nav>
+        </details>
     </div>
     {% with messages = get_flashed_messages(with_categories=true) %}
         {% for category, message in messages %}
@@ -22,17 +25,21 @@
         {% endfor %}
     {% endwith %}
 
-    <section class="job-finder-overview mb-5" aria-labelledby="job-overview-title">
+    <section class="job-finder-panel job-finder-overview mb-5" aria-labelledby="job-overview-title">
         <div class="d-flex flex-wrap justify-content-between align-items-end mb-3">
             <div>
                 <p class="eyebrow">Overview</p>
-                <h2 id="job-overview-title">All saved jobs</h2>
+                <h2 id="job-overview-title">{{ selected_status|title if selected_status else ('All saved jobs' if view == 'all' else 'Review queue') }}</h2>
             </div>
             <p class="job-finder-range">Showing {{ first_job }}–{{ last_job }} of {{ job_count }}</p>
         </div>
         <nav class="job-finder-status-grid" aria-label="Filter jobs by status">
-            <a class="job-finder-status-tile{% if not selected_status %} is-active{% endif %}"
-               href="{{ url_for('main.job_finder.dashboard') }}" {% if not selected_status %}aria-current="page"{% endif %}>
+                <a class="job-finder-status-tile{% if is_review_queue %} is-active{% endif %}"
+                    href="{{ url_for('main.job_finder.dashboard') }}" {% if is_review_queue %}aria-current="page"{% endif %}>
+                    <span>Review queue</span><strong>{{ review_queue_total }}</strong>
+                </a>
+                <a class="job-finder-status-tile{% if not selected_status and view == 'all' %} is-active{% endif %}"
+                    href="{{ url_for('main.job_finder.dashboard', view='all') }}" {% if not selected_status and view == 'all' %}aria-current="page"{% endif %}>
                 <span>All jobs</span><strong>{{ job_counts.total }}</strong>
             </a>
             {% for status in ['found', 'drafted', 'approved', 'applied', 'interview', 'rejected', 'ignored'] %}
@@ -44,89 +51,136 @@
         </nav>
     </section>
 
-    <section class="mb-5" aria-labelledby="job-preferences-title">
-        <h2 id="job-preferences-title">Preferences</h2>
+    <section class="job-finder-panel mb-5" aria-labelledby="job-preferences-title">
+        <div class="job-finder-panel-header">
+            <h2 id="job-preferences-title">Preferences</h2>
+            {% set automation_mode = preferences.automation_mode if preferences.automation_mode else ('notification' if preferences.notification_only else ('apply' if preferences.auto_send_applications else ('approve' if preferences.auto_approve_matches else 'manual'))) %}
+            {% set mode_label = {'notification': 'Notification only', 'approve': 'Auto-approve', 'apply': 'Auto-apply', 'manual': 'Manual'}[automation_mode] %}
+            <span class="job-finder-mode-badge {% if automation_mode == 'notification' %}mode-notification{% elif automation_mode == 'apply' %}mode-apply{% elif automation_mode == 'approve' %}mode-approve{% else %}mode-manual{% endif %}">
+                Automation: {{ mode_label }}
+            </span>
+        </div>
+
         <form action="{{ url_for('main.job_finder.save_preferences') }}" method="post">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-            <div class="row">
-                <div class="col-md-6 form-group">
+            <div class="row g-4">
+                <div class="col-lg-6 form-group">
                     <label for="target-titles">Target titles</label>
                     <textarea class="form-control" id="target-titles" name="target_titles" rows="4" required>{{ preferences.target_titles|join('\n') }}</textarea>
                 </div>
-                <div class="col-md-6 form-group">
+                <div class="col-lg-6 form-group">
                     <label for="keywords">Keywords</label>
                     <textarea class="form-control" id="keywords" name="keywords" rows="4" required>{{ preferences.keywords|join('\n') }}</textarea>
                 </div>
-                <div class="col-md-6 form-group">
+                <div class="col-lg-6 form-group">
                     <label for="excluded-keywords">Excluded keywords</label>
                     <textarea class="form-control" id="excluded-keywords" name="excluded_keywords" rows="3">{{ preferences.excluded_keywords|join('\n') }}</textarea>
                 </div>
-                <div class="col-md-6 form-group">
+                <div class="col-lg-6 form-group">
                     <label for="excluded-companies">Excluded companies</label>
                     <textarea class="form-control" id="excluded-companies" name="excluded_companies" rows="3">{{ preferences.excluded_companies|join('\n') }}</textarea>
                 </div>
-                <div class="col-md-6 form-group">
+                <div class="col-lg-6 form-group">
                     <label for="locations">Locations</label>
                     <textarea class="form-control" id="locations" name="locations" rows="3" required>{{ preferences.locations|join('\n') }}</textarea>
                 </div>
-                <div class="col-md-6 form-group">
+                <div class="col-lg-6 form-group">
                     <label for="minimum-score">Minimum match score</label>
                     <input class="form-control" id="minimum-score" name="minimum_match_score" type="number" min="0" max="100" value="{{ preferences.minimum_match_score }}" required>
+
                     <label for="daily-send-cap" class="mt-3">Daily email send cap</label>
                     <input class="form-control" id="daily-send-cap" name="daily_send_cap" type="number" min="0" max="50" value="{{ preferences.daily_send_cap }}" required>
                 </div>
             </div>
-            <div class="form-group">
-                <label><input type="checkbox" name="remote_only" {% if preferences.remote_only %}checked{% endif %}> Remote only</label>
+
+            <div class="job-finder-form-row mt-4">
+                <label class="job-finder-check"><input type="checkbox" name="remote_only" {% if preferences.remote_only %}checked{% endif %}> Remote only</label>
+
+                <div class="job-finder-select-wrap">
+                    <label for="automation-mode">AI Auto Mode</label>
+                    <select class="form-control" id="automation-mode" name="automation_mode">
+                        {% set current_mode = preferences.automation_mode if preferences.automation_mode else ('notification' if preferences.notification_only else ('apply' if preferences.auto_send_applications else ('approve' if preferences.auto_approve_matches else 'manual'))) %}
+                        <option value="notification" {% if current_mode == 'notification' %}selected{% endif %}>Notification only</option>
+                        <option value="approve" {% if current_mode == 'approve' %}selected{% endif %}>Auto-approve matches</option>
+                        <option value="apply" {% if current_mode == 'apply' %}selected{% endif %}>Auto-apply</option>
+                        <option value="manual" {% if current_mode == 'manual' %}selected{% endif %}>Manual review</option>
+                    </select>
+                </div>
             </div>
-            <fieldset class="form-group">
+
+            <fieldset class="job-finder-sources mt-4">
                 <legend>Enabled job sources</legend>
-                {% for source_key, source in source_registry.items() %}
-                <label class="mr-3"><input type="checkbox" name="enabled_sources" value="{{ source_key }}" {% if source_key in preferences.enabled_sources %}checked{% endif %}> {{ source.name }}</label>
-                {% endfor %}
+                <div class="job-finder-source-list">
+                    {% for source_key, source in source_registry.items() %}
+                    <label class="job-finder-check"><input type="checkbox" name="enabled_sources" value="{{ source_key }}" {% if source_key in preferences.enabled_sources %}checked{% endif %}> {{ source.name }}</label>
+                    {% endfor %}
+                </div>
             </fieldset>
-            <button type="submit" class="btn btn-primary">Save preferences</button>
+
+            <div class="job-finder-actions-row mt-4">
+                <button type="submit" class="btn btn-primary">Save preferences</button>
+            </div>
         </form>
     </section>
 
-    <section class="mb-5" aria-labelledby="job-scan-title">
-        <div class="d-flex justify-content-between align-items-center">
+    <section class="job-finder-panel mb-5" aria-labelledby="job-scan-title">
+        <div class="job-finder-panel-header">
             <h2 id="job-scan-title">Sources</h2>
-            <form action="{{ url_for('main.job_finder.run_now') }}" method="post">
+            <form action="{{ url_for('main.job_finder.run_now') }}" method="post" class="d-inline-block">
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                 <button type="submit" class="btn btn-primary">Run now</button>
             </form>
         </div>
-        <p class="text-warning"><strong>Automated matches can be wrong.</strong> Check the original posting, company, location, eligibility, and application instructions yourself. Applications are never submitted automatically.</p>
-        <ul>
+
+        <p class="job-finder-warning"><strong>Automated matches can be wrong.</strong> Check the original posting, company, location, eligibility, and application instructions yourself. Applications are never submitted automatically.</p>
+        <ul class="job-finder-source-status">
             {% for source in source_runs %}
             <li>{{ source.source_key|title }}: {{ 'OK' if source.succeeded else 'Error' }}{% if source.fetched_at %}, checked {{ source.fetched_at.strftime('%Y-%m-%d %H:%M UTC') }}{% endif %}{% if source.error_code %} ({{ source.error_code }}){% endif %}</li>
             {% else %}
             <li>No source checks recorded yet.</li>
             {% endfor %}
         </ul>
-        <p>Listings retain their source attribution and original posting link. Sources enabled: Remotive and RemoteOK.</p>
+        <p class="job-finder-small-note">Listings retain their source attribution and original posting link. Sources enabled: Remotive and RemoteOK.</p>
     </section>
 
-    <section aria-labelledby="job-queue-title">
-        <h2 id="job-queue-title">{{ selected_status|title if selected_status else 'All jobs' }}</h2>
+    <section class="job-finder-panel" aria-labelledby="job-queue-title">
+        <div class="job-finder-panel-header">
+            <h2 id="job-queue-title">{{ selected_status|title if selected_status else ('All jobs' if view == 'all' else 'Review queue') }}</h2>
+            <span class="job-finder-inline-meta">{{ first_job }}–{{ last_job }} visible</span>
+        </div>
+
         {% for job in jobs %}
-        <article class="job-finder-entry mb-4">
-            <div class="d-flex flex-wrap justify-content-between align-items-start">
+        <article class="job-finder-entry">
+            <div class="job-finder-entry-top">
                 <div>
+                    <p class="job-finder-company">{{ job.company or 'Company not listed' }}</p>
                     <h3><a href="{{ job.posting_url }}" target="_blank" rel="noopener noreferrer">{{ job.title }}</a></h3>
-                    <p>{{ job.company or 'Company not listed' }} · {{ job.location or 'Location not listed' }} · {{ job.job_type or 'Type not listed' }}</p>
-                    <p>Status: <strong>{{ job.status|title }}</strong>{% if job.score is not none %} · Match: <strong>{{ job.score }}/100</strong>{% endif %}{% if job.posted_at %} · Posted {{ job.posted_at.strftime('%Y-%m-%d') }}{% endif %}</p>
-                    {% if job.match_reason %}<p>{{ job.match_reason }}</p>{% endif %}
                 </div>
-                <p>Source: <a href="{{ job.source_url }}" target="_blank" rel="noopener noreferrer">{{ job.source_name }}</a></p>
+                <div class="job-finder-entry-status">
+                    <span class="job-finder-status-pill">{{ job.status|title }}</span>
+                    {% if job.score is not none %}<strong>{{ job.score }}/100</strong>{% endif %}
+                </div>
             </div>
-            <form action="{{ url_for('main.job_finder.review_job', job_id=job.id) }}" method="post">
+
+            <div class="job-finder-entry-meta">
+                <span>{{ job.location or 'Location not listed' }}</span>
+                <span>{{ job.job_type or 'Type not listed' }}</span>
+                <span>Posted {{ job.posted_at.strftime('%Y-%m-%d') if job.posted_at else 'n/a' }}</span>
+                <span>Source: <a href="{{ job.source_url }}" target="_blank" rel="noopener noreferrer">{{ job.source_name }}</a></span>
+            </div>
+
+            {% if job.match_reason %}
+            <p class="job-finder-reason">{{ job.match_reason }}</p>
+            {% endif %}
+
+            <details class="job-finder-review">
+                <summary>Review role</summary>
+            <form action="{{ url_for('main.job_finder.review_job', job_id=job.id) }}" method="post" class="job-finder-form">
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                <div class="row">
+                <div class="row g-3">
                     <div class="col-md-6 form-group">
                         <label for="cover-letter-{{ job.id }}">Cover letter draft</label>
-                        <textarea class="form-control" id="cover-letter-{{ job.id }}" name="cover_letter" rows="6">{{ job.cover_letter or '' }}</textarea>
+                        <textarea class="form-control" id="cover-letter-{{ job.id }}" name="cover_letter" rows="5">{{ job.cover_letter or '' }}</textarea>
                     </div>
                     <div class="col-md-6 form-group">
                         <label for="pitch-{{ job.id }}">Three-line pitch</label>
@@ -141,28 +195,34 @@
                         <input class="form-control" id="follow-up-{{ job.id }}" name="follow_up_date" type="date" value="{{ job.follow_up_date.isoformat() if job.follow_up_date else '' }}">
                     </div>
                 </div>
-                <button class="btn btn-default" type="submit" name="action" value="save">Save edits</button>
-                {% if job.status in ['found', 'drafted'] %}<button class="btn btn-primary" type="submit" name="action" value="approve">Approve draft</button>{% endif %}
-                <a class="btn btn-outline-primary" href="{{ url_for('main.job_finder.application_pack', job_id=job.id) }}">Application pack</a>
-                {% if job.status == 'approved' %}
-                <a class="btn btn-success" href="{{ job.apply_url or job.posting_url }}" target="_blank" rel="noopener noreferrer">Open application</a>
-                <a class="btn btn-primary" href="{{ url_for('main.job_finder.send_preview', job_id=job.id) }}">Preview email</a>
-                <button class="btn btn-default" type="submit" name="action" value="mark_applied">Mark applied</button>
-                {% endif %}
-                {% if job.status not in ['applied', 'interview', 'rejected', 'ignored'] %}<button class="btn btn-warning" type="submit" name="action" value="ignore">Ignore</button>{% endif %}
-                {% if job.status == 'applied' %}<button class="btn btn-default" type="submit" name="action" value="interview">Mark interview</button><button class="btn btn-default" type="submit" name="action" value="reject">Mark rejected</button>{% endif %}
+
+                <div class="job-finder-actions-row job-finder-actions-row--job">
+                    <div class="job-finder-actions-main">
+                        <button class="btn btn-default" type="submit" name="action" value="save">Save</button>
+                        {% if job.status in ['found', 'drafted'] %}<button class="btn btn-primary" type="submit" name="action" value="approve">Approve</button>{% endif %}
+                        {% if job.status == 'approved' %}<a class="btn btn-success" href="{{ job.apply_url or job.posting_url }}" target="_blank" rel="noopener noreferrer">Open application</a>{% endif %}
+                        {% if job.status == 'approved' %}<a class="btn btn-primary" href="{{ url_for('main.job_finder.send_preview', job_id=job.id) }}">Preview email</a>{% endif %}
+                        {% if job.status == 'applied' %}<button class="btn btn-default" type="submit" name="action" value="interview">Mark interview</button><button class="btn btn-default" type="submit" name="action" value="reject">Mark rejected</button>{% endif %}
+                        {% if job.status not in ['applied', 'interview', 'rejected', 'ignored'] %}<button class="btn btn-warning" type="submit" name="action" value="ignore">Ignore</button>{% endif %}
+                    </div>
+                    <div class="job-finder-actions-secondary">
+                        <a class="btn btn-outline-primary" href="{{ url_for('main.job_finder.application_pack', job_id=job.id) }}">Application pack</a>
+                        {% if job.status == 'interview' %}<a class="btn btn-outline-primary" href="{{ url_for('main.job_finder.interviews', job_id=job.id) }}">Interview calendar</a>{% endif %}
+                        <a class="btn btn-outline-primary" href="{{ url_for('main.company_briefing.view', job_id=job.id) }}">Company briefing</a>
+                    </div>
+                </div>
             </form>
-            {% if job.status == 'interview' %}<a class="btn btn-outline-primary mt-2" href="{{ url_for('main.job_finder.interviews', job_id=job.id) }}">Interview calendar</a>{% endif %}
-                <a class="btn btn-outline-primary mt-2" href="{{ url_for('main.company_briefing.view', job_id=job.id) }}">Company briefing</a>
+            </details>
         </article>
         {% else %}
-        <p>No jobs in this view yet. Save your preferences and run a scan.</p>
+        <p class="job-finder-empty">{% if is_review_queue %}No new jobs meet your minimum match score. Run a scan later or open All jobs to review lower-scoring matches.{% else %}No jobs in this view yet. Save your preferences and run a scan.{% endif %}</p>
         {% endfor %}
+
         {% if total_pages > 1 %}
         <nav class="job-finder-pagination" aria-label="Job list pages">
-            {% if page > 1 %}<a class="btn btn-outline-primary" href="{{ url_for('main.job_finder.dashboard', status=selected_status or None, page=page - 1) }}">Previous</a>{% endif %}
+            {% if page > 1 %}<a class="btn btn-outline-primary" href="{{ url_for('main.job_finder.dashboard', status=selected_status or None, view='all' if view == 'all' else None, page=page - 1) }}">Previous</a>{% endif %}
             <span>Page {{ page }} of {{ total_pages }}</span>
-            {% if page < total_pages %}<a class="btn btn-outline-primary" href="{{ url_for('main.job_finder.dashboard', status=selected_status or None, page=page + 1) }}">Next</a>{% endif %}
+            {% if page < total_pages %}<a class="btn btn-outline-primary" href="{{ url_for('main.job_finder.dashboard', status=selected_status or None, view='all' if view == 'all' else None, page=page + 1) }}">Next</a>{% endif %}
         </nav>
         {% endif %}
     </section>

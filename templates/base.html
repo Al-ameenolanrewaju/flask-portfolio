@@ -198,9 +198,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Format Markdown links safely
     function formatMessageText(text) {
-        let clean = text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        let clean = String(text ?? '').replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
         clean = clean.replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer" style="color:#10b981;text-decoration:underline;">$1</a>');
-        return clean.replace(/\n/g, '<br>');
+        clean = clean.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+        clean = clean.replace(/(^|\s)\*(?!\*)([^*]+?)(?<!\*)\*(?!\s)/g, '$1<em>$2</em>');
+        clean = clean.replace(/(^|\n)\s*[-*]\s+/g, '$1• ');
+        clean = clean.replace(/\n/g, '<br>');
+        return clean;
     }
 
     function appendMessage(sender, text) {

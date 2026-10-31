@@ -31,6 +31,7 @@ def test_preferences_form_validates_ranges_and_source_allowlist():
         'excluded_companies': 'Spam Co',
         'daily_send_cap': '5',
         'enabled_sources': ['remotive', 'remoteok', 'unapproved'],
+        'automation_mode': 'apply',
     })
 
     assert preferences['target_titles'] == ['Python Developer', 'Flask Developer']
@@ -39,6 +40,15 @@ def test_preferences_form_validates_ranges_and_source_allowlist():
     assert preferences['daily_send_cap'] == 5
     assert preferences['enabled_sources'] == ['remotive', 'remoteok']
     assert preferences['remote_only'] is True
+    assert preferences['automation_mode'] == 'apply'
+    assert preferences['auto_approve_matches'] is True
+    assert preferences['notification_only'] is False
+    assert preferences['auto_send_applications'] is True
+
+    notification_mode = parse_preferences({'target_titles': 'Python Developer', 'keywords': 'Python', 'locations': 'Worldwide', 'minimum_match_score': '72', 'daily_send_cap': '5', 'automation_mode': 'notification'})
+    assert notification_mode['automation_mode'] == 'notification'
+    assert notification_mode['notification_only'] is True
+    assert notification_mode['auto_send_applications'] is False
 
     with pytest.raises(ValueError, match='between 0 and 100'):
         parse_preferences({'minimum_match_score': '101'})
@@ -85,6 +95,50 @@ def test_source_failure_does_not_prevent_other_source_jobs_from_being_stored(mon
     assert result['source_errors'] == {'broken': 'TimeoutError'}
     assert result['inserted'] == 1
     assert stored[0]['title'] == 'Python Developer'
+
+
+def test_fetch_new_jobs_filters_remote_only_and_location_preferences(monkeypatch):
+    remote_job = {
+        'source_key': 'good', 'source_name': 'Good', 'source_url': 'https://good.example/api',
+        'external_id': 'g1', 'posting_url': 'https://good.example/jobs/1',
+        'posting_url_key': 'https://good.example/jobs/1', 'apply_url': 'https://good.example/apply/1',
+        'application_email': None, 'title': 'Remote Python Developer', 'title_key': 'remote python developer',
+        'company': 'Good Co', 'company_key': 'good co', 'location': 'Worldwide', 'job_type': 'remote',
+        'posted_at': datetime.now(UTC), 'description': 'Needs Python.', 'keywords': ['Python'],
+    }
+    local_job = {
+        **remote_job,
+        'external_id': 'g2',
+        'posting_url': 'https://good.example/jobs/2',
+        'posting_url_key': 'https://good.example/jobs/2',
+        'title': 'Onsite Python Developer',
+        'title_key': 'onsite python developer',
+        'location': 'Lagos, Nigeria',
+        'job_type': 'onsite',
+    }
+
+    class Source:
+        def __init__(self, jobs):
+            self.jobs = jobs
+        def has_fresh_cache(self):
+            return True
+        def fetch(self):
+            return self.jobs
+
+    service = JobFinderService(connection_factory=lambda: None, sources={'good': Source([remote_job, local_job])})
+    monkeypatch.setattr(service, 'get_preferences', lambda: {
+        **DEFAULT_PREFERENCES,
+        'enabled_sources': ['good'],
+        'remote_only': True,
+        'locations': ['Worldwide'],
+    })
+    stored = []
+    monkeypatch.setattr(service, '_store_new_jobs', lambda jobs: stored.extend(jobs) or jobs)
+
+    result = service.fetch_new_jobs()
+
+    assert result['inserted'] == 1
+    assert [job['title'] for job in stored] == ['Remote Python Developer']
 
 
 def test_approved_draft_edits_revoke_approval_until_approved_again():
@@ -220,6 +274,51 @@ def test_application_pack_redacts_legal_questions_and_uses_profile_only():
     assert pack['answers']['salary_expectation'] == 'needs my answer'
     assert pack['answers']['work_authorization'] == 'needs my answer'
     assert 'visa' not in pack['answers']['work_authorization'].lower()
+
+
+def test_saving_application_pack_upserts_existing_job_pack():
+    class Cursor:
+        def __init__(self):
+            self.statement = None
+            self.parameters = None
+
+        def execute(self, statement, parameters):
+            self.statement = statement
+            self.parameters = parameters
+
+        def close(self):
+            pass
+
+    class Connection:
+        def __init__(self):
+            self.saved_cursor = Cursor()
+            self.committed = False
+            self.closed = False
+
+        def cursor(self):
+            return self.saved_cursor
+
+        def commit(self):
+            self.committed = True
+
+        def rollback(self):
+            raise AssertionError('unexpected rollback')
+
+        def close(self):
+            self.closed = True
+
+    connection = Connection()
+    service = JobFinderService(connection_factory=lambda: connection, sources={})
+    pack = {'cover_letter': 'A concise application.'}
+
+    result = service.save_application_pack(2964, pack, 'posting-hash')
+
+    assert result is pack
+    assert 'ON CONFLICT (job_id) DO UPDATE' in connection.saved_cursor.statement
+    assert 'version=job_finder_application_packs.version + 1' in connection.saved_cursor.statement
+    assert connection.saved_cursor.parameters[0] == 2964
+    assert connection.committed is True
+    assert connection.closed is True
 
 
 def test_tailored_cv_contains_only_profile_data():

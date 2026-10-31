@@ -2,7 +2,7 @@ import json
 import pytest
 from app import app
 from config import TestingConfig
-from ask_ai_service import AskAIService, build_portfolio_context, fallback_answer_question
+from ask_ai_service import AskAIService, build_portfolio_context, fallback_answer_question, normalize_markdown_response
 from engineering_specs_service import get_project_specs
 from mobile_alert_service import format_quick_mailto, send_telegram_alert, send_discord_alert, dispatch_mobile_alerts
 
@@ -44,6 +44,15 @@ def test_fallback_answers():
 
     ans_rigor = fallback_answer_question('Tell me about your testing and reliability rigor')
     assert 'test' in ans_rigor.lower()
+
+
+def test_normalize_markdown_response_removes_asterisks():
+    text = "**Automated test suite:** 140 Pytest tests and *strict* PostgreSQL safeguards."
+    cleaned = normalize_markdown_response(text)
+    assert '**' not in cleaned
+    assert '*strict*' not in cleaned
+    assert 'Automated test suite:' in cleaned
+    assert '140 Pytest tests' in cleaned
 
 
 def test_ask_ai_service_prompt_injection_shield():

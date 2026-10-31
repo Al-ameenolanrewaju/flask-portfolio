@@ -2,7 +2,9 @@ import hashlib
 import json
 import logging
 import os
+import re
 from datetime import datetime, timezone
+from html import escape
 
 import psycopg2
 from psycopg2.extras import Json, RealDictCursor
@@ -34,6 +36,10 @@ DEFAULT_PREFERENCES = {
     'excluded_companies': [],
     'daily_send_cap': 5,
     'enabled_sources': ['remotive', 'remoteok'],
+    'automation_mode': 'notification',
+    'auto_approve_matches': False,
+    'auto_send_applications': False,
+    'notification_only': True,
 }
 
 PREFERENCE_FIELDS = tuple(DEFAULT_PREFERENCES)
@@ -102,6 +108,35 @@ def parse_preferences(form):
     allowed_sources = set(SOURCE_REGISTRY)
     enabled_sources = list(dict.fromkeys(str(source) for source in enabled_sources if str(source) in allowed_sources))
 
+    mode = str(form.get('automation_mode') or '').strip().lower()
+    legacy_notification = str(form.get('notification_only', '')).casefold() in {'on', 'true', '1', 'yes'}
+    legacy_auto_approve = str(form.get('auto_approve_matches', '')).casefold() in {'on', 'true', '1', 'yes'}
+    legacy_auto_send = str(form.get('auto_send_applications', '')).casefold() in {'on', 'true', '1', 'yes'}
+
+    if mode in {'notification', 'notify', 'notification_only'}:
+        notification_only = True
+        auto_approve_matches = False
+        auto_send_applications = False
+    elif mode in {'approve', 'auto_approve'}:
+        notification_only = False
+        auto_approve_matches = True
+        auto_send_applications = False
+    elif mode in {'apply', 'auto_apply', 'auto-send'}:
+        notification_only = False
+        auto_approve_matches = True
+        auto_send_applications = True
+    elif mode in {'manual', 'off'}:
+        notification_only = False
+        auto_approve_matches = False
+        auto_send_applications = False
+    else:
+        notification_only = legacy_notification or (not legacy_auto_approve and not legacy_auto_send)
+        auto_approve_matches = legacy_auto_approve
+        auto_send_applications = legacy_auto_send and not notification_only
+
+    if notification_only:
+        auto_send_applications = False
+
     return {
         'target_titles': _list_value(form.get('target_titles', DEFAULT_PREFERENCES['target_titles']), 'target_titles'),
         'keywords': _list_value(form.get('keywords', DEFAULT_PREFERENCES['keywords']), 'keywords'),
@@ -112,6 +147,15 @@ def parse_preferences(form):
         'excluded_companies': _list_value(form.get('excluded_companies', []), 'excluded_companies'),
         'daily_send_cap': daily_cap,
         'enabled_sources': enabled_sources,
+        'automation_mode': (
+            'notification' if notification_only else
+            'apply' if auto_send_applications else
+            'approve' if auto_approve_matches else
+            'manual'
+        ),
+        'auto_approve_matches': auto_approve_matches,
+        'auto_send_applications': auto_send_applications,
+        'notification_only': notification_only,
     }
 
 
@@ -253,7 +297,23 @@ class JobFinderService:
                 cursor.close()
             connection.close()
 
-    def list_jobs(self, status=None, limit=25, offset=0):
+    def review_queue_count(self, minimum_score):
+        connection = self.connection_factory()
+        cursor = None
+        try:
+            cursor = connection.cursor()
+            cursor.execute(
+                "SELECT COUNT(*) FROM job_finder_jobs WHERE status IN ('found', 'drafted') AND score >= %s",
+                (minimum_score,),
+            )
+            row = cursor.fetchone()
+            return row[0] if row else 0
+        finally:
+            if cursor:
+                cursor.close()
+            connection.close()
+
+    def list_jobs(self, status=None, limit=25, offset=0, review_min_score=None):
         connection = self.connection_factory()
         cursor = None
         try:
@@ -263,6 +323,12 @@ class JobFinderService:
                     'SELECT * FROM job_finder_jobs WHERE status=%s '
                     'ORDER BY score DESC NULLS LAST, posted_at DESC NULLS LAST, created_at DESC LIMIT %s OFFSET %s',
                     (status, limit, offset),
+                )
+            elif review_min_score is not None:
+                cursor.execute(
+                    "SELECT * FROM job_finder_jobs WHERE status IN ('found', 'drafted') AND score >= %s "
+                    'ORDER BY score DESC NULLS LAST, posted_at DESC NULLS LAST, created_at DESC LIMIT %s OFFSET %s',
+                    (review_min_score, limit, offset),
                 )
             else:
                 cursor.execute(
@@ -565,15 +631,13 @@ class JobFinderService:
         try:
             cursor = connection.cursor()
             cursor.execute(
-                'SELECT COALESCE(MAX(version), 0) + 1 FROM job_finder_application_packs WHERE job_id=%s',
-                (job_id,),
-            )
-            row = cursor.fetchone()
-            next_version = row[0] if row and row[0] is not None else 1
-            cursor.execute(
                 'INSERT INTO job_finder_application_packs (job_id, posting_hash, pack_json, version, status, created_at, updated_at) '
-                'VALUES (%s, %s, %s, %s, %s, NOW(), NOW())',
-                (job_id, posting_hash, json.dumps(pack, ensure_ascii=True, sort_keys=True), next_version, 'pending'),
+                'VALUES (%s, %s, %s, 1, %s, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP) '
+                'ON CONFLICT (job_id) DO UPDATE SET '
+                'posting_hash=EXCLUDED.posting_hash, pack_json=EXCLUDED.pack_json, '
+                'version=job_finder_application_packs.version + 1, status=EXCLUDED.status, '
+                'updated_at=CURRENT_TIMESTAMP',
+                (job_id, posting_hash, json.dumps(pack, ensure_ascii=True, sort_keys=True), 'pending'),
             )
             connection.commit()
             return pack
@@ -945,6 +1009,59 @@ class JobFinderService:
                 cursor.close()
             connection.close()
 
+    def _maybe_auto_approve_and_send(self, job_id, result, preferences):
+        if preferences.get('auto_approve_matches') and result.get('draft') is not None:
+            pitch_lines = result['draft'].get('pitch_lines') or []
+            try:
+                self.update_review(
+                    job_id,
+                    'approve',
+                    cover_letter=result['draft'].get('cover_letter', ''),
+                    pitch_lines=pitch_lines,
+                    notes='',
+                    follow_up_date=None,
+                )
+            except Exception:
+                logger.exception('Could not auto-approve job %s', job_id)
+
+        if preferences.get('auto_send_applications') and not preferences.get('notification_only'):
+            try:
+                job = self.get_job(job_id)
+                if job and job.get('status') == 'approved' and job.get('application_email'):
+                    from flask import current_app
+                    send_email_service = current_app.extensions.get('job_finder_send_email')
+                    if send_email_service:
+                        subject = f"Application for {job.get('title', 'role')}"
+                        pitch = job.get('pitch') or ''
+                        pitch_html = ''.join(f'<li>{escape(line)}</li>' for line in pitch.splitlines() if line.strip())
+                        cover_html = escape(job.get('cover_letter') or '').replace('\n', '<br>')
+                        body = f'<p>{cover_html}</p>'
+                        if pitch_html:
+                            body += f'<p>Relevant experience:</p><ul>{pitch_html}</ul>'
+                        reply_to = build_job_reply_to(
+                            current_app.config.get('INBOX_USER') or current_app.config.get('CONTACT_EMAIL'), job_id,
+                        )
+                        payload = {
+                            'from': current_app.config.get('RESEND_FROM') or 'onboarding@resend.dev',
+                            'to': [job['application_email']],
+                            'reply_to': reply_to,
+                            'subject': subject,
+                            'html': body,
+                        }
+                        cv_path = current_app.extensions.get('job_finder_ensure_cv')
+                        if cv_path:
+                            with open(cv_path(), 'rb') as cv_file:
+                                payload['attachments'] = [{
+                                    'filename': 'Al-ameen_cv.pdf',
+                                    'content': __import__('base64').b64encode(cv_file.read()).decode('ascii'),
+                                }]
+                        result = send_email_service(payload)
+                        provider_ref = result.get('id') if isinstance(result, dict) else getattr(result, 'id', None)
+                        job, audit_id = self.begin_send(job_id, subject, body)
+                        self.finish_send(audit_id, job_id, True, provider_ref=provider_ref)
+            except Exception:
+                logger.exception('Auto-send failed for job %s', job_id)
+
     def score_new_jobs(self, available_jobs, preferences=None, profile=None):
         preferences = preferences or self.get_preferences()
         keyed_jobs = {job['posting_url_key']: job for job in available_jobs if job.get('posting_url_key')}
@@ -989,6 +1106,8 @@ class JobFinderService:
                 self._save_match(row['id'], result['score'], result['reason'], result['draft'])
                 scored += 1
                 drafted += int(result['draft'] is not None)
+                if result['draft'] is not None:
+                    self._maybe_auto_approve_and_send(row['id'], result, preferences)
             except GroqDailyCapReached:
                 logger.info('Job Finder scoring paused at the Groq daily cap')
                 break
@@ -1002,6 +1121,35 @@ class JobFinderService:
                 logger.exception('Job Finder matching failed for job %s', row['id'])
                 failures += 1
         return {'scored': scored, 'drafted': drafted, 'unscored': len(rows) - scored, 'failures': failures}
+
+    @staticmethod
+    def _normalize_location_text(value):
+        return ' '.join(re.sub(r'[^a-z0-9]+', ' ', str(value or '').casefold()).split())
+
+    def _matches_location_preferences(self, job, preferences):
+        location_text = self._normalize_location_text(job.get('location'))
+        job_type_text = self._normalize_location_text(job.get('job_type'))
+        allowed_locations = [
+            self._normalize_location_text(item)
+            for item in (preferences.get('locations') or [])
+            if item and str(item).strip()
+        ]
+
+        remote_markers = {'remote', 'worldwide', 'anywhere', 'distributed', 'online', 'hybrid'}
+        if preferences.get('remote_only') and not any(marker in location_text or marker in job_type_text for marker in remote_markers):
+            return False
+
+        if not allowed_locations:
+            return True
+
+        allowed_matches = [item for item in allowed_locations if item in location_text or item in job_type_text]
+        if allowed_matches:
+            return True
+
+        if 'worldwide' in allowed_locations and any(marker in location_text or marker in job_type_text for marker in remote_markers):
+            return True
+
+        return False
 
     def fetch_new_jobs(self):
         preferences = self.get_preferences()
@@ -1032,15 +1180,17 @@ class JobFinderService:
                         logger.exception('Could not record job source failure for %s', source_key)
 
         unique_jobs = deduplicate_jobs(discovered)
-        inserted = self._store_new_jobs(unique_jobs)
+        filtered_jobs = [job for job in unique_jobs if self._matches_location_preferences(job, preferences)]
+        inserted = self._store_new_jobs(filtered_jobs)
         return {
             'sources': len(selected),
             'discovered': len(unique_jobs),
+            'filtered': len(unique_jobs) - len(filtered_jobs),
             'inserted': len(inserted),
             'source_errors': errors,
             'throttled_sources': throttled,
             'new_jobs': inserted,
-            'available_jobs': unique_jobs,
+            'available_jobs': filtered_jobs,
         }
 
     def run_scheduled_scan(self):
